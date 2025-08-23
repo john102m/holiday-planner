@@ -1,4 +1,4 @@
-import React from 'react';
+
 import Hero from '../components/Hero';
 import DayCard from '../components/DayCard';
 import Notes from '../components/Notes';
