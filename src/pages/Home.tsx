@@ -18,6 +18,9 @@ const Home: React.FC = () => {
         <p className="text-gray-600 mb-6">
           Start coding willy nilly. Enjoy a lot!
         </p>
+        <p className="text-gray-600 mb-6">
+          Another CI/CD attempt!
+        </p>
         <button onClick={handleClick} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
           Click Me
         </button>
