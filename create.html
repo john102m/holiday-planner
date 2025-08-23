@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React + Vite + Tailwind Setup (Windows)</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #0078d7;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      color: #005a9e;
+      margin-top: 2rem;
+    }
+    pre {
+      background-color: #eee;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: Consolas, monospace;
+    }
+    .step {
+      margin-bottom: 2rem;
+    }
+    .emoji {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 One-Shot Setup: React + Vite + Tailwind (Windows)</h1>
+  <p>This guide avoids NPX and PATH headaches by using direct commands and Windows-safe paths.</p>
+
+  <div class="step">
+    <h2>1️⃣ Create Your Project Folder</h2>
+    <pre><code>mkdir F:\Development\Sites\HolidayPlanner\holiday-planner
+cd F:\Development\Sites\HolidayPlanner\holiday-planner</code></pre>
+  </div>
+
+  <div class="step">
+    <h2>2️⃣ Initialize Vite React Project</h2>
+    <pre><code>npm create vite@latest . -- --template react</code></pre>
+    <p>If prompted: choose <strong>React</strong> and optionally <strong>TypeScript</strong>.</p>
+    <p>This scaffolds your project in the current folder.</p>
+  </div>
+
+  <div class="step">
+    <h2>3️⃣ Install Dependencies</h2>
+    <pre><code>npm install</code></pre>
+  </div>
+
+  <div class="step">
+    <h2>4️⃣ Install Tailwind + PostCSS + Autoprefixer</h2>
+    <pre><code>npm install -D tailwindcss postcss autoprefixer</code></pre>
+  </div>
+
+  <div class="step">
+    <h2>5️⃣ Generate Tailwind Config (Windows-safe)</h2>
+    <p>Instead of NPX, run Tailwind directly from <code>node_modules\.bin</code>:</p>
+    <pre><code>.\node_modules\.bin\tailwindcss.cmd init -p</code></pre>
+    <p>✅ This creates <code>tailwind.config.js</code> and <code>postcss.config.js</code>.</p>
+  </div>
+
+  <div class="step">
+    <h2>6️⃣ Configure Tailwind in Your CSS</h2>
+    <p>Open <code>src/index.css</code> and replace with:</p>
+    <pre><code>@tailwind base;
+@tailwind components;
+@tailwind utilities;</code></pre>
+
+    <p>Ensure your main entry file (<code>main.jsx</code>) imports <code>index.css</code>:</p>
+    <pre><code>import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'</code></pre>
+  </div>
+
+  <div class="step">
+    <h2>7️⃣ Update Tailwind Content Paths</h2>
+    <p>In <code>tailwind.config.js</code>, ensure the content paths are correct:</p>
+    <pre><code>content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"]</code></pre>
+  </div>
+
+  <hr />
+  <p><strong>🎉 You're all set!</strong> Run <code>npm run dev</code> and start building your app.</p>
+</body>
+</html>
