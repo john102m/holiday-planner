@@ -1,7 +1,7 @@
-import React from 'react';
+
 import type { Day } from '../types';
 
-const DayCard: React.FC<Day> = ({ day, title, img, activities }) => (
+const DayCard: React.FC<Day> = ({ title, img, activities }) => (
   <div className="shadow-sm mb-8 overflow-hidden rounded-lg">
     <img
       src={img}
