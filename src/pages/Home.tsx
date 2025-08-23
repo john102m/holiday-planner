@@ -7,7 +7,7 @@ import type { Day } from '../types';
 const days: Day[] = [
   {
     day: 1,
-    title: "Day 1 – Arrival & Settle In",
+    title: "Arrival & Settle In",
     img: "https://myjohnblogimages.blob.core.windows.net/images/Caleta.webp",
     activities: [
       "Arrive at hotel, check-in, relax after flight.",
@@ -17,7 +17,7 @@ const days: Day[] = [
   },
   {
     day: 2,
-    title: "Day 2 – Local Exploration (Scooter)",
+    title: "Local Exploration (Scooter)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/PuertoRosario.webp",
     activities: [
       "Morning: Explore Caleta de Fuste marina and small shops.",
@@ -27,7 +27,7 @@ const days: Day[] = [
   },
   {
     day: 3,
-    title: "Day 3 – Scenic North Trip (Car Hire)",
+    title: "Scenic North Trip (Car Hire)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/elcotillo.webp",
     activities: [
       "Collect hire car for 2–3 days.",
@@ -38,7 +38,7 @@ const days: Day[] = [
   },
   {
     day: 4,
-    title: "Day 4 – Central Culture (Car Hire)",
+    title: "Central Culture (Car Hire)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/Betancuria.webp",
     activities: [
       "Visit Betancuria (historic capital). Whitewashed streets, small craft shops, church.",
@@ -49,7 +49,7 @@ const days: Day[] = [
   },
   {
     day: 5,
-    title: "Day 5 – Beach & Relax (Car Hire)",
+    title: "Beach & Relax (Car Hire)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/sotaventobeach.webp",
     activities: [
       "Head south to Sotavento Beach (Jandía Peninsula). Famous wide sandy beach, windy but spectacular.",
@@ -59,7 +59,7 @@ const days: Day[] = [
   },
   {
     day: 6,
-    title: "Day 6 – Local Leisure (Scooter)",
+    title: "Local Leisure (Scooter)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/hotel.webp",
     activities: [
       "Morning spa time at Sheraton.",
@@ -70,7 +70,7 @@ const days: Day[] = [
   },
   {
     day: 7,
-    title: "Day 7 – Day Trip to Lanzarote (Scooter + Ferry)",
+    title: "Day Trip to Lanzarote (Scooter + Ferry)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/PlayaBlanca.webp",
     activities: [
       "Morning scooter ride to Corralejo.",
@@ -81,7 +81,7 @@ const days: Day[] = [
   },
   {
     day: 8,
-    title: "Day 8 – Windy Beach Adventure (Scooter)",
+    title: "Windy Beach Adventure (Scooter)",
     img: "https://myjohnblogimages.blob.core.windows.net/images/PozoNegro.webp",
     activities: [
       "Scooter ride to Pozo Negro or another quieter local beach.",
@@ -91,7 +91,7 @@ const days: Day[] = [
   },
   {
     day: 9,
-    title: "Day 9 – Mix & Match",
+    title: "Mix & Match",
     img: "https://myjohnblogimages.blob.core.windows.net/images/PuertoRosario.webp",
     activities: [
       "Morning pool/spa time.",
@@ -101,7 +101,7 @@ const days: Day[] = [
   },
   {
     day: 10,
-    title: "Day 10 – Departure",
+    title: "Departure",
     img: "https://myjohnblogimages.blob.core.windows.net/images/Souvenir.webp",
     activities: [
       "Final swim in hotel pool or beach dip.",
@@ -111,19 +111,21 @@ const days: Day[] = [
   }
 ];
 
-export default function Home() {
+const Home: React.FC = () => {
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <Hero />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
         {days.map(day => (
           <DayCard key={day.day} {...day} />
         ))}
       </div>
       <Notes />
-      <footer className="text-center py-4 mt-4 border-t">
+      <footer className="text-center py-4 mt-6 border-t text-sm sm:text-base">
         © 2025 Fuerteventura Itinerary | Designed for fun & travel
       </footer>
     </div>
   );
-}
+};
+
+export default Home;
