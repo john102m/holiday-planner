@@ -16,9 +16,6 @@ const Home: React.FC = () => {
           This is your starting point. Edit <code>Home.tsx</code> and make it yours!
         </p>
         <p className="text-gray-600 mb-6">
-          Start coding willy nilly. Enjoy a lot!
-        </p>
-        <p className="text-gray-600 mb-6">
           Another CI/CD attempt! One tries and tries again!
         </p>
         <p className="text-gray-600 mb-6">
