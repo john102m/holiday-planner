@@ -25,7 +25,10 @@ const Home: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold mt-6 mb-4">Destinations</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mt-4 mb-2 text-center sm:text-left">
+        Destinations
+      </h1>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {destinations.map(dest => (
           <DestinationCard key={dest.id} destination={dest} />
