@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getDestinations } from "../services/api";  // your Axios wrapper
 import type { Destination } from "../types";
 import DestinationCard from "../components/DestinationCard";
+import Hero from "../components/Hero";
 
 const Home: React.FC = () => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -24,17 +25,16 @@ const Home: React.FC = () => {
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
+    <>
+    <Hero/>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-xl sm:text-2xl font-bold mt-4 mb-2 text-center sm:text-left">
-        Destinations
-      </h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {destinations.map(dest => (
           <DestinationCard key={dest.id} destination={dest} />
         ))}
       </div>
     </div>
+    </>
   );
 };
 
