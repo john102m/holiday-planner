@@ -11,7 +11,7 @@ export default function Hero() {
       <div className="bg-black/40 p-6 rounded-xl text-center max-w-xl mx-4">
         <h1 className="text-white font-bold leading-tight"
             style={{ fontSize: 'clamp(1.5rem, 5vw, 2.8rem)' }}>
-          Destinations
+          Popular Destinations
         </h1>
 
       </div>
