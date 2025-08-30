@@ -17,8 +17,8 @@ const DestinationCard: React.FC<DestinationCardProps> = ({ destination }) => {
       )}
       <div className="p-4">
         <h2 className="font-semibold text-lg">{destination.name}</h2>
-        {destination.country && (
-          <p className="text-sm text-gray-500">{destination.country}</p>
+        {destination.area && (
+          <p className="text-sm text-gray-500">{destination.area}</p>
         )}
         {destination.description && (
           <p className="mt-2 text-gray-700 text-sm">{destination.description}</p>

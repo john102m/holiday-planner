@@ -8,6 +8,7 @@ export interface Day {
 export interface Destination {
   id: string;               // Guid → string
   name?: string;            // nullable → optional
+  area?: string;            // nullable → optional
   country?: string;         // nullable → optional
   description?: string;     // nullable → optional
   imageUrl?: string;        // nullable → optional
