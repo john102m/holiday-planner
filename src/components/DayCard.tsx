@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { Day } from '../types';
+import type { Day } from '../services/types';
 
 const DayCard: React.FC<Day> = ({ day,title, img, activities }) => {
   return (

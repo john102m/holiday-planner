@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Destination, Activity } from "../types";
+import type { Destination, Activity, Package, Itinerary, User, ActivityComment} from "./types";
 
 const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
@@ -129,7 +129,17 @@ export const getDestinations = async (): Promise<Destination[]> => {
 //   return res.data;
 // };
 
-
+export const getUserByEmail = async (user: string) => {
+  try {
+    const response = await api.get<User>(`/users/find`, {
+      params: { user },
+    });
+    return response.data; // Should include user ID and other details
+  } catch (error) {
+    console.error("Error fetching user by email:", error);
+    return null;
+  }
+};
 // Create a new destination
 export const createDestination = async (
   data: Omit<Destination, "id" | "createdAt">  // leave id & createdAt to backend
@@ -143,20 +153,31 @@ export const updateDestination = async (
   id: string,
   data: Partial<Omit<Destination, "id" | "createdAt">>
 ): Promise<Destination> => {
-  const res = await api.put<Destination>(`/destinations/${id}`, data);
+  const res = await api.post<Destination>(`/destinations/${id}`, data);
   return res.data;
 };
 
 // Delete a destination
 export const deleteDestination = async (id: string): Promise<void> => {
-  await api.delete(`/destinations/${id}`);
+  await api.post(`/destinations/${id}`);
 };
 
 // Fetch activities for a destination
-export const getActivities = async (destinationId: string): Promise<Activity[]> => {
+export const getActivitiesByDestinationId = async (destinationId: string): Promise<Activity[]> => {
   const res = await api.get<Activity[]>(`/destinations/${destinationId}/activities`);
   return res.data;
 };
+
+// Fetch activities
+export const getActivities = async ():Promise<Activity[]> => {
+  const res = await api.get<Activity[]>(`/itinerary/activities`);
+  return res.data;
+};
+export const getActivityById = async (id: string): Promise<Activity> => {
+  const res = await api.get<Activity>(`/Itinerary/activity/${id}`);
+  return res.data;
+};
+
 
 // Create an activity
 export const createActivity = async (
@@ -173,7 +194,7 @@ export const updateActivity = async (
   activityId: string,
   data: Partial<Omit<Activity, "id" | "createdAt" | "destinationId">>
 ): Promise<Activity> => {
-  const res = await api.put<Activity>(`/destinations/${destinationId}/activities/${activityId}`, data);
+  const res = await api.post<Activity>(`/destinations/${destinationId}/activities/${activityId}`, data);
   return res.data;
 };
 
@@ -182,6 +203,66 @@ export const deleteActivity = async (
   destinationId: string,
   activityId: string
 ): Promise<void> => {
-  await api.delete(`/destinations/${destinationId}/activities/${activityId}`);
+  await api.post(`/destinations/${destinationId}/activities/${activityId}`);
 };
 
+// Create an comment
+export interface CreateCommentPayload {
+  activityId: string;
+  content: string;
+}
+
+export const createComment = async (data: CreateCommentPayload): Promise<Comment> => {
+  const res = await api.post<Comment>(`/comments/create`, data);
+  return res.data;
+};
+
+// Fetch all packages
+export const getPackages = async (): Promise<Package[]> => {
+  const res = await api.get<Package[]>("/packages");
+  return res.data;
+};
+
+// Fetch all itineraries
+export const getItineraries = async (): Promise<Itinerary[]> => {
+  const res = await api.get<Itinerary[]>("/itinerary");
+  return res.data;
+};
+
+// Fetch all comments
+export const getComments = async (): Promise<ActivityComment[]> => {
+  const res = await api.get<ActivityComment[]>("/comments");
+  return res.data;
+};
+// // Fetch activities a user has saved / voted for
+// export const getSavedActivities = async (userId: string): Promise<Activity[]> => {
+//   const res = await api.get<Activity[]>(`/api/ActivityUser/user/${userId}/saved`);
+//   return res.data;
+// };
+// // Fetch comments for an activity
+// export const getCommentsByActivityId = async (activityId: string): Promise<Comment[]> => {
+//   const res = await api.get<Comment[]>(`/comments/activity/${activityId}`);
+//   return res.data;
+// };
+
+
+export const getItineraryById = async (id: string): Promise<Itinerary> => {
+  const res = await api.get<Itinerary>(`/Itinerary/${id}`);
+  return res.data;
+};
+export const createItinerary = async (
+  data: Omit<Itinerary, "id" | "createdAt">  // leave id & createdAt to backend
+): Promise<Itinerary> => {
+  const res = await api.post<Itinerary>("/itinerary/create", data);
+  return res.data;
+};
+export const updateItinerary = async (
+  id: string,
+  data: Partial<Omit<Itinerary, "id" | "createdAt">>
+): Promise<Itinerary> => {
+  const res = await api.put<Itinerary>(`/itinerary/update/${id}`, data);
+  return res.data;
+};
+export const deleteItinerary = async (id: string): Promise<void> => {
+  await api.delete(`/itinerary/delete/${id}`);
+};
