@@ -4,10 +4,10 @@ import type { DashboardItinerary, Itinerary } from "../services/types";
 interface Props {
   itinerary: Partial<Itinerary> | DashboardItinerary;
   showRoleBadge?: boolean;
-  compact?: boolean;
+ 
 }
 
-const ItineraryCard: React.FC<Props> = ({ itinerary, showRoleBadge, compact }) => {
+const ItineraryCard: React.FC<Props> = ({ itinerary }) => {
   const name = itinerary.name || "Untitled Itinerary";
   const createdAt = itinerary.createdAt
     ? new Date(itinerary.createdAt).toLocaleDateString()

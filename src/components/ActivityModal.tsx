@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useStore } from "../services/store";
-import type { Activity, AppComment } from "../services/types";
+import type { Activity, ActivityComment } from "../services/types";
 import { createComment } from "../services/api";
 
 interface Props {
@@ -22,7 +22,7 @@ const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) 
   const handleAddComment = async () => {
     if (!commentText.trim()) return;
 
-    const newComment: AppComment = {
+    const newComment: ActivityComment = {
       id: crypto.randomUUID(),
       activityId,
       content: commentText,
@@ -32,7 +32,7 @@ const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) 
 
     // Optimistic update
     useStore.setState((state) => {
-      const existingComments: AppComment[] = state.comments[activityId] || [];
+      const existingComments: ActivityComment[] = state.comments[activityId] || [];
       return {
         comments: {
           ...state.comments,
