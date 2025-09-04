@@ -12,7 +12,7 @@ interface Props {
 const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) => {
   const activities = useStore((state) => state.activities[destinationId] || []);
   const comments = useStore((state) => state.comments[activityId] || []);
-  const addQueuedAction = useStore((state) => state.addQueuedAction);
+  //const addQueuedAction = useStore((state) => state.addQueuedAction);
 
   const [commentText, setCommentText] = useState("");
 
@@ -46,10 +46,10 @@ const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) 
     } catch (err) {
       console.error("Comment failed, queued for later", err);
 
-      addQueuedAction({
-        type: "COMMENT",
-        payload: { activityId, content: commentText },
-      });
+      // addQueuedAction({
+      //   type: "COMMENT",
+      //   payload: { activityId, content: commentText },
+      // });
     } finally {
       setCommentText("");
     }

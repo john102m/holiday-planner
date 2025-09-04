@@ -1,6 +1,8 @@
 
 // App.tsx
 import React, { useEffect, useState } from "react";
+//import { ToastContainer } from 'react-toastify';
+//import 'react-toastify/dist/ReactToastify.css'
 import { Routes, Route } from "react-router-dom";
 import { useStore } from "./services/store";
 import Home from "./pages/Home";
@@ -11,6 +13,7 @@ import Navbar from "./components/Navbar";
 import AddEditPackagePage from "./pages/AddEditPackagePage";
 import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import AddEditActivityPage from "./pages/AddEditActivityPage";
+import { logMemory } from "./services/logMemory";
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -26,6 +29,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       await hydrateStore();
+      logMemory();
       setHydrated(true);
     };
     init();
@@ -60,6 +64,7 @@ const App: React.FC = () => {
 
         <Route path="/dashboardlower" element={<DashboardPageLower />} />
       </Routes>
+ 
     </>
 
   );

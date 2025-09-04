@@ -1,8 +1,9 @@
 import React from "react";
+//import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
-import { useStore } from "../../services/store";
-
+import { QueueTypes, CollectionTypes } from "../../services/store"; 
+import { addOptimisticAndQueue } from "../../services/store"; 
 interface Props {
   activity: Activity;
   destinationId: string;
@@ -10,14 +11,21 @@ interface Props {
 
 const ActivityCard: React.FC<Props> = ({ activity, destinationId }) => {
   const navigate = useNavigate();
-  const removeActivity = useStore((state) => state.removeActivity);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete "${activity.name}"?`)) {
-      removeActivity(destinationId, activity.id);
-      console.log(`Deleted activity ${activity.name}`);
+      await addOptimisticAndQueue(
+        CollectionTypes.Activities,
+        activity, 
+        QueueTypes.DELETE_ACTIVITY,
+        destinationId
+      );
+
+      console.log(`Queued deletion for activity ${activity.name}`);
+      //toast.success(`Queued deletion for activity ${activity.name}`);
     }
   };
+
 
   return (
     <div className="card">

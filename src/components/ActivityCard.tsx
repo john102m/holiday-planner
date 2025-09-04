@@ -69,7 +69,7 @@ const ActivityCard: React.FC<Props> = ({ activity, activityComments = [], onAddC
 
         {/* Spacer pushes CommentBox to bottom */}
         <div className="mt-auto">
-          <CommentBox activityId={activity.id} onSubmit={handleAddComment} />
+          <CommentBox activityId={activity.id || ""} onSubmit={handleAddComment} />
         </div>
       </div>
     </div>

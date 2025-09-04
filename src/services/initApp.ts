@@ -1,4 +1,17 @@
 // services/initApp.ts
+
+// ✅ Key points:
+// Hydrate first: ensures localForage data is available even if network is patchy.
+// Set each slice individually: keeps your store reactive.
+// Queue flush: ensures offline actions automatically attempt once online.
+// Seamless offline/online: combined with your window.addEventListener("online", …) listener, any network restoration will auto-process further queued actions.
+
+// Store slices = in-memory representation of your app’s main entities (destinations, trips, activities…).
+// localForage = local disk cache, so the app can work offline.
+// Queue = “to-do list” for anything the user does while offline.
+// processQueue = sweeps through that to-do list when the network comes back.
+// Components = just read/write the store as if it’s the database — everything else happens behind the
+
 import {
   login,
   getDestinations,
@@ -6,18 +19,12 @@ import {
   getItineraries,
   getActivities,
   getComments,
+  getUserTrips,
 } from "./api";
-import type { Activity, Package, Destination, Itinerary, ActivityComment } from "../services/types";
-import { useStore } from "./store";
+import type { Activity, Package, Destination, Itinerary, ActivityComment, UserTrip } from "./types";
+import { useStore, processQueue } from "./store";
 
 let initialized = false;
-
-// ✅ Key Changes
-// Imported getActivityComments from your API.
-// Fetched all comments once during initialization.
-// Stored them in useStore keyed by activityId, just like packages/activities/itineraries.
-// This makes DestinationPage and other components fully offline-ready for comments
-// NB the DOM does NOT like you commandeering the  Comment object so I renamed it ActivityComment
 
 export const initApp = async () => {
   if (initialized) return;
@@ -25,12 +32,15 @@ export const initApp = async () => {
 
   // login (idempotent)
   await login();
+  // Hydrate store from localForage first
+  await useStore.getState().hydrate();
 
-  // fetch and store destinations
+
+  // Fetch and store destinations
   const destinations: Destination[] = await getDestinations();
   useStore.getState().setDestinations(destinations);
 
-  // fetch and store packages
+  // Fetch and store packages
   const packages: Package[] = await getPackages();
   const packagesByDest: Record<string, Package[]> = {};
   packages.forEach((p) => {
@@ -42,7 +52,7 @@ export const initApp = async () => {
     useStore.getState().setPackages(destId, pkgs)
   );
 
-  // fetch and store itineraries
+  // Fetch and store itineraries
   const itineraries: Itinerary[] = await getItineraries();
   const itinerariesByDest: Record<string, Itinerary[]> = {};
   itineraries.forEach((it) => {
@@ -54,7 +64,7 @@ export const initApp = async () => {
     useStore.getState().setItineraries(destId, its)
   );
 
-  // fetch and store activities
+  // Fetch and store activities
   const activities: Activity[] = await getActivities();
   const activitiesByDest: Record<string, Activity[]> = {};
   activities
@@ -67,7 +77,7 @@ export const initApp = async () => {
     useStore.getState().setActivities(destId, acts)
   );
 
-  // fetch and store all ActivityComments
+  // Fetch and store all ActivityComments
   const comments: ActivityComment[] = await getComments();
   const commentsByActivity: Record<string, ActivityComment[]> = {};
   comments.forEach((c) => {
@@ -78,4 +88,12 @@ export const initApp = async () => {
   Object.entries(commentsByActivity).forEach(([activityId, comms]) =>
     useStore.getState().setComments(activityId, comms)
   );
+
+  // Fetch and store userTrips
+  const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9"; // replace with actual logged-in user id
+  const trips: UserTrip[] = await getUserTrips(userId);
+  useStore.getState().setUserTrips(trips);
+
+  // Process any queued actions from previous offline sessions
+  await processQueue();
 };

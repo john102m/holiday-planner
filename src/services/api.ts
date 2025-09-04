@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Destination, Activity, Package, Itinerary, User, ActivityComment} from "./types";
+import type { Destination, Activity, Package, Itinerary, User, ActivityComment, UserTrip } from "./types";
 
 const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
@@ -27,7 +27,7 @@ export async function login() {
       },
     }
   );
-  
+
   // Save tokens for later
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("refresh_token", data.refresh_token);
@@ -168,8 +168,40 @@ export const getActivitiesByDestinationId = async (destinationId: string): Promi
   return res.data;
 };
 
+// ----------------- CREATE -----------------
+export const createUserTrip = async (trip: Partial<UserTrip>): Promise<UserTrip> => {
+  const res = await api.post<UserTrip>('/users/createtrip', trip);
+  return res.data;
+};
+
+// ----------------- UPDATE -----------------
+export const updateUserTrip = async (
+  tripId: string,
+  tripUpdates: Partial<UserTrip>
+): Promise<UserTrip> => {
+  const res = await api.post<UserTrip>(`/users/updatetrip/${tripId}`, tripUpdates);
+  return res.data;
+};
+
+// ----------------- DELETE -----------------
+export const deleteUserTrip = async (tripId: string): Promise<void> => {
+  await api.post<void>(`/users/deletetrip/${tripId}`);
+};
+
+// ----------------- GET BY USER -----------------
+export const getUserTrips = async (userId: string): Promise<UserTrip[]> => {
+  const res = await api.get<UserTrip[]>(`/users/getusertrips/${userId}`);
+  return res.data;
+};
+
+// ----------------- GET BY TRIP ID -----------------
+export const getUserTripByTripId = async (tripId: string): Promise<UserTrip | null> => {
+  const res = await api.get<UserTrip>(`/users/getusertripbyid/${tripId}`);
+  return res.data;
+};
+
 // Fetch activities
-export const getActivities = async ():Promise<Activity[]> => {
+export const getActivities = async (): Promise<Activity[]> => {
   const res = await api.get<Activity[]>(`/itinerary/activities`);
   return res.data;
 };
@@ -180,30 +212,26 @@ export const getActivityById = async (id: string): Promise<Activity> => {
 
 
 // Create an activity
-export const createActivity = async (
-  destinationId: string,
-  data: Omit<Activity, "id" | "createdAt" | "destinationId">  // backend fills id, createdAt, destinationId
-): Promise<Activity> => {
-  const res = await api.post<Activity>(`/destinations/${destinationId}/activities`, data);
+export const createActivity = async (payload: Activity): Promise<Activity> => {
+  // matches your Postman: /api/itinerary/createactivity
+  const res = await api.post<Activity>("/itinerary/createactivity", payload);
   return res.data;
 };
 
 // Update an activity
-export const updateActivity = async (
-  destinationId: string,
+export const editActivity = async (
   activityId: string,
-  data: Partial<Omit<Activity, "id" | "createdAt" | "destinationId">>
-): Promise<Activity> => {
-  const res = await api.post<Activity>(`/destinations/${destinationId}/activities/${activityId}`, data);
-  return res.data;
+  data: Activity,
+): Promise<void> => {
+  await api.post<Activity>(`/itinerary/updateactivity/${activityId}`, data);
+
 };
 
 // Delete an activity
 export const deleteActivity = async (
-  destinationId: string,
   activityId: string
 ): Promise<void> => {
-  await api.post(`/destinations/${destinationId}/activities/${activityId}`);
+  await api.post(`/itinerary/deleteactivity/${activityId}`);
 };
 
 // Create an comment

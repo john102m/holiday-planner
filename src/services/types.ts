@@ -17,8 +17,8 @@ export interface Destination {
 }
 
 export interface Activity {
-  id: string;               // Guid → string
-  destinationId?: string;    // nullable Guid → optional string
+  id?: string;               // Guid → string
+  destinationId: string;    // nullable Guid → optional string
   name?: string;             // nullable → optional
   details?: string;          // nullable → optional
   votes?: number;            // nullable int → optional number
@@ -51,12 +51,22 @@ export interface Package {
 }
 
 export interface User {
-    "id": string,
-    "name": string,
-    "email": string,
-    "avatarUrl": string,
-    "role": string,
-    "createdAt": string
+  "id": string,
+  "name": string,
+  "email": string,
+  "avatarUrl": string,
+  "role": string,
+  "createdAt": string
+}
+
+export interface UserTrip {
+  "id": string,
+  "userId": string,
+  "destinationId": string,
+  "status": string,
+  "startDate": string,
+  "endDate": string,
+  "createdAt": string
 }
 
 export interface Itinerary {

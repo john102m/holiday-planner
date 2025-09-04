@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore } from "../services/store";
+import { useStore, addOptimisticAndQueue } from "../services/store";
+import { QueueTypes, CollectionTypes } from "../services/store"; // value import
+import type { QueueType } from "../services/store"; // type import
+
 import type { Activity } from "../services/types";
 import HeroSection from "../components/destination/HeroSection";
 import ActivityForm from "../components/forms/ActivityForm";
@@ -16,10 +19,28 @@ const AddEditActivityPage: React.FC = () => {
 
   if (!currentDestination) return <div>Loading destination...</div>;
 
-  const handleSubmit = (act: Activity) => {
+  const handleSubmit = async (act: Activity) => {
     console.log("Activity saved", act);
+
+    const queueType: QueueType = activityId
+      ? QueueTypes.UPDATE_ACTIVITY
+      : QueueTypes.CREATE_ACTIVITY;
+
+    // Use the generic helper to optimistically add + queue
+    const tempId = await addOptimisticAndQueue(
+      CollectionTypes.Activities,  // collection
+      act,                        // activity object
+      queueType,                  // queue type
+      currentDestination.id       // destination ID for nested collection
+    );
+    // toast.success("Activity saved! Syncing in background...");
+    // todo get real id from backend response and replace
+    console.log("Temporary ID assigned:", tempId);
+
+    // Navigate after adding
     navigate(`/destinations/${destinationId}`);
   };
+
 
   return (
     <div className="container mx-auto p-4">
