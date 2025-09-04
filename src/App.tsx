@@ -1,8 +1,6 @@
 
 // App.tsx
 import React, { useEffect, useState } from "react";
-//import { ToastContainer } from 'react-toastify';
-//import 'react-toastify/dist/ReactToastify.css'
 import { Routes, Route } from "react-router-dom";
 import { useStore } from "./services/store";
 import Home from "./pages/Home";

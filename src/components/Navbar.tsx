@@ -22,8 +22,11 @@ const navLinkStyles = ({ isActive }: NavLinkProps) =>
                 Dashboard Lower
             </NavLink>            
             <NavLink to="/destinations/da9a83d7-7bff-4915-8888-3604f026257b" className={navLinkStyles}>
-                Destination
+                Fuerteventura
             </NavLink>
+            <NavLink to="/destinations/2e499e55-a53d-46b8-9bf0-0366e43ded2e" className={navLinkStyles}>
+                Iceland
+            </NavLink>            
         </nav>
     );
 }

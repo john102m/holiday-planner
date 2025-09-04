@@ -8,9 +8,9 @@ const urlsToCache = [
   '/index.html', // Entry point
 
   //'/styles.css', // Global styles
-  //'/main.js', // Main bundle
+  '/main.js', // Main bundle
   //'/favicon.ico', // Icon
-  '/dashboardlower',
+  //'/dashboardlower',
   //'/manifest.json', // PWA manifest
   //'/assets/logo.png', // Branding
   '/dashboard', // Main dashboard route
@@ -25,16 +25,25 @@ self.addEventListener('install', event => {
       // Cache static URLs
       const staticUrls = [
         '/',
-        '/index.html',,
+        '/index.html', ,
         //'/favicon.ico',
         //'/manifest.json'
       ];
       await Promise.all(
-        staticUrls.map(url =>
-          fetch(url).then(response => {
-            if (response.ok) return cache.put(url, response);
-          }).catch(err => console.warn(`Failed to cache ${url}:`, err))
-        )
+        staticUrls.map(async url => {
+          try {
+            console.log('Prefetching static URL:', url);
+            const response = await fetch(url);
+            if (response.ok) {
+              await cache.put(url, response.clone());
+              console.log('Cached:', url);
+            } else {
+              console.warn('Failed to fetch (non-ok response):', url, response.status);
+            }
+          } catch (err) {
+            console.error('Failed to fetch', url, err);
+          }
+        })
       );
 
       // Cache dynamic assets from manifest

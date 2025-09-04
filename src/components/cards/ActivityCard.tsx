@@ -1,5 +1,4 @@
 import React from "react";
-//import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
 import { QueueTypes, CollectionTypes } from "../../services/store"; 
@@ -22,7 +21,6 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId }) => {
       );
 
       console.log(`Queued deletion for activity ${activity.name}`);
-      //toast.success(`Queued deletion for activity ${activity.name}`);
     }
   };
 

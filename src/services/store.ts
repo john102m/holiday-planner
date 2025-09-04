@@ -6,6 +6,7 @@ import { createActivity, editActivity, deleteActivity } from "./api";
 
 
 type Entity = Activity | Destination | Itinerary | ActivityComment;
+console.log("🔥 store.ts loaded — check import resolution");
 
 export const CollectionTypes = {
   Activities: "activities",
@@ -53,63 +54,6 @@ export type QueueType = typeof QueueTypes[keyof typeof QueueTypes];
 // This approach makes it easier to add new queue types and their handlers in the future without modifying a central switch statement.
 // Use optimistic creation and pessimistic updates/deletes for better UX.
 
-// const storeOperationHandlers: Record<QueueType, (store: AppState, collection: CollectionType, entity: Entity, meta?: string) => void> = {
-//   [QueueTypes.CREATE_ACTIVITY]: (store, collection, entity, meta) => {
-//     store.addActivity(meta!, entity as Activity);
-//   },
-//   [QueueTypes.UPDATE_ACTIVITY]: (store, collection, entity, meta) => {
-//     store.replaceActivity(entity.id!, entity as Activity);
-//   },
-//   [QueueTypes.REMOVE_ACTIVITY]: (store, collection, entity, meta) => {
-//     store.removeActivity(meta!, entity.id!);
-//   },
-//   // Add other entity types here...
-// };
-
-
-
-// export const queueEntityAction = async (
-//   collection: CollectionType,
-//   entity: Entity,
-//   queueType: QueueType,
-//   destOrActId?: string
-// ) => {
-//   const store = useStore.getState();
-
-//   const tempId = entity.id ?? `temp-${crypto.randomUUID()}`;
-//   const optimisticEntity = { ...entity, id: tempId };
-
-//   // Only apply optimistic update for CREATE
-//   if (queueType.toLowerCase().startsWith("create")) {
-//     const collectionHandlers: Record<CollectionType, (id: string | undefined, entity: Entity) => void> = {
-//       [CollectionTypes.Activities]: (id, entity) =>
-//         store.addActivity(id!, entity as Activity),
-//       [CollectionTypes.Destinations]: (_, entity) =>
-//         store.addDestination(entity as Destination),
-//       [CollectionTypes.Itineraries]: (id, entity) =>
-//         store.addItinerary(id!, entity as Itinerary),
-//       [CollectionTypes.Comments]: (id, entity) =>
-//         store.addComment(id!, entity as ActivityComment),
-//     };
-
-//     collectionHandlers[collection](destOrActId, optimisticEntity);
-//   }
-
-//   store.addQueuedAction({
-//     id: crypto.randomUUID(),
-//     type: queueType,
-//     payload: optimisticEntity,
-//     tempId,
-//     meta: destOrActId,
-//   });
-
-//   if (!store.ui.offline) {
-//     await processQueue();
-//   }
-
-//   return tempId;
-// };
-
 
 // Simple queued action with unknown payload
 interface QueuedAction {
@@ -125,6 +69,8 @@ export const addOptimisticAndQueue = async (
   queueType: QueueType,
   destId?: string
 ) => {
+  console.log("addOptimisticAndQueue called with:", { collection, entity, queueType, destId });
+  // Determine if this is a CREATE operation
   const isCreate = queueType.startsWith("CREATE");
   const tempId = isCreate ? `temp-${crypto.randomUUID()}` : entity.id!;
   const optimisticEntity = { ...entity, id: tempId };
@@ -155,6 +101,7 @@ export const addOptimisticAndQueue = async (
   });
 
   if (!store.ui.offline) {
+    console.log("Calling processQueue…");
     await processQueue();
   }
 
@@ -364,9 +311,12 @@ export const useStore = create<AppState>()(
       hydrate: async () => {
         // Zustand persist hydrates automatically
         // Kick off queue processing after rehydration
-        if (!get().ui.offline) {
-          await processQueue();
-        }
+        // if (!get().ui.offline) {
+        //   console.log("Online: flushing queue now…");
+        //   await processQueue();
+        // }else{
+        //   console.log("Offline: leaving queue intact.");
+        // }
         return Promise.resolve();
       }
     }),
@@ -453,13 +403,16 @@ const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> 
 
 
 export const processQueue = async () => {
+  console.log("Processing queue…");
   const { queue, removeQueuedAction } = useStore.getState();
-
+  console.log("Handling queue, ", queue.length, "actions pending");
   for (const action of queue) {
     try {
+      console.log("Handling queue type:", action.type);
       const handler = queueHandlers[action.type];
       if (!handler) {
         console.warn("Unhandled queue type:", action.type);
+        console.warn("🔥 QueueHandler missing for type:", action.type);
         continue;
       }
       await handler(action);
@@ -473,66 +426,4 @@ export const processQueue = async () => {
   }
 };
 
-
-// export const processQueue = async () => {
-//   const { queue, removeQueuedAction } = useStore.getState();
-
-//   for (const action of queue) {
-//     try {
-//       switch (action.type) {
-//         case QueueTypes.CREATE_ACTIVITY:
-//           console.log("Processing CREATE_ACTIVITY", action);
-//           await handleCreateActivity(action);
-//           break;
-//         case QueueTypes.UPDATE_ACTIVITY:
-//           console.log("Processing UPDATE_ACTIVITY", action);
-//           await handleUpdateActivity(action);
-//           break;
-//         case QueueTypes.DELETE_ACTIVITY:
-//           console.log("Processing DELETE_ACTIVITY", action);
-//           await handleDeleteActivity(action);
-//           break;
-//         // Add other cases here...
-
-//         default:
-//           console.warn("Unhandled queue type:", action.type);
-//       }
-
-//       removeQueuedAction(action.id);
-//     } catch (err) {
-//       console.error("Failed to process queued action", action, err);
-//       removeQueuedAction(action.id);
-//     }
-//   }
-// };
-
-// 🔧 Optional Enhancements
-// If you're looking to refine further:
-// Add retry logic for failed actions (e.g. exponential backoff).
-// Persist the queue to local storage so it survives page reloads.
-// Add timestamps to queued actions for debugging or timeout logic.
-// Support DELETE or other types with similar handler patterns.
-
-
-//Use a simple hook to detect online status:
-// const useNetworkStatus = () => {
-//   const [online, setOnline] = useState(navigator.onLine);
-//   useEffect(() => {
-//     const update = () => setOnline(navigator.onLine);
-//     window.addEventListener("online", update);
-//     window.addEventListener("offline", update);
-//     return () => {
-//       window.removeEventListener("online", update);
-//       window.removeEventListener("offline", update);
-//     };
-//   }, []);
-//   return online;
-// };
-
-
-// ✅ Why This Is Sound
-// Simple state shape: No over-engineering.
-// Queue-based sync: Easy to reason about and retry.
-// Local-first UX: Instant feedback, no spinner purgatory.
-// Extensible: You can later add conflict resolution, timestamps, or versioning.
-
+// Note: In a real app, you’d want to add more error handling, logging, and possibly retry logic.
