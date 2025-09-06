@@ -1,4 +1,6 @@
 // utils/logMemory.ts
+import { useActivitiesStore } from "../services/slices/activitiesSlice";
+import { useItinerariesStore} from "../services/slices/itinerariesSlice"
 import { useStore } from "../services/store";
 
 // Rough size in bytes via JSON
@@ -10,9 +12,11 @@ const roughSize = (obj: unknown): number => {
     }
 };
 
-
 export const logMemory = () => {
+    const activitiesState = useActivitiesStore.getState();
+    const itinerariesState = useItinerariesStore.getState();
     const state = useStore.getState();
+
 
     // Store sizes
     console.log("📦 Store snapshot:");
@@ -20,10 +24,10 @@ export const logMemory = () => {
     console.log("  UserTrips:", state.userTrips.length);
     console.log(
         "  Activities (total):",
-        Object.values(state.activities).flat().length
+        Object.values(activitiesState.activities).flat().length
     );
     console.log("  Packages:", Object.values(state.packages).flat().length);
-    console.log("  Itineraries:", Object.values(state.itineraries).flat().length);
+    console.log("  Itineraries:", Object.values(itinerariesState.itineraries).flat().length);
     console.log("  Queue length:", state.queue.length);
 
     console.log("💾 Rough store size:", roughSize(state), "bytes");

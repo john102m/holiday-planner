@@ -1,8 +1,66 @@
+export const CollectionTypes = {
+  Activities: "activities",
+  Packages: "packages",
+  Destinations: "destinations",
+  Itineraries: "itineraries",
+  ItineraryActivities: "itineraryActivities",
+  Comments: "comments",
+  ItineraryActivitiesBatch: "itineraryActivitiesBatch"
+
+} as const;
+export type CollectionType = typeof CollectionTypes[keyof typeof CollectionTypes];
+
+export const QueueTypes = {
+  CREATE_ACTIVITY: "CREATE_ACTIVITY",
+  UPDATE_ACTIVITY: "UPDATE_ACTIVITY",
+  DELETE_ACTIVITY: "DELETE_ACTIVITY",
+
+  CREATE_ITINERARY: "CREATE_ITINERARY",
+  UPDATE_ITINERARY: "UPDATE_ITINERARY",
+  DELETE_ITINERARY: "DELETE_ITINERARY",
+
+  CREATE_ITINERARY_ACTIVITY: "CREATE_ITINERARY_ACTIVITY",
+  UPDATE_ITINERARY_ACTIVITY: "UPDATE_ITINERARY_ACTIVITY",
+  DELETE_ITINERARY_ACTIVITY: "DELETE_ITINERARY_ACTIVITY",
+  BATCH_UPDATE_ITINERARY_ACTIVITIES: "BATCH_UPDATE_ITINERARY_ACTIVITIES",
+
+  CREATE_DESTINATION: "CREATE_DESTINATION",
+  UPDATE_DESTINATION: "UPDATE_DESTINATION",
+  DELETE_DESTINATION: "DELETE_DESTINATION",
+
+  CREATE_PACKAGE: "CREATE_PACKAGE",
+  UPDATE_PACKAGE: "UPDATE_PACKAGE",
+  DELETE_PACKAGE: "DELETE_PACKAGE",
+
+  CREATE_COMMENT: "CREATE_COMMENT",
+  UPDATE_COMMENT: "UPDATE_COMMENT",
+  DELETE_COMMENT: "DELETE_COMMENT",
+
+
+  VOTE: "VOTE"
+
+  // Add more as needed
+}
+export type QueueType = typeof QueueTypes[keyof typeof QueueTypes];
+
+export interface QueuedAction {
+  id: string;
+  type: string;
+  payload: unknown;
+  tempId?: string;
+}
+
 export interface Day {
   day: number;
   title: string;
   img: string;
   activities: string[];
+}
+
+export interface ItineraryActivitiesBatch {
+  id?: string,
+  itineraryId: string;
+  activities: ItineraryActivity[];
 }
 
 export interface Destination {
@@ -38,7 +96,7 @@ export interface ActivityComment {
 // src/services/types.ts
 
 export interface Package {
-  id: string;
+  id?: string;
   destinationId: string;
   name: string;
   region: string;
@@ -46,56 +104,70 @@ export interface Package {
   nights?: number;
   price?: number;
   imageUrl?: string;
-  createdBy: string;
-  createdAt: string;
+  createdBy?: string;
+  createdAt?: string;
 }
 
 export interface User {
-  "id": string,
-  "name": string,
-  "email": string,
-  "avatarUrl": string,
-  "role": string,
-  "createdAt": string
+  id?: string,
+  name: string,
+  email: string,
+  avatarUrl: string,
+  role: string,
+  createdAt?: string
 }
 
 export interface UserTrip {
-  "id": string,
-  "userId": string,
-  "destinationId": string,
-  "status": string,
-  "startDate": string,
-  "endDate": string,
-  "createdAt": string
+  id: string,
+  userId: string,
+  destinationId: string,
+  status?: string,
+  startDate?: string,
+  endDate?: string,
+  createdAt?: string
 }
 
 export interface Itinerary {
-  id: string;
+  id?: string;
   destinationId: string;
   name: string;
   description?: string; // optional
   slug?: string;        // optional
   tags?: string;        // optional (comma-separated)
   imageUrl?: string;    // optional
-  createdBy: string;
-  createdAt: string;
+  createdBy?: string;
+  createdAt?: string;
 }
+
+export interface ItineraryActivity {
+  id?: string;
+  itineraryId: string;
+  activityId: string;
+  sortOrder?: number;
+  notes?: string;
+  createdAt?: string;
+  createdBy?: string;
+}
+export interface ResolvedItinerary extends Itinerary {
+  activities: Activity[];
+}
+
 export interface DashboardActivity {
-  id: string;
+  id?: string;
   name: string;
   completed?: boolean; // optional, if relevant
 }
 
 export interface DashboardItinerary {
-  id: string;
+  id?: string;
   destinationId: string;
   name?: string;
   description?: string;
   slug?: string;
   tags?: string;
   imageUrl?: string;
-  createdBy: string;
-  createdAt: string;
+  createdBy?: string;
+  createdAt?: string;
 
   // Dashboard-specific fields
   activities?: DashboardActivity[];          // number of activities
@@ -103,6 +175,7 @@ export interface DashboardItinerary {
   role?: "Owner" | "Editor" | "Viewer";
   heroImage?: string;          // optional override for dashboard card
 }
+
 
 
 

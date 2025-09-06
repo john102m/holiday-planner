@@ -1,8 +1,9 @@
+// PackageCard.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { Package } from "../../services/types";
-import { useStore } from "../../services/store";
-
+import { CollectionTypes, QueueTypes } from "../../services/types";
+import { addOptimisticAndQueue } from "../../services/store";
 interface Props {
   pkg: Package;
   destinationId: string;
@@ -10,20 +11,22 @@ interface Props {
 
 const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
   const navigate = useNavigate();
-  const removePackage = useStore((state) => state.removePackage);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete "${pkg.name}"?`)) {
-      removePackage(destinationId, pkg.id);
-      // optionally: show a toast or feedback
-      console.log(`Deleted package ${pkg.name}`);
+      await addOptimisticAndQueue(
+        CollectionTypes.Packages,
+        pkg,
+        QueueTypes.DELETE_PACKAGE,
+        destinationId
+      );
+      console.log(`Queued deletion for package ${pkg.name}`);
     }
   };
 
   return (
     <div className="card">
       {pkg.imageUrl && <img src={pkg.imageUrl} alt={pkg.name} className="card-img" />}
-
       <div className="card-body">
         <h3 className="card-title">{pkg.name}</h3>
         <p className="card-text">{pkg.description}</p>
@@ -31,7 +34,6 @@ const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
           <span>{pkg.nights ?? ""} nights</span>
           <span>{pkg.price ? `$${pkg.price}` : ""}</span>
         </div>
-
         <div className="mt-2 flex gap-2">
           <button
             onClick={() => navigate(`/destinations/${destinationId}/packages/edit/${pkg.id}`)}
@@ -52,4 +54,3 @@ const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
 };
 
 export default PackageCard;
-

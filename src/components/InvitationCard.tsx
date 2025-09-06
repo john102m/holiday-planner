@@ -25,13 +25,13 @@ const InvitationCard: React.FC<Props> = ({ invitation, onAccept, onDecline }) =>
           <>
             <button
               className="px-2 py-0.5 text-xs bg-green-500 text-white rounded"
-              onClick={() => onAccept(itinerary.id)}
+              onClick={() => onAccept(itinerary.id ?? "")}
             >
               ✓
             </button>
             <button
               className="px-2 py-0.5 text-xs bg-red-500 text-white rounded"
-              onClick={() => onDecline(itinerary.id)}
+              onClick={() => onDecline(itinerary.id ?? "")}
             >
               ✗
             </button>

@@ -1,11 +1,14 @@
 import React, { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useParams } from "react-router-dom";
-import { useStore } from "../services/store";
+import { useItinerariesStore } from "../services/slices/itinerariesSlice";
+import { useActivitiesStore } from "../services/slices/activitiesSlice";
+import { usePackageStore } from "../services/slices/packagesSlice";
+import {useStore}from "../services/store"
 import DestinationHero from "../components/DestinationHero";
 import PackageCard from "../components/PackageCard";
 import ItineraryCard from "../components/ItineraryCard";
-import ActivityCard from "../components/ActivityCard";
+import ActivityCard from "../components/_ActivityCard";
 import ScrollToTopButton from "../components/ScrollToTop";
 import type { Destination, Package, Itinerary, Activity } from "../services/types";
 
@@ -26,9 +29,9 @@ const DestinationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const destinations = useStore((state) => state.destinations);
-  const allPackages = useStore((state) => state.packages);
-  const allItineraries = useStore((state) => state.itineraries);
-  const allActivities = useStore((state) => state.activities);
+  const allPackages = usePackageStore((state) => state.packages);
+  const allItineraries = useItinerariesStore((state) => state.itineraries);
+  const allActivities = useActivitiesStore((state) => state.activities);
 
   const destination: Destination | undefined = useMemo(
     () => destinations.find((d) => d.id === id),

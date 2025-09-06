@@ -1,5 +1,9 @@
 import axios from "axios";
-import type { Destination, Activity, Package, Itinerary, User, ActivityComment, UserTrip } from "./types";
+import type {
+  Destination, Activity, Package,
+  Itinerary, ItineraryActivity, User, ActivityComment,
+  UserTrip, ItineraryActivitiesBatch
+} from "./types";
 
 const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
@@ -251,10 +255,32 @@ export const getPackages = async (): Promise<Package[]> => {
   return res.data;
 };
 
-// Fetch all itineraries
-export const getItineraries = async (): Promise<Itinerary[]> => {
-  const res = await api.get<Itinerary[]>("/itinerary");
+// Fetch a package by ID
+export const getPackageById = async (id: string): Promise<Package> => {
+  const res = await api.get<Package>(`/packages/${id}`);
   return res.data;
+};
+
+// Fetch all packages for a specific destination
+export const getPackagesByDestination = async (destId: string): Promise<Package[]> => {
+  const res = await api.get<Package[]>(`/packages/destination/${destId}`);
+  return res.data;
+};
+
+// Create a new package
+export const createPackage = async (payload: Package): Promise<Package> => {
+  const res = await api.post<Package>("/packages/create", payload);
+  return res.data;
+};
+
+// Update an existing package
+export const editPackage = async (packageId: string, data: Package): Promise<void> => {
+  await api.post(`/packages/update/${packageId}`, data);
+};
+
+// Delete a package
+export const deletePackage = async (packageId: string): Promise<void> => {
+  await api.post(`/packages/delete/${packageId}`);
 };
 
 // Fetch all comments
@@ -262,20 +288,15 @@ export const getComments = async (): Promise<ActivityComment[]> => {
   const res = await api.get<ActivityComment[]>("/comments");
   return res.data;
 };
-// // Fetch activities a user has saved / voted for
-// export const getSavedActivities = async (userId: string): Promise<Activity[]> => {
-//   const res = await api.get<Activity[]>(`/api/ActivityUser/user/${userId}/saved`);
-//   return res.data;
-// };
-// // Fetch comments for an activity
-// export const getCommentsByActivityId = async (activityId: string): Promise<Comment[]> => {
-//   const res = await api.get<Comment[]>(`/comments/activity/${activityId}`);
-//   return res.data;
-// };
-
 
 export const getItineraryById = async (id: string): Promise<Itinerary> => {
   const res = await api.get<Itinerary>(`/Itinerary/${id}`);
+  return res.data;
+};
+
+// Fetch all itineraries
+export const getItineraries = async (): Promise<Itinerary[]> => {
+  const res = await api.get<Itinerary[]>("/itinerary");
   return res.data;
 };
 export const createItinerary = async (
@@ -284,13 +305,51 @@ export const createItinerary = async (
   const res = await api.post<Itinerary>("/itinerary/create", data);
   return res.data;
 };
-export const updateItinerary = async (
-  id: string,
-  data: Partial<Omit<Itinerary, "id" | "createdAt">>
-): Promise<Itinerary> => {
-  const res = await api.put<Itinerary>(`/itinerary/update/${id}`, data);
+
+export const deleteItinerary = async (id: string): Promise<void> => {
+  await api.post(`/itinerary/delete/${id}`);
+};
+
+// Update itinerary
+export const editItinerary = async (id: string, data: Partial<Itinerary>): Promise<void> => {
+  await api.post(`/itinerary/update/${id}`, data);
+};
+
+// Fetch all itinerary-activity relationships
+export const getItineraryActivities = async (): Promise<ItineraryActivity[]> => {
+  const res = await api.get<ItineraryActivity[]>("/itinerary/itineraryactivities");
   return res.data;
 };
-export const deleteItinerary = async (id: string): Promise<void> => {
-  await api.delete(`/itinerary/delete/${id}`);
+
+// Add activity to itinerary
+export const createItineraryActivity = async (payload: ItineraryActivity): Promise<ItineraryActivity> => {
+  console.log("just sending the payload now: ", payload)
+  const res = await api.post<ItineraryActivity>("/itinerary/itineraryactivity", payload);
+  console.log("the res was: ", res);
+  return res.data;
 };
+
+// Update itinerary-activity relationship
+export const editItineraryActivity = async (id: string, data: Partial<ItineraryActivity>): Promise<void> => {
+  await api.post(`/itinerary/itineraryactivity/${id}`, data);
+};
+
+// Delete itinerary-activity relationship
+export const deleteItineraryActivity = async (id: string): Promise<void> => {
+  await api.post(`/itinerary/deleteitineraryactivity/${id}`);
+};
+
+
+// Batch update itinerary-activity relationships
+export const updateItineraryActivitiesBatch = async (
+  payload: ItineraryActivitiesBatch
+): Promise<ItineraryActivity[]> => {
+  console.log("Sending batch payload:", payload);
+  const res = await api.post<ItineraryActivity[]>(
+    `/itinerary/batchupdate`,
+    payload
+  );
+  console.log("Batch response:", res);
+  return res.data;
+};
+

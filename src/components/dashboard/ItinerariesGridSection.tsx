@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useStore } from "../../services/store";
+import { useItinerariesStore} from "../../services/slices/itinerariesSlice"
 import type { DashboardItinerary } from "../../services/types";
 import { getUserByEmail } from "../../services/api";
 import ItineraryCard from "../ItineraryCard";
 
 const ItinerariesGridSection: React.FC = () => {
-    const itinerariesObj = useStore((state) => state.itineraries);
+    const itinerariesObj = useItinerariesStore((state) => state.itineraries);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     const itineraries: DashboardItinerary[] = useMemo(() => {

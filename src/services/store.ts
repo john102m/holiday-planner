@@ -1,67 +1,24 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-//import localForage from "localforage";
-import type { Destination, Activity, Package, Itinerary, ActivityComment, UserTrip } from "./types";
-import { createActivity, editActivity, deleteActivity } from "./api";
+import { updateItineraryActivitiesBatch } from "./api"
+import type {
+  Destination, Activity, Package,
+  Itinerary, ActivityComment, UserTrip,
+  QueueType, CollectionType, QueuedAction,
+  ItineraryActivity, ItineraryActivitiesBatch
+} from "./types";
+import { CollectionTypes, QueueTypes } from "./types";
 
+import { useActivitiesStore, handleCreateActivity, handleUpdateActivity, handleDeleteActivity } from "./slices/activitiesSlice";
+import { usePackageStore, handleCreatePackage, handleUpdatePackage, handleDeletePackage } from "./slices/packagesSlice";
+import {
+  useItinerariesStore, handleCreateItinerary, handleUpdateItinerary,
+  handleDeleteItinerary, handleCreateItineraryActivity, handleUpdateItineraryActivity, handleDeleteItineraryActivity
 
-type Entity = Activity | Destination | Itinerary | ActivityComment;
-console.log("🔥 store.ts loaded — check import resolution");
+} from "./slices/itinerariesSlice";
+type Entity = Activity | Package | Destination | Itinerary | ActivityComment | ItineraryActivity | ItineraryActivitiesBatch;
+console.log("🔥 store.ts loaded — check new import resolution");
 
-export const CollectionTypes = {
-  Activities: "activities",
-  Destinations: "destinations",
-  Itineraries: "itineraries",
-  Comments: "comments"
-} as const;
-export type CollectionType = typeof CollectionTypes[keyof typeof CollectionTypes];
-
-export const QueueTypes = {
-  CREATE_ACTIVITY: "CREATE_ACTIVITY",
-  UPDATE_ACTIVITY: "UPDATE_ACTIVITY",
-  DELETE_ACTIVITY: "DELETE_ACTIVITY",
-
-  CREATE_ITINERARY: "CREATE_ITINERARY",
-  UPDATE_ITINERARY: "UPDATE_ITINERARY",
-  DELETE_ITINERARY: "DELETE_ITINERARY",
-
-  CREATE_DESTINATION: "CREATE_DESTINATION",
-  UPDATE_DESTINATION: "UPDATE_DESTINATION",
-  DELETE_DESTINATION: "DELETE_DESTINATION",
-
-  CREATE_PACKAGE: "CREATE_PACKAGE",
-  UPDATE_PACKAGE: "UPDATE_PACKAGE",
-  DELETE_PACKAGE: "DELETE_PACKAGE",
-
-  CREATE_COMMENT: "CREATE_COMMENT",
-  UPDATE_COMMENT: "UPDATE_COMMENT",
-  DELETE_COMMENT: "DELETE_COMMENT",
-
-
-  VOTE: "VOTE"
-
-  // Add more as needed
-}
-export type QueueType = typeof QueueTypes[keyof typeof QueueTypes];
-
-
-
-//NEXT STEPS - Refactor to use a map of handlers instead of switch/case
-// This is a mapping of queue types to their corresponding store operation handlers.
-// Each handler takes the store, collection type, entity, and optional metadata (like destinationId or activityId) as arguments.
-// When processing the queue, you can look up the appropriate handler based on the action type and invoke it directly,
-// eliminating the need for a switch/case statement.
-// This approach makes it easier to add new queue types and their handlers in the future without modifying a central switch statement.
-// Use optimistic creation and pessimistic updates/deletes for better UX.
-
-
-// Simple queued action with unknown payload
-interface QueuedAction {
-  id: string;
-  type: QueueType;
-  payload: unknown;
-  tempId?: string;
-}
 
 export const addOptimisticAndQueue = async (
   collection: CollectionType,
@@ -75,17 +32,34 @@ export const addOptimisticAndQueue = async (
   const tempId = isCreate ? `temp-${crypto.randomUUID()}` : entity.id!;
   const optimisticEntity = { ...entity, id: tempId };
 
+  const activitiesStore = useActivitiesStore.getState();
+  const packageStore = usePackageStore.getState();
+  const itinerariesStore = useItinerariesStore.getState();
   const store = useStore.getState();
+
 
   const collectionHandlers: Record<CollectionType, (id: string | undefined, entity: Entity) => void> = {
     [CollectionTypes.Activities]: (id, entity) =>
-      store.addActivity(id!, entity as Activity),
+      activitiesStore.addActivity(id!, entity as Activity),
+    [CollectionTypes.Comments]: (id, entity) =>
+      activitiesStore.addComment(id!, entity as ActivityComment),
+
+    [CollectionTypes.Packages]: (id, entity) =>
+      packageStore.addPackage(id!, entity as Package),
+
     [CollectionTypes.Destinations]: (_, entity) =>
       store.addDestination(entity as Destination),
+
     [CollectionTypes.Itineraries]: (id, entity) =>
-      store.addItinerary(id!, entity as Itinerary),
-    [CollectionTypes.Comments]: (id, entity) =>
-      store.addComment(id!, entity as ActivityComment),
+      itinerariesStore.addItinerary(id!, entity as Itinerary),
+
+    [CollectionTypes.ItineraryActivities]: (id, entity) =>
+      itinerariesStore.addItineraryActivity(id!, entity as ItineraryActivity),
+
+    [CollectionTypes.ItineraryActivitiesBatch]: (id: string | undefined, entity: Entity) => {
+      // No store update needed for batch yet
+      console.log("ItineraryActivitiesBatch received:", { id, entity });
+    },
   };
 
   // Only mutate local state if it's a CREATE
@@ -108,14 +82,10 @@ export const addOptimisticAndQueue = async (
   return tempId;
 };
 
-
 interface AppState {
   destinations: Destination[];
   packages: Record<string, Package[]>;
-  itineraries: Record<string, Itinerary[]>;
-  activities: Record<string, Activity[]>;
   userTrips: UserTrip[];
-  comments: Record<string, ActivityComment[]>;
   ui: { offline: boolean };
   queue: QueuedAction[];
 
@@ -127,24 +97,7 @@ interface AppState {
   setDestinations: (dest: Destination[]) => void;
   addDestination: (dest: Destination) => void;
 
-  setPackages: (destId: string, pkgs: Package[]) => void;
-  addPackage: (destId: string, pkg: Package) => void;
-  removePackage: (destId: string, packageId: string) => void;
-
-  setItineraries: (destId: string, its: Itinerary[]) => void;
-  addItinerary: (destId: string, it: Itinerary) => void;
-  removeItinerary: (destId: string, itineraryId: string) => void;
-
-  setActivities: (destId: string, acts: Activity[]) => void;
-  addActivity: (destId: string, act: Activity) => void;
-  updateActivity: (destId: string, updated: Activity) => void;
-  replaceActivity: (tempId: string, saved: Activity) => void;
-  removeActivity: (destId: string, activityId: string) => void;
-  getSavedActivities: () => Activity[];
-
-  setComments: (activityId: string, comms: ActivityComment[]) => void;
-  addComment: (activityId: string, comm: ActivityComment) => void;
-
+  // Queue
   addQueuedAction: (action: QueuedAction) => void;
   removeQueuedAction: (id: string) => void;
 
@@ -159,17 +112,18 @@ export const useStore = create<AppState>()(
 
   //This wraps your store logic with persistence. It takes two arguments:
   persist(
-    (set, get) => ({
+    (set) => ({
 
       //initial state
-      destinations: [],
-      packages: {},
-      itineraries: {},
-      activities: {},
-      userTrips: [],
-      comments: {},
-      ui: { offline: false },
+      // Flat arrays
       queue: [],
+      destinations: [],
+      userTrips: [],
+      // Grouped by destinationId
+      packages: {},
+
+      // UI state
+      ui: { offline: false },
 
       //state modification functions - mutators
       setUserTrips: (trips) => set({ userTrips: trips }),
@@ -187,125 +141,11 @@ export const useStore = create<AppState>()(
         })),
 
       setDestinations: (dest) => set({ destinations: dest }),
-      addDestination: (dest) =>
-        set((state) => ({ destinations: [...state.destinations, dest] })),
+      addDestination: (dest) => set((state) => ({ destinations: [...state.destinations, dest] })),
 
-      setPackages: (destId, pkgs) =>
-        set((state) => ({
-          packages: { ...state.packages, [destId]: pkgs }
-        })),
-      addPackage: (destId, pkg) =>
-        set((state) => ({
-          packages: {
-            ...state.packages,
-            [destId]: [...(state.packages[destId] || []), pkg]
-          }
-        })),
-      removePackage: (destId, packageId) =>
-        set((state) => ({
-          packages: {
-            ...state.packages,
-            [destId]: state.packages[destId]?.filter((p) => p.id !== packageId)
-          }
-        })),
 
-      setItineraries: (destId, its) =>
-        set((state) => ({
-          itineraries: { ...state.itineraries, [destId]: its }
-        })),
-      addItinerary: (destId, it) =>
-        set((state) => ({
-          itineraries: {
-            ...state.itineraries,
-            [destId]: [...(state.itineraries[destId] || []), it]
-          }
-        })),
-      removeItinerary: (destId, itineraryId) =>
-        set((state) => ({
-          itineraries: {
-            ...state.itineraries,
-            [destId]: state.itineraries[destId]?.filter(
-              (i) => i.id !== itineraryId
-            )
-          }
-        })),
-
-      setActivities: (destId, acts) =>
-        set((state) => ({
-          activities: { ...state.activities, [destId]: acts }
-        })),
-      addActivity: (destId, act) =>
-        set((state) => ({
-          activities: {
-            ...state.activities,
-            [destId]: [...(state.activities[destId] || []), act]
-          }
-        })),
-      updateActivity: (destId: string, updated: Activity) =>
-        set((state) => {
-          const existing = state.activities[destId] || [];
-          const updatedList = existing.map((act) =>
-            act.id === updated.id ? updated : act
-          );
-
-          return {
-            activities: {
-              ...state.activities,
-              [destId]: updatedList
-            }
-          };
-        }),
-
-      replaceActivity: (tempId, saved) =>
-        set((state) => {
-          // reduce() is a higher-order function, not recursion.
-          // map() is also iterative — it loops through arrays and returns a new one.
-          const updated = Object.entries(state.activities).reduce(
-            (acc, [destId, acts]) => {
-              const newActs = acts.map((a) =>
-                a.id === tempId ? saved : a
-              );
-              acc[destId] = newActs;
-              return acc;
-            },
-            {} as Record<string, Activity[]>
-          );
-          return { activities: updated };
-        }),
-      removeActivity: (destId, activityId) =>
-        set((state) => ({
-          activities: {
-            ...state.activities,
-            [destId]: state.activities[destId]?.filter(
-              (a) => a.id !== activityId
-            )
-          }
-        })),
-      getSavedActivities: () => {
-        const state = get();
-        return Object.values(state.activities).flat();
-      },
-
-      setComments: (activityId, comms) =>
-        set((state) => ({
-          comments: { ...state.comments, [activityId]: comms }
-        })),
-      addComment: (activityId, comm) =>
-        set((state) => ({
-          comments: {
-            ...state.comments,
-            [activityId]: [...(state.comments[activityId] || []), comm]
-          }
-        })),
-
-      //queue management logic
-      addQueuedAction: (action) =>
-        set((state) => ({ queue: [...state.queue, action] })),
-
-      removeQueuedAction: (id) =>
-        set((state) => ({
-          queue: state.queue.filter((a) => a.id !== id)
-        })),
+      addQueuedAction: (action) => set((state) => ({ queue: [...state.queue, action] })),
+      removeQueuedAction: (id) => set((state) => ({ queue: state.queue.filter((a) => a.id !== id) })),
 
       //util to manually trigger rehydration if needed
       hydrate: async () => {
@@ -333,7 +173,7 @@ export const useStore = create<AppState>()(
 window.addEventListener("online", async () => {
   useStore.setState({ ui: { offline: false } });
   console.log("Offline status:", useStore.getState().ui.offline);
-
+  //Optional: debounce processQueue if many online events fire at once.
   await processQueue(); // flush queued actions automatically
 });
 
@@ -344,67 +184,45 @@ window.addEventListener("offline", () => {
 });
 
 
-// This is a queue processor. It’s designed to:
-// Grab the current list of queued actions from your Zustand store.
-// Loop through each action.
-// Try to process it (e.g. send it to an API like createActivity).
-// If successful, remove it from the queue.
-// If it fails, log the error and keep it in the queue for retry later.
-const handleCreateActivity = async (action: QueuedAction) => {
-  const { replaceActivity, addActivity } = useStore.getState();
-  const act = action.payload as Activity;
-  const saved = await createActivity(act);
-
-  // When action.tempId is truthy, it means: “This activity was created optimistically and needs to be swapped out with the real one.”
-  if (action.tempId) {
-    replaceActivity(action.tempId, saved);
-  } else {
-    addActivity(saved.destinationId!, saved);
-  }
-};
-
-const handleUpdateActivity = async (action: QueuedAction) => {
-  const { updateActivity } = useStore.getState();
-  const act = action.payload as Activity;
-
-  //persist the change to backend
-  if (!act.id) {
-    throw new Error("Cannot update activity: missing activity ID");
-  }
-  await editActivity(act.id, act);
-
-  //mutate the store with the queued version
-  updateActivity(act.destinationId, act);
-
-};
-
-const handleDeleteActivity = async (action: QueuedAction) => {
-  const { removeActivity } = useStore.getState();
-  const act = action.payload as Activity;
-
-  //persist the change to backend
-  if (!act.id) {
-    throw new Error("Cannot delete activity: missing activity ID");
-  }
-  await deleteActivity(act.id);
-
-  //mutate the store
-  removeActivity(act.destinationId, act.id);
-
-};
-
-
 const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> = {
   [QueueTypes.CREATE_ACTIVITY]: handleCreateActivity,
   [QueueTypes.UPDATE_ACTIVITY]: handleUpdateActivity,
   [QueueTypes.DELETE_ACTIVITY]: handleDeleteActivity,
+
+  // Packages
+  [QueueTypes.CREATE_PACKAGE]: handleCreatePackage,
+  [QueueTypes.UPDATE_PACKAGE]: handleUpdatePackage,
+  [QueueTypes.DELETE_PACKAGE]: handleDeletePackage,
+
+  // Comments
+  // [QueueTypes.CREATE_COMMENT]: handleCreateComment,
+  // [QueueTypes.UPDATE_COMMENT]: handleUpdateComment,
+  // [QueueTypes.DELETE_COMMENT]: handleDeleteComment,
+
+  // // Itineraries
+  [QueueTypes.CREATE_ITINERARY]: handleCreateItinerary,
+  [QueueTypes.UPDATE_ITINERARY]: handleUpdateItinerary,
+  [QueueTypes.DELETE_ITINERARY]: handleDeleteItinerary,
+
+  [QueueTypes.CREATE_ITINERARY_ACTIVITY]: handleCreateItineraryActivity,
+  [QueueTypes.UPDATE_ITINERARY_ACTIVITY]: handleUpdateItineraryActivity,
+  [QueueTypes.DELETE_ITINERARY_ACTIVITY]: handleDeleteItineraryActivity,
+  [QueueTypes.BATCH_UPDATE_ITINERARY_ACTIVITIES]: async (action: QueuedAction) => {
+    const batch = action.payload as ItineraryActivitiesBatch;
+    console.log("Processing batch update:", batch);
+    // Call API endpoint here
+    const updatedActivities = await updateItineraryActivitiesBatch(batch);
+    console.log("Updated activities:", updatedActivities);
+
+  },
+
   // ...others
 };
 
-
 export const processQueue = async () => {
   console.log("Processing queue…");
-  const { queue, removeQueuedAction } = useStore.getState();
+  const { queue } = useStore.getState();
+  const { removeQueuedAction } = useStore.getState();
   console.log("Handling queue, ", queue.length, "actions pending");
   for (const action of queue) {
     try {

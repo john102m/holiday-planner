@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useStore } from "../services/store";
+import { useActivitiesStore } from "../services/slices/activitiesSlice";
+
 import type { Activity, ActivityComment } from "../services/types";
 import { createComment } from "../services/api";
 
@@ -10,8 +11,8 @@ interface Props {
 }
 
 const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) => {
-  const activities = useStore((state) => state.activities[destinationId] || []);
-  const comments = useStore((state) => state.comments[activityId] || []);
+  const activities = useActivitiesStore((state) => state.activities[destinationId] || []);
+  const comments = useActivitiesStore((state) => state.comments[activityId] || []);
   //const addQueuedAction = useStore((state) => state.addQueuedAction);
 
   const [commentText, setCommentText] = useState("");
@@ -31,7 +32,7 @@ const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) 
     };
 
     // Optimistic update
-    useStore.setState((state) => {
+    useActivitiesStore.setState((state) => {
       const existingComments: ActivityComment[] = state.comments[activityId] || [];
       return {
         comments: {

@@ -9,9 +9,11 @@ import DestinationPage from "./pages/DestinationPage";
 import DashboardPageLower from "./pages/DashboardPageLower";
 import Navbar from "./components/Navbar";
 import AddEditPackagePage from "./pages/AddEditPackagePage";
-import AddEditItineraryPage from "./pages/AddEditItineraryPage";
+//import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import AddEditActivityPage from "./pages/AddEditActivityPage";
 import { logMemory } from "./services/logMemory";
+import ItineraryPage from "./pages/ItineraryPage";
+import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -55,14 +57,20 @@ const App: React.FC = () => {
           path="/destinations/:destinationId/activities/edit/:activityId?"
           element={<AddEditActivityPage />}
         />
+
         <Route
-          path="/destinations/:destinationId/itineraries/edit/:itineraryId?"
+          path="/itineraries/view/:destinationId/:itineraryId"
+          element={<ItineraryPage />}
+        />
+        <Route
+          path="/itineraries/edit/:destinationId/:itineraryId?"
           element={<AddEditItineraryPage />}
         />
 
+
         <Route path="/dashboardlower" element={<DashboardPageLower />} />
       </Routes>
- 
+
     </>
 
   );

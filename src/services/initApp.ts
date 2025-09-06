@@ -20,10 +20,13 @@ import {
   getActivities,
   getComments,
   getUserTrips,
+  getItineraryActivities,
 } from "./api";
-import type { Activity, Package, Destination, Itinerary, ActivityComment, UserTrip } from "./types";
+import type { Activity, Package, Destination, Itinerary, ItineraryActivity, ActivityComment, UserTrip } from "./types";
 import { useStore, processQueue } from "./store";
-
+import { useActivitiesStore, } from "./slices/activitiesSlice";
+import { usePackageStore, } from "./slices/packagesSlice";
+import { useItinerariesStore, } from "./slices/itinerariesSlice";
 let initialized = false;
 
 export const initApp = async () => {
@@ -49,7 +52,7 @@ export const initApp = async () => {
     packagesByDest[p.destinationId].push(p);
   });
   Object.entries(packagesByDest).forEach(([destId, pkgs]) =>
-    useStore.getState().setPackages(destId, pkgs)
+    usePackageStore.getState().setPackages(destId, pkgs)
   );
 
   // Fetch and store itineraries
@@ -61,7 +64,7 @@ export const initApp = async () => {
     itinerariesByDest[it.destinationId].push(it);
   });
   Object.entries(itinerariesByDest).forEach(([destId, its]) =>
-    useStore.getState().setItineraries(destId, its)
+    useItinerariesStore.getState().setItineraries(destId, its)
   );
 
   // Fetch and store activities
@@ -74,8 +77,28 @@ export const initApp = async () => {
       activitiesByDest[a.destinationId].push(a);
     });
   Object.entries(activitiesByDest).forEach(([destId, acts]) =>
-    useStore.getState().setActivities(destId, acts)
+    useActivitiesStore.getState().setActivities(destId, acts)
   );
+
+
+  // Fetch and store itinerary-activity relationships
+  const itineraryActivities: ItineraryActivity[] = await getItineraryActivities();
+  console.log("fetched itinerary-activity relationships", itineraryActivities);
+  const joinsByItinerary: Record<string, ItineraryActivity[]> = {};
+  itineraryActivities.forEach((join) => {
+    if (!join.itineraryId) return;
+    if (!joinsByItinerary[join.itineraryId]) joinsByItinerary[join.itineraryId] = [];
+    joinsByItinerary[join.itineraryId].push(join);
+  });
+  useItinerariesStore.setState({ itineraryActivities: {} });
+
+  Object.entries(joinsByItinerary).forEach(([itinId, joins]) => {
+    const sortedJoins = joins.slice().sort((a, b) => a.sortOrder! - b.sortOrder!);
+    useItinerariesStore.getState().setItineraryActivities(itinId, sortedJoins);
+  });
+
+  console.log("joined itinerary-activity relationships", joinsByItinerary);
+
 
   // Fetch and store all ActivityComments
   const comments: ActivityComment[] = await getComments();
@@ -86,7 +109,7 @@ export const initApp = async () => {
     commentsByActivity[c.activityId].push(c);
   });
   Object.entries(commentsByActivity).forEach(([activityId, comms]) =>
-    useStore.getState().setComments(activityId, comms)
+    useActivitiesStore.getState().setComments(activityId, comms)
   );
 
   // Fetch and store userTrips

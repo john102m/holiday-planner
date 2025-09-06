@@ -8,18 +8,27 @@ interface Props {
   onCancel: () => void;
 }
 
+const DEFAULT_IMAGE = "https://myjohnblogimages.blob.core.windows.net/images/morocco.webp";
+
 const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, onCancel }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [description, setDescription] = useState(initialValues?.description || "");
-  const [tags, setTags] = useState(initialValues?.tags?.split(", ") || "");
+  const [tags, setTags] = useState(initialValues?.tags || "");
+  const [slug, setSlug] = useState(initialValues?.slug || "");
+  const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const sanitizedTags = tags.replace(/'/g, "").trim(); // remove stray single quotes
+
     onSubmit({
       ...initialValues,
       name,
       description,
-      tags: tags,
+      tags: sanitizedTags,
+      slug,
+      imageUrl: imageUrl || DEFAULT_IMAGE,
       destinationId,
     } as Itinerary);
   };
@@ -53,7 +62,37 @@ const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           className="w-full border rounded p-2"
+          placeholder="e.g. beach, hiking, food"
         />
+      </div>
+
+      <div>
+        <label className="block font-semibold">Slug</label>
+        <input
+          type="text"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          className="w-full border rounded p-2"
+          placeholder="e.g. fuerteventura-beach-escape"
+        />
+      </div>
+
+      <div>
+        <label className="block font-semibold">Image URL</label>
+        <input
+          type="text"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          className="w-full border rounded p-2"
+          placeholder="Paste blob URL or leave blank for default"
+        />
+        <div className="mt-2">
+          <img
+            src={imageUrl || DEFAULT_IMAGE}
+            alt="Itinerary preview"
+            className="w-full h-40 object-cover rounded"
+          />
+        </div>
       </div>
 
       <div className="flex gap-4 mt-4">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Package } from "../../services/types";
 
 interface Props {
@@ -16,18 +16,28 @@ const PackageForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, 
   const [price, setPrice] = useState(initialValues?.price || 0);
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
 
+  // Sync form state whenever initialValues changes
+  useEffect(() => {
+    setName(initialValues?.name || "");
+    setRegion(initialValues?.region || "");
+    setDescription(initialValues?.description || "");
+    setNights(initialValues?.nights || 1);
+    setPrice(initialValues?.price || 0);
+    setImageUrl(initialValues?.imageUrl || "");
+  }, [initialValues]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      ...initialValues,
+      id: initialValues?.id, // preserve id if editing
+      destinationId,
       name,
       region,
       description,
       nights,
       price,
       imageUrl,
-      destinationId, // link package to current destination
-    } as Package);
+    });
   };
 
   return (

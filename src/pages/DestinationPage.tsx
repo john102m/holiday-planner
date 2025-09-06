@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useStore } from "../services/store";
-import type { Destination, Package, Activity, Itinerary, ActivityComment } from "../services/types";
+import { useActivitiesStore } from "../services/slices/activitiesSlice";
+import type { Destination, ActivityComment } from "../services/types";
 import { useNavigate } from "react-router-dom";
-
+import ScrollToTopButton from "../components/ScrollToTop";
 import HeroSection from "../components/destination/HeroSection";
 import PackagesGrid from "../components/destination/PackagesGrid";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
@@ -15,23 +16,24 @@ import QuickActionsBar from "../components/destination/QuickActionsBar";
 
 type TabType = "Packages" | "Activities" | "Itineraries" | "Comments";
 
+
+// What changed:
+// Removed activities prop. The grid now subscribes directly to the store using useActivitiesStore.
+// Any update to the activities in the store automatically triggers a re-render.
+// Parent component (DestinationPage) just passes destinationId. No need to compute filtered lists
+
+
 const DestinationPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const destinations = useStore((state) => state.destinations);
-  const packages = useStore((state) => state.packages);
-  const activities = useStore((state) => state.activities);
-  const itineraries = useStore((state) => state.itineraries);
-  const comments = useStore((state) => state.comments);
-
+  const comments = useActivitiesStore((state) => state.comments);
   const [activeTab, setActiveTab] = useState<TabType>("Packages");
 
   const currentDC: Destination | undefined = destinations.find((d) => d.id === id);
   if (!currentDC) return <div>Loading destination...</div>;
 
-  const dcPackages: Package[] = packages[id ?? ""] ?? [];
-  const dcActivities: Activity[] = activities[id ?? ""] ?? [];
-  const dcItineraries: Itinerary[] = itineraries[id ?? ""] ?? [];
+
   const dcComments: ActivityComment[] = Object.values(comments)
     .flat()
     .filter((c: ActivityComment) => c.activityId === id);
@@ -78,7 +80,7 @@ const DestinationPage: React.FC = () => {
                 + Add Package
               </button>
             </div>
-            <PackagesGrid packages={dcPackages} destinationId={currentDC.id} />
+            <PackagesGrid destinationId={currentDC.id} />
           </div>
         )}
 
@@ -93,24 +95,25 @@ const DestinationPage: React.FC = () => {
               </button>
             </div>
 
-            <ActivitiesGrid activities={dcActivities} destinationId={currentDC.id} />
+            <ActivitiesGrid destinationId={currentDC.id} />
           </div>
         )}
-        {activeTab === "Itineraries" && ( /*path="/destinations/:destinationId/itineraries/edit/:itineraryId?" */
+        {activeTab === "Itineraries" && ( /*"/itineraries/edit/:destinationId/:itineraryId"*/
           <div>
             <div className="flex justify-end mb-4">
               <button
-                onClick={() => navigate(`/destinations/${currentDC.id}/itineraries/edit`)}
+                onClick={() => navigate(`/itineraries/edit/${currentDC.id}`)}
                 className="px-4 py-2 bg-blue-500 text-white rounded"
               >
                 + Add Itinerary
               </button>
             </div>
-            <ItinerariesGrid itineraries={dcItineraries} destinationId={currentDC.id} />
+            <ItinerariesGrid destinationId={currentDC.id} />
           </div>
         )}
         {activeTab === "Comments" && <CommentsFeed comments={dcComments} />}
       </div>
+        <ScrollToTopButton />
     </div>
   );
 };

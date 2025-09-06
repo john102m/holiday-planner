@@ -1,5 +1,5 @@
 import React from "react";
-import { useStore } from "../../services/store";
+import { useItinerariesStore } from "../../services/slices/itinerariesSlice";
 import ItineraryCard from "../ItineraryCard";
 import type { DashboardItinerary } from "../../services/types";
 
@@ -18,7 +18,7 @@ import type { DashboardItinerary } from "../../services/types";
 
 const ItinerariesSection: React.FC = () => {
   // Grab the itineraries object from the store
-  const itinerariesObj = useStore(
+  const itinerariesObj = useItinerariesStore(
     (state) => state.itineraries
   ) as Record<string, DashboardItinerary[]> | undefined;
 
