@@ -9,19 +9,11 @@ import ScrollToTopButton from "../components/ScrollToTop";
 import HeroSection from "../components/destination/HeroSection";
 import PackagesGrid from "../components/destination/PackagesGrid";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
-import ItinerariesGrid from "../components/destination/ItinerariesGrid";
 import CommentsFeed from "../components/destination/CommentsFeed";
 import InviteFriendsSection from "../components/destination/InviteFriendsSection";
 import QuickActionsBar from "../components/destination/QuickActionsBar";
 
-type TabType = "Packages" | "Activities" | "Itineraries" | "Comments";
-
-
-// What changed:
-// Removed activities prop. The grid now subscribes directly to the store using useActivitiesStore.
-// Any update to the activities in the store automatically triggers a re-render.
-// Parent component (DestinationPage) just passes destinationId. No need to compute filtered lists
-
+type TabType = "Packages" | "Activities" | "Comments";
 
 const DestinationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +30,7 @@ const DestinationPage: React.FC = () => {
     .flat()
     .filter((c: ActivityComment) => c.activityId === id);
 
-  const tabs: TabType[] = ["Packages", "Activities", "Itineraries", "Comments"];
+  const tabs: TabType[] = ["Packages", "Activities", "Comments"];
 
   return (
     <div className="destination-page container mx-auto p-4 sm:p-6 lg:p-8">
@@ -98,19 +90,7 @@ const DestinationPage: React.FC = () => {
             <ActivitiesGrid destinationId={currentDC.id} />
           </div>
         )}
-        {activeTab === "Itineraries" && ( /*"/itineraries/edit/:destinationId/:itineraryId"*/
-          <div>
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={() => navigate(`/itineraries/edit/${currentDC.id}`)}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
-                + Add Itinerary
-              </button>
-            </div>
-            <ItinerariesGrid destinationId={currentDC.id} />
-          </div>
-        )}
+
         {activeTab === "Comments" && <CommentsFeed comments={dcComments} />}
       </div>
         <ScrollToTopButton />

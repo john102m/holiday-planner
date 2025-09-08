@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Package, QueuedAction } from "../types";
-import { createPackage, editPackage, deletePackage } from "../api";
+import { createPackage, editPackage, deletePackage } from "../apis/packagesApi";
 export interface PackageSliceState {
     packages: Record<string, Package[]>;
 
@@ -14,6 +14,8 @@ export interface PackageSliceState {
     removePackage: (destId: string, packageId: string) => void;
     getPackages: (destId?: string) => Package[];
 }
+
+console.log("🔥 packagesSlice.ts loaded — check new import resolution");
 
 export const usePackageStore = create<PackageSliceState>()(
     persist(

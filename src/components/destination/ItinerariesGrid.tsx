@@ -5,6 +5,7 @@ import ItineraryCard from "../cards/ItineraryCard";
 import type { Itinerary, ResolvedItinerary } from "../../services/types";
 
 interface Props {
+  tripId?: string;
   destinationId: string;
 }
 
@@ -27,8 +28,22 @@ interface Props {
 
 const EMPTY_ITINERARIES: Itinerary[] = [];
 
-const ItinerariesGrid: React.FC<Props> = ({ destinationId }) => {
-  const itineraries = useItinerariesStore(state => state.itineraries[destinationId] ?? EMPTY_ITINERARIES);
+const ItinerariesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
+
+  // TODO: Refactor to use tripId exclusively once all itineraries are migrated
+
+const rawItineraries = useItinerariesStore(state => state.itineraries);
+console.log(rawItineraries);
+const itineraries = useMemo(() => {
+  return Object.values(rawItineraries).flat().filter(it => it.tripId === tripId);
+}, [rawItineraries, tripId]);
+
+  // const itineraries = useItinerariesStore(state =>
+  //   tripId
+  //     ? Object.values(state.itineraries).flat().filter(it => it.tripId === tripId)
+  //     : state.itineraries[destinationId] ?? EMPTY_ITINERARIES
+  // );
+
   const itineraryActivities = useItinerariesStore(state => state.itineraryActivities);
   const activitiesForDestination = useActivitiesStore(state => state.activities[destinationId] ?? EMPTY_ITINERARIES);
 
@@ -42,7 +57,7 @@ const ItinerariesGrid: React.FC<Props> = ({ destinationId }) => {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {resolvedItineraries.map(it => (
-        <ItineraryCard key={it.id} itinerary={it} destinationId={destinationId} />
+        <ItineraryCard key={it.id} itinerary={it} destinationId={destinationId} tripId={tripId}/>
       ))}
     </div>
   );

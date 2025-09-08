@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useItinerariesStore} from "../../services/slices/itinerariesSlice"
 import type { DashboardItinerary } from "../../services/types";
-import { getUserByEmail } from "../../services/api";
+import { getUserByEmail } from "../../services/apis/api";
 import ItineraryCard from "../ItineraryCard";
 
 const ItinerariesGridSection: React.FC = () => {

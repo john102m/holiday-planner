@@ -12,16 +12,12 @@
 // processQueue = sweeps through that to-do list when the network comes back.
 // Components = just read/write the store as if it’s the database — everything else happens behind the
 
-import {
-  login,
-  getDestinations,
-  getPackages,
-  getItineraries,
-  getActivities,
-  getComments,
-  getUserTrips,
-  getItineraryActivities,
-} from "./api";
+import { login, getComments, getUserTrips } from "./apis/api";
+import { getDestinations} from "./apis/destinationsApi";
+import { getActivities } from "./apis/activitiesApi";
+import { getPackages } from "./apis/packagesApi";
+import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
+
 import type { Activity, Package, Destination, Itinerary, ItineraryActivity, ActivityComment, UserTrip } from "./types";
 import { useStore, processQueue } from "./store";
 import { useActivitiesStore, } from "./slices/activitiesSlice";

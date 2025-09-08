@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import localforage from "localforage";
 import type { Destination, Activity, Package, Itinerary, ActivityComment, UserTrip } from "./types";
-import { createActivity } from "./api";
+import { createActivity } from "./apis/activitiesApi";
 
 type Entity = Activity | Destination | Itinerary | ActivityComment;
 type CollectionKey = "activities" | "destinations" | "itineraries" | "comments";

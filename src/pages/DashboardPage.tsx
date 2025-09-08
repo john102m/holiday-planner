@@ -5,6 +5,7 @@ import InvitationsSection from "../components/dashboard/InvitationsSection";
 import CommentsFeedSection from "../components/dashboard/CommentsFeedSection";
 import ProfileSection from "../components/dashboard/ProfileSection";
 import TravelMoodToggle from "../components/dashboard/TravelMoodleSection";
+import TripsGridSection from "../components/dashboard/TripsGridSection";
 import ScrollToTopButton from "../components/ScrollToTop";
 
 const DashboardPage: React.FC = () => {
@@ -13,6 +14,7 @@ const DashboardPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       <TravelMoodToggle />
       <ProfileSection />
+      <TripsGridSection />
       <ItinerariesGridSection />
       <SavedActivitiesSection />
       <InvitationsSection />

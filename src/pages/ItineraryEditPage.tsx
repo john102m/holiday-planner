@@ -7,7 +7,7 @@
 // Provides navigation and editing entry points
 
 import React, { useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { QueueTypes, CollectionTypes } from "../services/types"; // value import
 import type { ItineraryActivity, ItineraryActivitiesBatch } from "../services/types"
 // Zustand stores
@@ -22,13 +22,19 @@ import { getItinerariesWithActivities } from "../services/slices/itinerariesSlic
 import HeroSection from "../components/destination/HeroSection";
 import LinkedActivitiesPanel from "../components/LinkedActivitiesPanel";
 
-const ItineraryPage: React.FC = () => {
-    console.log("Viewing Itinerary Page");
+const ItineraryEditPage: React.FC = () => {   
+    const navigate = useNavigate();
+    console.log("Viewing Itinerary Edit Page");
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const tripId = searchParams.get("tripId") ?? "";
+    const destinationId = searchParams.get("destId") ?? "";
+    const itineraryId = searchParams.get("itinId") ?? "";
 
     // Extract route params (destinationId and itineraryId)
-    const { destinationId, itineraryId } = useParams<{ destinationId: string; itineraryId: string }>();
-    const navigate = useNavigate();
-
+    //const { destinationId, tripId } = useParams<{ destinationId: string; tripId: string }>();
+ 
+    console.log("Welcome to ItineraryEditPage -> it renders LinkedActivitiesPanel to re-order  add delete activties for this itinerary");
     // --- Pull store data ---
 
     // Get all destinations from global store
@@ -95,11 +101,8 @@ const ItineraryPage: React.FC = () => {
         );
     };
 
-
-
-
     // Debug logs (can be removed once stable)
-    console.log("Itinerary ID:", itineraryId);
+    console.log("Trip ID:", tripId);
     console.log("Itinerary Activities map:", itineraryActivities[itineraryId ?? ""]);
     console.log("Raw itineraries:", itineraries);
     console.log("Resolved itineraries:", resolvedItineraries);
@@ -126,7 +129,7 @@ const ItineraryPage: React.FC = () => {
             </div>
         );
     }
-
+ console.log("itinerary.id", itinerary.id);
     // --- Render itinerary view ---
     return (
         <div className="container mx-auto p-4">
@@ -136,10 +139,10 @@ const ItineraryPage: React.FC = () => {
             {/* Back link */}
             <div className="mb-4">
                 <button
-                    onClick={() => navigate(`/destinations/${destinationId}`)}
+                    onClick={() => navigate(`/trips/${tripId}`)}
                     className="text-sm text-blue-600 hover:underline"
                 >
-                    ← Back to Destination
+                    ← Back to Dashboard
                 </button>
             </div>
 
@@ -176,4 +179,4 @@ const ItineraryPage: React.FC = () => {
     );
 };
 
-export default ItineraryPage;
+export default ItineraryEditPage;

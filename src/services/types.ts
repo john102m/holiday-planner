@@ -118,18 +118,23 @@ export interface User {
 }
 
 export interface UserTrip {
-  id: string,
-  userId: string,
-  destinationId: string,
-  status?: string,
-  startDate?: string,
-  endDate?: string,
-  createdAt?: string
+  id?: string;
+  userId: string;
+  destinationId: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt?: string;
+  name?: string;
+  notes?: string;
+  imageUrl?: string;
+  collaborators?: string; // comma-separated emails
 }
 
 export interface Itinerary {
   id?: string;
   destinationId: string;
+  tripId?: string;
   name: string;
   description?: string; // optional
   slug?: string;        // optional

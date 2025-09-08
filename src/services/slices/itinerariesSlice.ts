@@ -13,7 +13,7 @@ import {
     createItineraryActivity,
     deleteItineraryActivity,
 
-} from "../api";
+} from "../apis/itinerariesApi";
 
 interface ItinerariesSliceState {
     itineraries: Record<string, Itinerary[]>; // grouped by destination
@@ -26,6 +26,7 @@ interface ItinerariesSliceState {
     replaceItinerary: (tempId: string, saved: Itinerary) => void;
     removeItinerary: (destId: string, itineraryId: string) => void;
     getItineraries: () => Itinerary[];
+    getItinerariesByTrip: (tripId: string) => Itinerary[],
 
     // ItineraryActivities (join table)
     setItineraryActivities: (itinId: string, items: ItineraryActivity[]) => void;
@@ -73,7 +74,7 @@ export function getItinerariesWithActivities(
 }
 
 
-
+console.log("🔥 itinerariesSlice.ts loaded — check new import resolution");
 
 export const useItinerariesStore = create<ItinerariesSliceState>()(
     persist(
@@ -127,6 +128,11 @@ export const useItinerariesStore = create<ItinerariesSliceState>()(
                 })),
 
             getItineraries: () => Object.values(get().itineraries).flat(),//Returns all itineraries across all destinations
+            // TODO: Refactor to use tripId instead of destinationId once trip-based itineraries are fully supported
+            getItinerariesByTrip: (tripId: string) => {
+                const allItineraries = Object.values(get().itineraries).flat();
+                return allItineraries.filter(it => it.tripId === tripId);
+            },
 
             // -------- ItineraryActivities --------
             setItineraryActivities: (itinId, items) =>//Replace all itinerary activities for a given itinerary

@@ -1,69 +1,68 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Activity Filtering Flow
 
-Currently, two official plugins are available:
+This diagram shows how itineraries, destinations, and activities relate, and why we need `.flat()` + a lookup map to get `availableActivities`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Notes
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Itineraries**: grouped by trip and contain a `destinationId`.  
+2. **Activities store**: nested arrays per `destinationId`.  
+3. **Flattening**: `.flat()` collapses all nested activity arrays into a single array for easier filtering.  
+4. **Lookup map**: `flatActivitiesById` allows O(1) access by `activityId` when showing linked activities or previews.  
+5. **Filtering**: `availableActivities` excludes already linked activities for that itinerary and matches the itinerary's `destinationId`.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+
+# Full Activity Filtering Flow (ASCII Diagram)
+
+Trip
+└─▶ Itineraries[]
+     ├─ Itinerary 1 (id: abc123)
+     │    └─ destinationId: 2e499e55-a53d-46b8-9bf0-0366e43ded2e
+     │
+     └─ Itinerary 2 (id: def456)
+          └─ destinationId: da9a83d7-7bff-4915-8888-3604f026257b
+
+Activities Store (grouped by destinationId)
+┌───────────────────────────────┐
+│ destinationId: 2e499e55-a53d │
+│ ├─ Activity A                 │
+│ ├─ Activity B                 │
+│ └─ Activity C                 │
+│                               │
+│ destinationId: da9a83d7-7bff │
+│ ├─ Activity D                 │
+│ ├─ Activity E                 │
+│ └─ Activity F                 │
+└───────────────────────────────┘
+
+Flattened lookup (flatActivitiesById)
+┌───────────────┐
+│ activityId → Activity │
+└───────────────┘
+Allows O(1) access when rendering linked activities or previewing selection.
+
+Available Activities for current itinerary
+┌───────────────────────────────┐
+│ Filtered:                     │
+│ - Matches itinerary.destinationId │
+│ - Not already linked in joins │
+└───────────────────────────────┘
+This drives the dropdown in LinkedActivitiesPanel for adding new activities.
+
+
+Trip
+ ├── Itinerary A  (edit = metadata: name, description, cover image, tags)
+ │     ├── Activity 1  (edit = details inside itinerary: reorder, notes, delete)
+ │     ├── Activity 2
+ │     └── Activity 3
+ │
+ └── Itinerary B
+       ├── Activity 1
+       └── Activity 2
+

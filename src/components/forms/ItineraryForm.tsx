@@ -4,18 +4,23 @@ import type { Itinerary } from "../../services/types";
 interface Props {
   initialValues?: Itinerary;
   destinationId: string;
+  tripId?: string
   onSubmit: (it: Itinerary) => void;
   onCancel: () => void;
 }
-
+console.log("Itinerary Form");
 const DEFAULT_IMAGE = "https://myjohnblogimages.blob.core.windows.net/images/morocco.webp";
 
-const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, onCancel }) => {
+const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, tripId, onSubmit, onCancel }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [description, setDescription] = useState(initialValues?.description || "");
+  console.log("you are here");
   const [tags, setTags] = useState(initialValues?.tags || "");
   const [slug, setSlug] = useState(initialValues?.slug || "");
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
+
+
+ console.log(initialValues);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +31,7 @@ const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit
       ...initialValues,
       name,
       description,
+      tripId,
       tags: sanitizedTags,
       slug,
       imageUrl: imageUrl || DEFAULT_IMAGE,

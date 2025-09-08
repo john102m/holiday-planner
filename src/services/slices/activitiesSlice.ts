@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Activity, ActivityComment, QueuedAction } from "../types";
-import { createActivity, editActivity, deleteActivity } from "../api";
+import { createActivity, editActivity, deleteActivity } from "../apis/activitiesApi";
 
 interface ActivitiesSliceState {
   activities: Record<string, Activity[]>;
@@ -21,7 +21,7 @@ interface ActivitiesSliceState {
   addComment: (activityId: string, comm: ActivityComment) => void;
 
 }
-
+console.log("🔥 activitiesSlice.ts loaded — check new import resolution");
 export const useActivitiesStore = create<ActivitiesSliceState>()(
   persist(
     (set, get) => ({

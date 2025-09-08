@@ -3,17 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useStore } from "./services/store";
+import { logMemory } from "./services/logMemory";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import DashboardPage from "./pages/DashboardPage";
 import DestinationPage from "./pages/DestinationPage";
-import DashboardPageLower from "./pages/DashboardPageLower";
-import Navbar from "./components/Navbar";
+import TripDetailPage from "./pages/TripDetailPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AddEditPackagePage from "./pages/AddEditPackagePage";
-//import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import AddEditActivityPage from "./pages/AddEditActivityPage";
-import { logMemory } from "./services/logMemory";
-import ItineraryPage from "./pages/ItineraryPage";
 import AddEditItineraryPage from "./pages/AddEditItineraryPage";
+import ItineraryEditPage from "./pages/ItineraryEditPage";
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -41,9 +41,11 @@ const App: React.FC = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route index element={<Home />} />
         <Route path="/destinations/:id" element={<DestinationPage />} />
+        <Route path="/trips/:tripId" element={<TripDetailPage />} />
         <Route path="/dashboard/:id?" element={<DashboardPage />} />
+
         {/* Packages */}
         <Route
           path="/destinations/:destinationId/packages/add"
@@ -59,16 +61,16 @@ const App: React.FC = () => {
         />
 
         <Route
-          path="/itineraries/view/:destinationId/:itineraryId"
-          element={<ItineraryPage />}
+          path="/itineraries/view"
+          element={<ItineraryEditPage />}
         />
         <Route
-          path="/itineraries/edit/:destinationId/:itineraryId?"
+          path="/itineraries/edit/:itineraryId?"
           element={<AddEditItineraryPage />}
         />
 
 
-        <Route path="/dashboardlower" element={<DashboardPageLower />} />
+        <Route path="/admindashboard" element={<AdminDashboardPage />} />
       </Routes>
 
     </>

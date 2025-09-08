@@ -3,14 +3,20 @@ import { useNavigate } from "react-router-dom";
 import type { ResolvedItinerary } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
+//import { useItinerariesStore } from "../../services/slices/itinerariesSlice";
+//import { useActivitiesStore } from "../../services/slices/activitiesSlice"
+import { useItineraryActivities } from "../../services/useItineraryActivities";
+
 
 interface Props {
   itinerary: ResolvedItinerary;
   destinationId: string;
+  tripId?: string;
 }
 
-const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
+const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) => {
   console.log("Hello from the Itinerary Card ");
+  console.log("Itinerary ID: ", itinerary.id);
   const navigate = useNavigate();
 
   const handleDelete = async () => {
@@ -21,14 +27,17 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
         QueueTypes.DELETE_ITINERARY,
         destinationId
       );
-      console.log(`Queued deletion for activity ${itinerary.name}`);
+      console.log(`Queued deletion for itinerary ${itinerary.name}, feel free to add more logging at the queue.`);
     }
   };
 
-  // Ensure unique activities by filtering duplicates
-  const uniqueActivities = Array.from(
-    new Map(itinerary.activities?.map(act => [act.id, act])).values()
-  );
+  const itineraryActivities = useItineraryActivities(itinerary.id ?? "");
+  console.log("Activities for this itinerary: ", itineraryActivities);
+
+  // If you also want activities for this destination specifically
+  // const activitiesByDestId = useActivitiesStore(s => s.activities);
+  // const destActivities = activitiesByDestId[destinationId ?? ""] ?? [];
+  // console.log("Activities for this destination: ", destActivities);
 
   return (
     <div className="card border rounded shadow-sm p-4">
@@ -38,7 +47,15 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
         className="w-full h-40 object-cover rounded mb-2"
       />
       <h3 className="text-lg font-semibold">{itinerary.name}</h3>
-      <p className="text-sm text-gray-600 mb-2">{itinerary.description}</p>
+      <p className="text-sm text-gray-600 mb-2">
+        {itinerary.description
+          ? itinerary.description.length > 120
+            ? `${itinerary.description.slice(0, 120).trim()}…`
+            : itinerary.description
+          : "No description available."}
+      </p>
+
+
 
       {itinerary.tags && (
         <div className="flex gap-2 mb-2">
@@ -50,13 +67,13 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
         </div>
       )}
 
-      {uniqueActivities.length > 0 ? (
+      {itineraryActivities.length > 0 ? (
         <ul className="list-disc list-inside text-sm text-gray-500 mb-2">
-          {uniqueActivities.slice(0, 3).map(act => (
+          {itineraryActivities.slice(0, 3).map(act => (
             <li key={act.id}>{act.name}</li>
           ))}
-          {uniqueActivities.length > 3 && (
-            <li>+ {uniqueActivities.length - 3} more</li>
+          {itineraryActivities.length > 2 && (
+            <li>+ {itineraryActivities.length - 3} more</li>
           )}
         </ul>
       ) : (
@@ -65,13 +82,13 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
 
       <div className="flex gap-2 mt-2">
         <button
-          onClick={() => navigate(`/itineraries/view/${destinationId}/${itinerary.id}`)}
+          onClick={() => navigate(`/itineraries/view?destId=${destinationId}&tripId=${tripId}&itinId=${itinerary.id}`)}
           className="btn btn-sm bg-gray-200"
         >
           View
         </button>
         <button
-          onClick={() => navigate(`/itineraries/edit/${itinerary.destinationId}/${itinerary.id}`)}
+          onClick={() => navigate(`/itineraries/edit/${itinerary.id}?tripId=${tripId}`)}
           className="btn btn-sm bg-blue-500 text-white"
         >
           Edit
@@ -88,3 +105,4 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId }) => {
 };
 
 export default ItineraryCard;
+

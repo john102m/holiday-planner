@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getComments } from "../../services/api";
+import { getComments } from "../../services/apis/api";
 import type { ActivityComment } from "../../services/types";
 
 const CommentsFeedSection: React.FC = () => {

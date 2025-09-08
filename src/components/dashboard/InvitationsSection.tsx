@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { Itinerary } from "../../services/types";
-import { getItineraries, getUserByEmail } from "../../services/api";
+import { getUserByEmail } from "../../services/apis/api";
+import { getItineraries } from "../../services/apis/itinerariesApi";
 import InvitationCard from "../InvitationCard"; // adjust path as needed
 
 interface Invitation {
