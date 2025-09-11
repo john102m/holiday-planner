@@ -14,6 +14,8 @@ import AddEditPackagePage from "./pages/AddEditPackagePage";
 import AddEditActivityPage from "./pages/AddEditActivityPage";
 import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import ItineraryEditPage from "./pages/ItineraryEditPage";
+import AddEditTripPage from "./pages/AddEditTripPage";
+import AddEditDestinationPage from "./pages/AddEditDestinationPage";
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -46,7 +48,11 @@ const App: React.FC = () => {
         <Route path="/trips/:tripId" element={<TripDetailPage />} />
         <Route path="/dashboard/:id?" element={<DashboardPage />} />
 
-        {/* Packages */}
+
+        <Route
+          path="/destinations/edit/:destinationId?"
+          element={<AddEditDestinationPage />}
+        />
         <Route
           path="/destinations/:destinationId/packages/add"
           element={<AddEditPackagePage />}
@@ -59,7 +65,7 @@ const App: React.FC = () => {
           path="/destinations/:destinationId/activities/edit/:activityId?"
           element={<AddEditActivityPage />}
         />
-
+        
         <Route
           path="/itineraries/view"
           element={<ItineraryEditPage />}
@@ -68,7 +74,10 @@ const App: React.FC = () => {
           path="/itineraries/edit/:itineraryId?"
           element={<AddEditItineraryPage />}
         />
-
+        <Route
+          path="/trips/edit/:tripId?"
+          element={<AddEditTripPage />}
+        />
 
         <Route path="/admindashboard" element={<AdminDashboardPage />} />
       </Routes>

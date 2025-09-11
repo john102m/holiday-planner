@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { ActivityComment, User, UserTrip } from "../types";
+import type { Destination } from "../types";
 
 const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
@@ -114,6 +115,16 @@ api.interceptors.response.use(
   }
 );
 
+export const getSasToken = async (): Promise<{ sasUrl: string; blobName: string }> => {
+  const res = await api.get("/users/generate-sas");
+  return res.data;
+};
+
+export const postNameForSasToken = async (blobName: string): Promise<{ sasUrl: string; blobName: string }> => {
+  const res = await api.post("/users/generate-sas", { blobName });
+  return res.data;
+};
+
 
 export const getUserByEmail = async (user: string) => {
   try {
@@ -145,6 +156,20 @@ export const getComments = async (): Promise<ActivityComment[]> => {
   return res.data;
 };
 
+function sanitizeDate(input: unknown): string | undefined {
+  if (!input) return undefined;
+
+  if (typeof input === "string" || typeof input === "number" || input instanceof Date) {
+    const date = new Date(input);
+    if (isNaN(date.getTime()) || date.getFullYear() < 1753) return undefined;
+    return date.toISOString();
+  }
+
+  return undefined;
+}
+
+
+
 // ----------------- CREATE -----------------
 export const createUserTrip = async (trip: Partial<UserTrip>): Promise<UserTrip> => {
   const res = await api.post<UserTrip>('/users/createtrip', trip);
@@ -153,11 +178,17 @@ export const createUserTrip = async (trip: Partial<UserTrip>): Promise<UserTrip>
 
 
 // ----------------- UPDATE -----------------
-export const updateUserTrip = async (
+export const editUserTrip = async (
   tripId: string,
   tripUpdates: Partial<UserTrip>
 ): Promise<UserTrip> => {
-  const res = await api.post<UserTrip>(`/users/updatetrip/${tripId}`, tripUpdates);
+  const dateSafeUpdates = {
+    ...tripUpdates,
+    startDate: sanitizeDate(tripUpdates.startDate),
+    endDate: sanitizeDate(tripUpdates.endDate),
+  };
+  console.log("Posting trip update", dateSafeUpdates);
+  const res = await api.post<UserTrip>(`/users/updatetrip/${tripId}`, dateSafeUpdates);
   return res.data;
 };
 
@@ -177,5 +208,42 @@ export const getUserTripByTripId = async (tripId: string): Promise<UserTrip | nu
   const res = await api.get<UserTrip>(`/users/getusertripbyid/${tripId}`);
   return res.data;
 };
+
+
+// Create: omit id, createdBy, createdAt
+export const createDestination = async (
+  destination: Omit<Destination, "id" | "createdBy" | "createdAt">
+): Promise<Destination> => {
+  const res = await api.post<Destination>("/destinations/create", destination);
+  return res.data
+};
+
+// Update: send full object, but backend will ignore id/createdAt
+export const editDestination = async (
+  id: string,
+  destination: Omit<Destination, "createdBy" | "createdAt">
+): Promise<void> => {
+  await api.post<void>(`/destinations/update/${id}`, destination);
+};
+
+
+// ----------------- READ ALL -----------------
+export const getAllDestinations = async (): Promise<Destination[]> => {
+  const res = await api.get<Destination[]>("/destinations");
+  return res.data;
+};
+
+// ----------------- READ BY ID -----------------
+export const getDestinationById = async (id: string): Promise<Destination | null> => {
+  const res = await api.get<Destination>(`/destinations/${id}`);
+  return res.data;
+};
+
+
+// ----------------- DELETE -----------------
+export const deleteDestination = async (id: string): Promise<void> => {
+  await api.post<void>(`/destinations/delete/${id}`);
+};
+
 
 

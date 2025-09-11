@@ -39,8 +39,8 @@ const DestinationPage: React.FC = () => {
 
       {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
       <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">
-        <QuickActionsBar destinationId={currentDC.id} />
-        <InviteFriendsSection destinationId={currentDC.id} />
+        <QuickActionsBar destinationId={currentDC.id ?? ""} />
+        <InviteFriendsSection destinationId={currentDC.id ?? ""} />
       </div>
 
       {/* Tabs */}
@@ -72,7 +72,7 @@ const DestinationPage: React.FC = () => {
                 + Add Package
               </button>
             </div>
-            <PackagesGrid destinationId={currentDC.id} />
+            <PackagesGrid destinationId={currentDC.id ?? ""} />
           </div>
         )}
 
@@ -87,7 +87,7 @@ const DestinationPage: React.FC = () => {
               </button>
             </div>
 
-            <ActivitiesGrid destinationId={currentDC.id} />
+            <ActivitiesGrid destinationId={currentDC.id ?? ""} />
           </div>
         )}
 

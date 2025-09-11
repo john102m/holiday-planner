@@ -210,7 +210,6 @@ export const useItinerariesStore = create<ItinerariesSliceState>()(
                 get().setItineraryActivities(itineraryId, reordered);
             },
 
-
             removeItineraryActivity: (itinId: string, id: string) => {
                 set((state) => {
                     // Filter out the deleted join

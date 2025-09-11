@@ -17,7 +17,7 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
     <div className="hero relative rounded-lg overflow-hidden shadow-md">
       <img
         src={destination.imageUrl}
-        alt={destination.name}
+        alt={trip.name}
         className="w-full h-64 object-cover sm:h-80 md:h-96"
       />
 

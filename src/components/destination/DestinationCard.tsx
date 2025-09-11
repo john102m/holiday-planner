@@ -1,5 +1,5 @@
 import React from "react";
-import type { Destination } from "../services/types";
+import type { Destination } from "../../services/types";
 import { useNavigate } from "react-router-dom";
 
 interface DestinationCardProps {

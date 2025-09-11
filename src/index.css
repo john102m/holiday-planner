@@ -24,8 +24,9 @@
 }
 /* Card container */
 .card {
-  @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200;
+  @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 max-w-xs;
 }
+
 
 /* Card image */
 .card-img {
@@ -70,7 +71,7 @@ a:hover {
 
 /* index.css or global.css */
 body {
-  margin-top: 3rem; /* Adjust based on your navbar height */
+  margin-top: 4rem; /* Adjust based on your navbar height */
 }
 
 h1 {

@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { updateItineraryActivitiesBatch } from "./apis/itinerariesApi"
+import {
+  createUserTrip, editUserTrip, deleteUserTrip,
+  createDestination, editDestination, deleteDestination
+} from "./apis/api";
 import type {
   Destination, Activity, Package,
   Itinerary, ActivityComment, UserTrip,
@@ -16,7 +20,10 @@ import {
   handleDeleteItinerary, handleCreateItineraryActivity, handleUpdateItineraryActivity, handleDeleteItineraryActivity
 
 } from "./slices/itinerariesSlice";
-type Entity = Activity | Package | Destination | Itinerary | ActivityComment | ItineraryActivity | ItineraryActivitiesBatch;
+type Entity =
+  Activity | Package | Destination |
+  Itinerary | ActivityComment | UserTrip |
+  ItineraryActivity | ItineraryActivitiesBatch;
 console.log("🔥 store.ts loaded — check new import resolution");
 
 
@@ -41,11 +48,15 @@ export const addOptimisticAndQueue = async (
   const collectionHandlers: Record<CollectionType, (id: string | undefined, entity: Entity) => void> = {
     [CollectionTypes.Activities]: (id, entity) =>
       activitiesStore.addActivity(id!, entity as Activity),
+
     [CollectionTypes.Comments]: (id, entity) =>
       activitiesStore.addComment(id!, entity as ActivityComment),
 
     [CollectionTypes.Packages]: (id, entity) =>
       packageStore.addPackage(id!, entity as Package),
+
+    [CollectionTypes.UserTrips]: (_, entity) =>
+      store.addUserTrip(entity as UserTrip),
 
     [CollectionTypes.Destinations]: (_, entity) =>
       store.addDestination(entity as Destination),
@@ -93,9 +104,13 @@ interface AppState {
   addUserTrip: (trip: UserTrip) => void;
   updateUserTrip: (tripId: string, updates: Partial<UserTrip>) => void;
   removeUserTrip: (tripId: string) => void;
+  replaceUserTrip: (tempId: string, saved: UserTrip) => void;
 
   setDestinations: (dest: Destination[]) => void;
   addDestination: (dest: Destination) => void;
+  replaceDestination: (tempId: string, saved: Destination) => void;
+  updateDestination: (updated: Destination) => void;
+  removeDestination: (id: string) => void;
 
   // Queue
   addQueuedAction: (action: QueuedAction) => void;
@@ -107,6 +122,19 @@ interface AppState {
 // This creates a Zustand store using the create() function, 
 // and wraps it with the persist() middleware. 
 // The result is a hook called useStore that you can use throughout your app to read and update state.
+// hooks/useZustandArray.ts
+
+// THE AI EVEN WENT AS FAR AS SUGGESTING THIS - LETS LOOK INTO THIS INABIT
+// import { useMemo } from "react";
+
+// export function useZustandArray<T>(slice: T | Record<string, T> | undefined): T[] {
+//   return useMemo(() => {
+//     if (!slice) return [];
+//     if (Array.isArray(slice)) return slice;
+//     return Object.values(slice);
+//   }, [slice]);
+// }
+
 
 export const useStore = create<AppState>()(
 
@@ -135,6 +163,13 @@ export const useStore = create<AppState>()(
             t.id === tripId ? { ...t, ...updates } : t
           )
         })),
+
+      // <--- Optimistic replacement
+      replaceUserTrip: (tempId, saved) =>
+        set((state) => ({
+          userTrips: state.userTrips.map((t) => (t.id === tempId ? saved : t)),
+        })),
+
       removeUserTrip: (tripId) =>
         set((state) => ({
           userTrips: state.userTrips.filter((t) => t.id !== tripId)
@@ -142,6 +177,27 @@ export const useStore = create<AppState>()(
 
       setDestinations: (dest) => set({ destinations: dest }),
       addDestination: (dest) => set((state) => ({ destinations: [...state.destinations, dest] })),
+      replaceDestination: (tempId, saved) =>
+        set((state) => {
+          const updated = state.destinations.map((d) =>
+            d.id === tempId ? saved : d
+          );
+          return { destinations: updated };
+        }),
+
+
+      updateDestination: (updated: Destination) =>
+        set((state) => ({
+          destinations: state.destinations.map((d) =>
+            d.id === updated.id ? { ...d, ...updated } : d
+          ),
+        })),
+
+      removeDestination: (id: string) => {
+        set((state) => ({
+          destinations: state.destinations.filter((d) => d.id !== id),
+        }));
+      },
 
 
       addQueuedAction: (action) => set((state) => ({ queue: [...state.queue, action] })),
@@ -184,6 +240,70 @@ window.addEventListener("offline", () => {
 });
 
 
+const handleCreateUserTrip = async (action: QueuedAction) => {
+  const { addUserTrip, replaceUserTrip } = useStore.getState();
+  const trip = action.payload as UserTrip;
+
+  // Call backend
+  const saved = await createUserTrip(trip);
+
+  // Update store: replace tempId if exists, else add
+  if (action.tempId) replaceUserTrip(action.tempId, saved);
+  else addUserTrip(saved);
+};
+
+const handleUpdateUserTrip = async (action: QueuedAction) => {
+  const { updateUserTrip } = useStore.getState();
+  const trip = action.payload as UserTrip;
+  if (!trip.id) throw new Error("Cannot update UserTrip: missing ID");
+
+  await editUserTrip(trip.id, trip);
+  updateUserTrip(trip.id, trip);
+};
+
+const handleDeleteUserTrip = async (action: QueuedAction) => {
+  const { removeUserTrip } = useStore.getState();
+  const trip = action.payload as UserTrip;
+  if (!trip.id) throw new Error("Cannot delete UserTrip: missing ID");
+
+  await deleteUserTrip(trip.id);
+  removeUserTrip(trip.id);
+};
+
+// ----------------- CREATE -----------------
+export const handleCreateDestination = async (action: QueuedAction) => {
+  const { addDestination, replaceDestination } = useStore.getState();
+  const dest = action.payload as Destination;
+
+  const saved = await createDestination(dest);
+
+  if (action.tempId) replaceDestination(action.tempId, saved);
+  else addDestination(saved);
+};
+
+
+// ----------------- UPDATE -----------------
+export const handleUpdateDestination = async (action: QueuedAction) => {
+  const { updateDestination } = useStore.getState();
+  const dest = action.payload as Destination;
+  if (!dest.id) throw new Error("Cannot update Destination: missing ID");
+
+  await editDestination(dest.id, dest);
+  updateDestination(dest);
+};
+
+// ----------------- DELETE -----------------
+export const handleDeleteDestination = async (action: QueuedAction) => {
+  const { removeDestination } = useStore.getState();
+  const dest = action.payload as Destination;
+  if (!dest.id) throw new Error("Cannot delete Destination: missing ID");
+
+  await deleteDestination(dest.id);
+  removeDestination(dest.id);
+};
+
+
+
 const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> = {
   [QueueTypes.CREATE_ACTIVITY]: handleCreateActivity,
   [QueueTypes.UPDATE_ACTIVITY]: handleUpdateActivity,
@@ -193,6 +313,14 @@ const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> 
   [QueueTypes.CREATE_PACKAGE]: handleCreatePackage,
   [QueueTypes.UPDATE_PACKAGE]: handleUpdatePackage,
   [QueueTypes.DELETE_PACKAGE]: handleDeletePackage,
+
+  [QueueTypes.CREATE_USER_TRIP]: handleCreateUserTrip,
+  [QueueTypes.UPDATE_USER_TRIP]: handleUpdateUserTrip,
+  [QueueTypes.DELETE_USER_TRIP]: handleDeleteUserTrip,
+
+  [QueueTypes.CREATE_DESTINATION]: handleCreateDestination,
+  [QueueTypes.UPDATE_DESTINATION]: handleUpdateDestination,
+  [QueueTypes.DELETE_DESTINATION]: handleDeleteDestination,
 
   // Comments
   // [QueueTypes.CREATE_COMMENT]: handleCreateComment,
@@ -245,3 +373,12 @@ export const processQueue = async () => {
 };
 
 // Note: In a real app, you’d want to add more error handling, logging, and possibly retry logic.
+// 🚀 What You Could Add Next
+// Retry Metadata: Add a retryCount or lastAttempt to each QueuedAction for smarter reprocessing.
+// Queue Persistence: Store the queue in localStorage or IndexedDB so it survives page reloads.
+// Conflict Resolution: Detect if a resource was modified externally before applying updates.
+// Queue Visualizer: Build a debug panel to inspect pending actions, their types, and timestamps.
+
+// If you ever decide to open this up to third-party integrations—like syncing
+// with Google Calendar, pulling flight data,
+// or embedding booking widgets—you’re already halfway there.

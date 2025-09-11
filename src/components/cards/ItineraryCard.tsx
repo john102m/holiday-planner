@@ -15,7 +15,7 @@ interface Props {
 }
 
 const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) => {
-  console.log("Hello from the Itinerary Card ");
+  console.log("Hello from the Main Itinerary Planning Summary Card ");
   console.log("Itinerary ID: ", itinerary.id);
   const navigate = useNavigate();
 
@@ -72,7 +72,7 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) =>
           {itineraryActivities.slice(0, 3).map(act => (
             <li key={act.id}>{act.name}</li>
           ))}
-          {itineraryActivities.length > 2 && (
+          {itineraryActivities.length > 3 && (
             <li>+ {itineraryActivities.length - 3} more</li>
           )}
         </ul>

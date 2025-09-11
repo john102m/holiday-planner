@@ -5,7 +5,8 @@ export const CollectionTypes = {
   Itineraries: "itineraries",
   ItineraryActivities: "itineraryActivities",
   Comments: "comments",
-  ItineraryActivitiesBatch: "itineraryActivitiesBatch"
+  ItineraryActivitiesBatch: "itineraryActivitiesBatch",
+  UserTrips: "userTrips"
 
 } as const;
 export type CollectionType = typeof CollectionTypes[keyof typeof CollectionTypes];
@@ -36,6 +37,10 @@ export const QueueTypes = {
   UPDATE_COMMENT: "UPDATE_COMMENT",
   DELETE_COMMENT: "DELETE_COMMENT",
 
+  CREATE_USER_TRIP: "CREATE_USER_TRIP",
+  UPDATE_USER_TRIP: "UPDATE_USER_TRIP",
+  DELETE_USER_TRIP: "DELETE_USER_TRIP",
+
 
   VOTE: "VOTE"
 
@@ -64,14 +69,14 @@ export interface ItineraryActivitiesBatch {
 }
 
 export interface Destination {
-  id: string;               // Guid → string
-  name?: string;            // nullable → optional
-  area?: string;            // nullable → optional
-  country?: string;         // nullable → optional
-  description?: string;     // nullable → optional
-  imageUrl?: string;        // nullable → optional
-  createdBy?: string;       // nullable Guid → optional string
-  createdAt: string;        // DateTime → string in JSON
+  id?: string;               // Guid → string
+  name: string;           
+  area?: string;           
+  country?: string;         
+  description: string;     
+  imageUrl?: string;        
+  createdBy?: string;       
+  createdAt?: string;        
 }
 
 export interface Activity {
@@ -83,6 +88,7 @@ export interface Activity {
   createdBy?: string;        // nullable Guid → optional string
   createdAt?: string;        // nullable DateTime → optional string
   imageUrl?: string;         // nullable → optional
+  isPrivate?: boolean;
 }
 
 export interface ActivityComment {
@@ -153,6 +159,7 @@ export interface ItineraryActivity {
   createdAt?: string;
   createdBy?: string;
 }
+
 export interface ResolvedItinerary extends Itinerary {
   activities: Activity[];
 }

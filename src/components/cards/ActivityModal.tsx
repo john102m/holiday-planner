@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useActivitiesStore } from "../services/slices/activitiesSlice";
+import { useActivitiesStore } from "../../services/slices/activitiesSlice";
 
-import type { Activity, ActivityComment } from "../services/types";
-import { createComment } from "../services/apis/api";
+import type { Activity, ActivityComment } from "../../services/types";
+import { createComment } from "../../services/apis/api";
 
 interface Props {
   activityId: string;

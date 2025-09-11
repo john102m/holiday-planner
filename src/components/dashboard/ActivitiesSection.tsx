@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 //   comments: ActivityComment[];
 // }
 
-const SavedActivitiesSection: React.FC = () => {
+const ActivitiesSection: React.FC = () => {
   //const [savedActivities, setSavedActivities] = useState<ActivityWithComments[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -90,4 +90,4 @@ const SavedActivitiesSection: React.FC = () => {
   );
 };
 
-export default SavedActivitiesSection;
+export default ActivitiesSection;

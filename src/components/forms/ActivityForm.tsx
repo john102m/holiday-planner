@@ -10,6 +10,8 @@ interface Props {
 
 const ActivityForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, onCancel }) => {
   const [name, setName] = useState(initialValues?.name || "");
+  const [isPrivate, setIsPrivate] = useState(initialValues?.isPrivate || false);
+
   const [details, setDetails] = useState(initialValues?.details || "");
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
   const [votes, setVotes] = useState(initialValues?.votes || 0);
@@ -23,6 +25,7 @@ const ActivityForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit,
       imageUrl,
       votes,
       destinationId,
+      isPrivate,
     } as Activity);
   };
 
@@ -58,16 +61,31 @@ const ActivityForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit,
         />
       </div>
 
-      <div>
-        <label className="block font-semibold">Votes</label>
-        <input
-          type="number"
-          value={votes}
-          min={0}
-          onChange={(e) => setVotes(Number(e.target.value))}
-          className="border rounded p-2 w-24"
-        />
+      <div className="flex items-center gap-6">
+        <div>
+          <label className="block font-semibold">Votes</label>
+          <input
+            type="number"
+            value={votes}
+            min={0}
+            onChange={(e) => setVotes(Number(e.target.value))}
+            className="border rounded p-2 w-24"
+          />
+        </div>
+        <div className="flex items-center mt-6">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="mr-2"
+            />
+            Private
+          </label>
+        </div>
       </div>
+
+
 
       <div className="flex gap-4 mt-4">
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">

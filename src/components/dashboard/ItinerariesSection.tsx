@@ -1,56 +1,63 @@
-import React from "react";
-import { useItinerariesStore } from "../../services/slices/itinerariesSlice";
-import ItineraryCard from "../ItineraryCard";
+import React, { useEffect, useState, useMemo } from "react";
+import { useItinerariesStore} from "../../services/slices/itinerariesSlice"
 import type { DashboardItinerary } from "../../services/types";
-
-// 🔹 Improvements:
-// Handles undefined store state safely (itinerariesObj | undefined).
-// Filters out any null or undefined arrays before flattening.
-// Uses React.useMemo to cache the flattened array — avoids unnecessary re-renders.
-// Fully typed with DashboardItinerary, so no unused import warnings.
-
-// ✅ TL;DR
-// Infinite loops usually happen when:
-// setState is called inside a useEffect that depends on that same state.
-// External store selectors create new references every render (arrays/objects).
-// Re-rendering triggers a recalculation that changes the value again → loop.
-// Fix: memoize, correct dependencies, avoid recreating arrays/objects in selectors.
+import { getUserByEmail } from "../../services/apis/api";
+import ItineraryCard from "../ItineraryCard";
 
 const ItinerariesSection: React.FC = () => {
-  // Grab the itineraries object from the store
-  const itinerariesObj = useItinerariesStore(
-    (state) => state.itineraries
-  ) as Record<string, DashboardItinerary[]> | undefined;
+    const itinerariesObj = useItinerariesStore((state) => state.itineraries);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Flatten into a single array safely; default to empty array if undefined
-  const itineraries: DashboardItinerary[] = React.useMemo(() => {
-    if (!itinerariesObj) return [];
-    return Object.values(itinerariesObj)
-      .filter(Boolean) // remove any undefined/null arrays
-      .flat();
-  }, [itinerariesObj]);
+    const itineraries: DashboardItinerary[] = useMemo(() => {
+        if (!itinerariesObj || !currentUserId) return [];
+        return Object.values(itinerariesObj)
+            .flat()
+            .filter((it) => it.createdBy === currentUserId);
+    }, [itinerariesObj, currentUserId]);
 
-  return (
-    <section className="bg-white rounded-lg shadow p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">Your Itineraries</h2>
-        <button className="text-blue-500 hover:underline">
-          + Create New Itinerary
-        </button>
-      </div>
+    useEffect(() => {
+        const fetchUser = async () => {
+            console.log("Fetching current user...");
+            try {
+                const user = await getUserByEmail("john@test.com"); // replace with actual auth context
+                console.log("Fetched user:", user);
+                setCurrentUserId(user?.id ?? null);
+            } catch (err) {
+                console.error("Error fetching user:", err);
+            }
+        };
+        fetchUser();
+    }, []);
 
-      {itineraries.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {itineraries.map((it) => (
-            <ItineraryCard key={it.id} itinerary={it} showRoleBadge />
-          ))}
-        </div>
+    if (!currentUserId) return <p>Loading your itineraries...</p>;
+    if (itineraries.length === 0)
+        return <p className="text-gray-500">You have no itineraries yet.</p>;
 
-      ) : (
-        <p className="text-gray-500">You have no itineraries yet.</p>
-      )}
-    </section>
-  );
+    return (
+        <section className="bg-white rounded-lg shadow p-4">
+            <div className="flex justify-between items-center mb-4">
+
+                <h2 className="section-heading">
+                    <span className="section-heading-accent">Your Itineraries</span>
+                </h2>
+
+                <button className="text-blue-500 hover:underline">
+                    + Create New Itinerary
+                </button>
+            </div>
+
+            {itineraries.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {itineraries.map((it) => (
+                        <ItineraryCard key={it.id} itinerary={it} showRoleBadge />
+                    ))}
+                </div>
+
+            ) : (
+                <p className="text-gray-500">You have no itineraries yet.</p>
+            )}
+        </section>
+    );
 };
 
 export default ItinerariesSection;

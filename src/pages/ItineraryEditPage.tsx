@@ -20,9 +20,9 @@ import { getItinerariesWithActivities } from "../services/slices/itinerariesSlic
 
 // UI components
 import HeroSection from "../components/destination/HeroSection";
-import LinkedActivitiesPanel from "../components/LinkedActivitiesPanel";
+import LinkedActivitiesPanel from "../components/dashboard/LinkedActivitiesPanel";
 
-const ItineraryEditPage: React.FC = () => {   
+const ItineraryEditPage: React.FC = () => {
     const navigate = useNavigate();
     console.log("Viewing Itinerary Edit Page");
     const location = useLocation();
@@ -33,7 +33,7 @@ const ItineraryEditPage: React.FC = () => {
 
     // Extract route params (destinationId and itineraryId)
     //const { destinationId, tripId } = useParams<{ destinationId: string; tripId: string }>();
- 
+
     console.log("Welcome to ItineraryEditPage -> it renders LinkedActivitiesPanel to re-order  add delete activties for this itinerary");
     // --- Pull store data ---
 
@@ -114,7 +114,7 @@ const ItineraryEditPage: React.FC = () => {
         return (
             <div className="container mx-auto p-4">
                 <HeroSection destination={currentDestination} />
-                <div className="mt-6 max-w-2xl mx-auto text-center">
+                <div className="mt-4 max-w-2xl mx-auto text-center">
                     <h2 className="text-xl font-bold text-gray-700 mb-2">Itinerary not found</h2>
                     <p className="text-gray-500 mb-4">
                         The itinerary you're looking for doesn't exist or may have been deleted.
@@ -129,7 +129,7 @@ const ItineraryEditPage: React.FC = () => {
             </div>
         );
     }
- console.log("itinerary.id", itinerary.id);
+    console.log("itinerary.id", itinerary.id);
     // --- Render itinerary view ---
     return (
         <div className="container mx-auto p-4">
@@ -137,12 +137,12 @@ const ItineraryEditPage: React.FC = () => {
             <HeroSection destination={currentDestination} />
 
             {/* Back link */}
-            <div className="mb-4">
+            <div className="mb-4 mt-2">
                 <button
                     onClick={() => navigate(`/trips/${tripId}`)}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="w-28 px-2 py-1 bg-orange-500 text-white rounded text-sm"
                 >
-                    ← Back to Dashboard
+                    ← Back
                 </button>
             </div>
 

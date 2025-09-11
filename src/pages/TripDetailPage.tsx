@@ -53,8 +53,8 @@ const TripDetailPage: React.FC = () => {
 
             {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
             <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">
-                <QuickActionsBar destinationId={currentDest.id} />
-                <InviteFriendsSection destinationId={currentDest.id} />
+                <QuickActionsBar destinationId={currentDest.id ?? ""} />
+                <InviteFriendsSection destinationId={currentDest.id ?? ""} />
             </div>
 
             {/* Tabs */}
@@ -86,7 +86,7 @@ const TripDetailPage: React.FC = () => {
                                 + Add Package
                             </button>
                         </div>
-                        <PackagesGrid destinationId={currentDest.id} />
+                        <PackagesGrid destinationId={currentDest.id ?? ""} />
                     </div>
                 )}
 
@@ -101,7 +101,7 @@ const TripDetailPage: React.FC = () => {
                             </button>
                         </div>
 
-                        <ActivitiesGrid destinationId={currentDest.id} />
+                        <ActivitiesGrid destinationId={currentDest.id ?? ""} />
                     </div>
                 )}
                 {activeTab === "Itineraries" && ( /*"/itineraries/edit/:destinationId/:itineraryId"*/
@@ -115,7 +115,7 @@ const TripDetailPage: React.FC = () => {
                                 + Add Itinerary
                             </button>
                         </div>
-                        <ItinerariesGrid destinationId={currentDest.id} tripId={userTrip.id}/>
+                        <ItinerariesGrid destinationId={currentDest.id ?? ""} tripId={userTrip.id}/>
                     </div>
                 )}
                 {activeTab === "Comments" && <CommentsFeed comments={dcComments} />}

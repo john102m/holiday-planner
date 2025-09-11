@@ -1,4 +1,4 @@
-import type { Destination } from "../services/types";
+import type { Destination } from "../../services/types";
 
 interface Props {
   destination: Destination;

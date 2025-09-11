@@ -9,12 +9,23 @@ export default function Hero() {
       }}
     >
       <div className="bg-black/40 p-6 rounded-xl text-center max-w-xl mx-4">
-        <h1 className="text-white font-bold leading-tight"
-            style={{ fontSize: 'clamp(1.5rem, 5vw, 2.8rem)' }}>
-          Popular Destinations
+        <h1 className="text-[#F4EBD0] font-extrabold drop-shadow-xl">
+          Itinera
         </h1>
 
+
+
+        <p className="mt-4 text-white/80 text-lg sm:text-xl font-light drop-shadow">
+          Your journey, beautifully mapped.
+        </p>
+        <a
+          href="#"
+          className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+        >
+          Start Planning
+        </a>
       </div>
+
     </header>
   );
 }

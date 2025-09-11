@@ -1,22 +1,22 @@
 import React from "react";
-import ItinerariesGridSection from "../components/dashboard/ItinerariesGridSection";
-import SavedActivitiesSection from "../components/dashboard/SavedActivitiesSection";
+import ItinerariesSection from "../components/dashboard/ItinerariesSection";
+import ActivitiesSection from "../components/dashboard/ActivitiesSection";
 import InvitationsSection from "../components/dashboard/InvitationsSection";
 import CommentsFeedSection from "../components/dashboard/CommentsFeedSection";
 import ProfileSection from "../components/dashboard/ProfileSection";
 import TravelMoodToggle from "../components/dashboard/TravelMoodleSection";
-import TripsGridSection from "../components/dashboard/TripsGridSection";
+import TripsSection from "../components/dashboard/TripsSection";
 import ScrollToTopButton from "../components/ScrollToTop";
 
 const DashboardPage: React.FC = () => {
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+    <div className="max-w-5xl mx-auto p-6 mt-2">
+      <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
       <TravelMoodToggle />
       <ProfileSection />
-      <TripsGridSection />
-      <ItinerariesGridSection />
-      <SavedActivitiesSection />
+      <TripsSection />
+      <ItinerariesSection />
+      <ActivitiesSection />
       <InvitationsSection />
       <CommentsFeedSection />
       <ScrollToTopButton />

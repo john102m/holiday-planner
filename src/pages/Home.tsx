@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useStore } from "../services/store";
 import { initApp } from "../services/initApp";
-import DestinationCard from "../components/DestinationCard";
+import DestinationCard from "../components/destination/DestinationCard";
 import Hero from "../components/Hero";
 import ScrollToTopButton from "../components/ScrollToTop";
 

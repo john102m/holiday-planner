@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.28.0",
     "axios": "^1.11.0",
+    "browser-image-compression": "^2.0.2",
     "localforage": "^1.10.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

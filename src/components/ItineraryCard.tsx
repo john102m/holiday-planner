@@ -4,15 +4,18 @@ import type { DashboardItinerary, Itinerary } from "../services/types";
 interface Props {
   itinerary: Partial<Itinerary> | DashboardItinerary;
   showRoleBadge?: boolean;
- 
+
 }
 
+console.log("This is an itinerary mini card - as displayed on user dashboard");
+
 const ItineraryCard: React.FC<Props> = ({ itinerary }) => {
+
   const name = itinerary.name || "Untitled Itinerary";
   const createdAt = itinerary.createdAt
     ? new Date(itinerary.createdAt).toLocaleDateString()
     : "-";
-
+  console.log("Rendering....");
   return (
     <div className="border rounded-lg shadow hover:shadow-md transition overflow-hidden bg-white">
       {itinerary.imageUrl && (

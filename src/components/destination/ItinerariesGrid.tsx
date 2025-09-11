@@ -38,12 +38,6 @@ const itineraries = useMemo(() => {
   return Object.values(rawItineraries).flat().filter(it => it.tripId === tripId);
 }, [rawItineraries, tripId]);
 
-  // const itineraries = useItinerariesStore(state =>
-  //   tripId
-  //     ? Object.values(state.itineraries).flat().filter(it => it.tripId === tripId)
-  //     : state.itineraries[destinationId] ?? EMPTY_ITINERARIES
-  // );
-
   const itineraryActivities = useItinerariesStore(state => state.itineraryActivities);
   const activitiesForDestination = useActivitiesStore(state => state.activities[destinationId] ?? EMPTY_ITINERARIES);
 
