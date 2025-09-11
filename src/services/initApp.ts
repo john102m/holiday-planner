@@ -12,7 +12,7 @@
 // processQueue = sweeps through that to-do list when the network comes back.
 // Components = just read/write the store as if it’s the database — everything else happens behind the
 
-import { login, getComments, getUserTrips } from "./apis/api";
+import { getComments, getUserTrips } from "./apis/api";
 import { getDestinations} from "./apis/destinationsApi";
 import { getActivities } from "./apis/activitiesApi";
 import { getPackages } from "./apis/packagesApi";
@@ -30,7 +30,7 @@ export const initApp = async () => {
   initialized = true;
 
   // login (idempotent)
-  await login();
+  //await login();
   // Hydrate store from localForage first
   await useStore.getState().hydrate();
 
