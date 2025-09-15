@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Itinerary, ItineraryActivity, QueuedAction, Activity, ResolvedItinerary } from "../types";
-
+import { uploadToAzureBlob } from "../storeUtils";
 
 //import { useActivitiesStore } from "./activitiesSlice";
 import {
@@ -252,22 +252,98 @@ export const useItinerariesStore = create<ItinerariesSliceState>()(
 
 
 // Handlers for queue
-export const handleCreateItinerary = async (action: QueuedAction) => {
-    const { replaceItinerary, addItinerary } = useItinerariesStore.getState();
-    const itin = action.payload as Itinerary;
-    const saved = await createItinerary(itin);
-    if (action.tempId) replaceItinerary(action.tempId, saved);
-    else addItinerary(saved.destinationId, saved);
+// export const handleCreateItinerary = async (action: QueuedAction) => {
+//     const { replaceItinerary, addItinerary } = useItinerariesStore.getState();
+//     const itin = action.payload as Itinerary;
+//     const saved = await createItinerary(itin);
+//     if (action.tempId) replaceItinerary(action.tempId, saved);
+//     else addItinerary(saved.destinationId, saved);
 
+// };
+
+
+export const handleCreateItinerary = async (action: QueuedAction) => {
+  const { replaceItinerary, addItinerary } = useItinerariesStore.getState();
+  const itin = action.payload as Itinerary;
+
+  console.log("📦 [Queue] Processing CREATE_ITINERARY for:", itin.name);
+
+  try {
+    const { itinerary: saved, sasUrl } = await createItinerary(itin);
+    console.log("✅ [API] Itinerary created:", saved);
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
+
+    if (action.tempId) {
+      console.log("🔄 [Store] Replacing optimistic itinerary with saved one");
+      replaceItinerary(action.tempId, saved);
+    } else {
+      console.log("➕ [Store] Adding new itinerary to store");
+      addItinerary(saved.destinationId, saved);
+    }
+
+    if (sasUrl && "imageFile" in itin && itin.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading itinerary image to Azure Blob...");
+      await uploadToAzureBlob(itin.imageFile, sasUrl);
+      console.log("✅ [Upload] Itinerary image upload complete");
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process CREATE_ITINERARY:", error);
+  }
 };
+
 
 export const handleUpdateItinerary = async (action: QueuedAction) => {
-    const { updateItinerary } = useItinerariesStore.getState();
-    const itin = action.payload as Itinerary;
-    if (!itin.id) throw new Error("Cannot update itinerary without ID");
-    await editItinerary(itin.id, itin);
-    updateItinerary(itin.destinationId, itin);
+  const { updateItinerary } = useItinerariesStore.getState();
+  const itin = action.payload as Itinerary;
+
+  console.log("📦 [Queue] Processing UPDATE_ITINERARY for:", itin.name);
+
+  if (!itin.id) {
+    console.error("❌ [Queue] Cannot update itinerary without ID");
+    return;
+  }
+
+  try {
+    const { sasUrl, imageUrl } = await editItinerary(itin.id, itin);
+
+    // Optimistic update first
+    updateItinerary(itin.destinationId, {
+      ...itin,
+      imageUrl: imageUrl ?? itin.imageUrl,
+    });
+
+    if (sasUrl && itin.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading itinerary image to Azure Blob...");
+      await uploadToAzureBlob(itin.imageFile, sasUrl);
+      console.log("✅ [Upload] Itinerary image upload complete");
+
+      if (imageUrl) {
+        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+        updateItinerary(itin.destinationId, {
+          ...itin,
+          imageFile: undefined,
+          hasImage: true,
+          imageUrl: cacheBustedUrl,
+        });
+        console.log("🔄 [Store] Itinerary image updated to:", cacheBustedUrl);
+      }
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process UPDATE_ITINERARY:", error);
+  }
 };
+
+// export const handleUpdateItinerary = async (action: QueuedAction) => {
+//     const { updateItinerary } = useItinerariesStore.getState();
+//     const itin = action.payload as Itinerary;
+//     if (!itin.id) throw new Error("Cannot update itinerary without ID");
+//     await editItinerary(itin.id, itin);
+//     updateItinerary(itin.destinationId, itin);
+// };
 
 export const handleDeleteItinerary = async (action: QueuedAction) => {
     const { removeItinerary } = useItinerariesStore.getState();

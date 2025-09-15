@@ -1,12 +1,13 @@
 // slices/activitiesSlice.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Activity, ActivityComment, QueuedAction } from "../types";
-import { createActivity, editActivity, deleteActivity } from "../apis/activitiesApi";
+import type { Activity, QueuedAction } from "../types";
+import { uploadToAzureBlob } from "../storeUtils";
+import { createActivityWithSas, editActivityForSas, deleteActivity } from "../apis/activitiesApi";
 
 interface ActivitiesSliceState {
   activities: Record<string, Activity[]>;
-  comments: Record<string, ActivityComment[]>;
+
 
   // Activities
   setActivities: (destId: string, acts: Activity[]) => void;
@@ -16,9 +17,7 @@ interface ActivitiesSliceState {
   removeActivity: (destId: string, activityId: string) => void;
   getActivities: () => Activity[];
 
-  // Comments
-  setComments: (activityId: string, comms: ActivityComment[]) => void;
-  addComment: (activityId: string, comm: ActivityComment) => void;
+
 
 }
 console.log("🔥 activitiesSlice.ts loaded — check new import resolution");
@@ -29,7 +28,7 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
       comments: {},
       setActivities: (destId, acts) =>
         set((state) => ({ activities: { ...state.activities, [destId]: acts } })),
-      
+
       addActivity: (destId, act) => {
         console.log("addActivity called", act);
         set((state) => ({
@@ -68,15 +67,6 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
         })),
       getActivities: () => Object.values(get().activities).flat(),
 
-      setComments: (activityId, comms) =>
-        set((state) => ({ comments: { ...state.comments, [activityId]: comms } })),
-      addComment: (activityId, comm) =>
-        set((state) => ({
-          comments: {
-            ...state.comments,
-            [activityId]: [...(state.comments[activityId] || []), comm]
-          }
-        }))
 
     }),
 
@@ -88,27 +78,101 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
 );
 
 export const handleCreateActivity = async (action: QueuedAction) => {
-  const { replaceActivity, addActivity } = useActivitiesStore.getState();
+  const { addActivity, replaceActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
-  const saved = await createActivity(act);
-  if (action.tempId) replaceActivity(action.tempId, saved);
-  else addActivity(saved.destinationId!, saved);
+
+  console.log("📦 [Queue] Processing CREATE_ACTIVITY for:", act.name);
+
+  try {
+    const { activity: saved, sasUrl } = await createActivityWithSas(act);
+    console.log("✅ [API] Activity created:", saved);
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
+
+    // Replace optimistic activity if tempId exists, otherwise just add
+    if (action.tempId) {
+      console.log("🔄 [Store] Replacing optimistic activity with saved one");
+      replaceActivity(action.tempId, saved);
+    } else {
+      console.log("➕ [Store] Adding new activity to store");
+      addActivity(saved.destinationId, saved);
+    }
+
+    // Upload image if present
+    if (sasUrl && "imageFile" in act && act.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading image to Azure Blob...");
+      await uploadToAzureBlob(act.imageFile, sasUrl);
+      console.log("✅ [Upload] Image upload complete");
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process CREATE_ACTIVITY:", error);
+  }
 };
+
+
 
 export const handleUpdateActivity = async (action: QueuedAction) => {
   const { updateActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
 
-  //persist the change to backend
-  if (!act.id) {
-    throw new Error("Cannot update activity: missing activity ID");
+  console.log("📦 [Queue] Processing UPDATE_ACTIVITY for:", act.name);
+
+  try {
+    const { sasUrl, imageUrl } = await editActivityForSas(act.id!, act);
+
+    // Optimistic update first
+    updateActivity(act.destinationId, {
+      ...act,
+      imageUrl: imageUrl ?? act.imageUrl,
+    });
+
+    if (sasUrl && act.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading image to Azure Blob...");
+      await uploadToAzureBlob(act.imageFile, sasUrl);
+      console.log("✅ [Upload] Image upload complete");
+
+      if (imageUrl) {
+        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+        updateActivity(act.destinationId, {
+          ...act,
+          imageFile: undefined,
+          hasImage: true,
+          imageUrl: cacheBustedUrl,
+        });
+        console.log("🔄 [Store] Activity image updated to:", cacheBustedUrl);
+      }
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process UPDATE_ACTIVITY:", error);
   }
-  await editActivity(act.id, act);
-
-  //mutate the store with the queued version
-  updateActivity(act.destinationId, act);
-
 };
+
+
+// export const handleCreateActivity = async (action: QueuedAction) => {
+//   const { replaceActivity, addActivity } = useActivitiesStore.getState();
+//   const act = action.payload as Activity;
+//   const saved = await createActivity(act);
+//   if (action.tempId) replaceActivity(action.tempId, saved);
+//   else addActivity(saved.destinationId!, saved);
+// };
+
+// export const handleUpdateActivity = async (action: QueuedAction) => {
+//   const { updateActivity } = useActivitiesStore.getState();
+//   const act = action.payload as Activity;
+
+//   //persist the change to backend
+//   if (!act.id) {
+//     throw new Error("Cannot update activity: missing activity ID");
+//   }
+//   await editActivity(act.id, act);
+
+//   //mutate the store with the queued version
+//   updateActivity(act.destinationId, act);
+
+// };
 
 export const handleDeleteActivity = async (action: QueuedAction) => {
   const { removeActivity } = useActivitiesStore.getState();

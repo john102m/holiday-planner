@@ -1,6 +1,5 @@
 import axios from "axios";
-import type { ActivityComment, User, UserTrip } from "../types";
-import type { Destination } from "../types";
+import type { User, UserTrip } from "../types";
 
 const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
@@ -139,22 +138,7 @@ export const getUserByEmail = async (user: string) => {
 };
 
 
-// Create an comment
-export interface CreateCommentPayload {
-  activityId: string;
-  content: string;
-}
 
-export const createComment = async (data: CreateCommentPayload): Promise<Comment> => {
-  const res = await api.post<Comment>(`/comments/create`, data);
-  return res.data;
-};
-
-// Fetch all comments
-export const getComments = async (): Promise<ActivityComment[]> => {
-  const res = await api.get<ActivityComment[]>("/comments");
-  return res.data;
-};
 
 function sanitizeDate(input: unknown): string | undefined {
   if (!input) return undefined;
@@ -169,26 +153,51 @@ function sanitizeDate(input: unknown): string | undefined {
 }
 
 
-
 // ----------------- CREATE -----------------
-export const createUserTrip = async (trip: Partial<UserTrip>): Promise<UserTrip> => {
-  const res = await api.post<UserTrip>('/users/createtrip', trip);
-  return res.data;
+// export const createUserTrip = async (trip: Partial<UserTrip>): Promise<UserTrip> => {
+//   const res = await api.post<UserTrip>('/users/createtrip', trip);
+//   return res.data;
+// };
+
+export const createUserTrip = async (
+  trip: Omit<UserTrip, "id" | "createdAt">
+): Promise<{ trip: UserTrip; sasUrl?: string }> => {
+  const res = await api.post<{ userTrip: UserTrip; sasUrl?: string }>(
+    `/users/createtrip`,
+    trip
+  );
+
+  if (!res.data.userTrip) {
+    console.warn("⚠️ Backend did not return a userTrip object:", res.data);
+    throw new Error("Trip creation failed: missing userTrip in response");
+  }
+
+  return {
+    trip: res.data.userTrip,
+    sasUrl: res.data.sasUrl ?? undefined,
+  };
 };
+
 
 
 // ----------------- UPDATE -----------------
 export const editUserTrip = async (
   tripId: string,
   tripUpdates: Partial<UserTrip>
-): Promise<UserTrip> => {
+): Promise<{ sasUrl?: string; imageUrl?: string }> => {
   const dateSafeUpdates = {
     ...tripUpdates,
     startDate: sanitizeDate(tripUpdates.startDate),
     endDate: sanitizeDate(tripUpdates.endDate),
   };
-  console.log("Posting trip update", dateSafeUpdates);
-  const res = await api.post<UserTrip>(`/users/updatetrip/${tripId}`, dateSafeUpdates);
+
+  console.log("📤 Posting trip update:", dateSafeUpdates);
+
+  const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
+    `/users/updatetrip/${tripId}`,
+    dateSafeUpdates
+  );
+
   return res.data;
 };
 
@@ -208,42 +217,5 @@ export const getUserTripByTripId = async (tripId: string): Promise<UserTrip | nu
   const res = await api.get<UserTrip>(`/users/getusertripbyid/${tripId}`);
   return res.data;
 };
-
-
-// Create: omit id, createdBy, createdAt
-export const createDestination = async (
-  destination: Omit<Destination, "id" | "createdBy" | "createdAt">
-): Promise<Destination> => {
-  const res = await api.post<Destination>("/destinations/create", destination);
-  return res.data
-};
-
-// Update: send full object, but backend will ignore id/createdAt
-export const editDestination = async (
-  id: string,
-  destination: Omit<Destination, "createdBy" | "createdAt">
-): Promise<void> => {
-  await api.post<void>(`/destinations/update/${id}`, destination);
-};
-
-
-// ----------------- READ ALL -----------------
-export const getAllDestinations = async (): Promise<Destination[]> => {
-  const res = await api.get<Destination[]>("/destinations");
-  return res.data;
-};
-
-// ----------------- READ BY ID -----------------
-export const getDestinationById = async (id: string): Promise<Destination | null> => {
-  const res = await api.get<Destination>(`/destinations/${id}`);
-  return res.data;
-};
-
-
-// ----------------- DELETE -----------------
-export const deleteDestination = async (id: string): Promise<void> => {
-  await api.post<void>(`/destinations/delete/${id}`);
-};
-
 
 

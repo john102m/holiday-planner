@@ -1,36 +1,32 @@
 // DestinationPage.tsx
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useStore } from "../services/store";
-import { useActivitiesStore } from "../services/slices/activitiesSlice";
-import type { Destination, ActivityComment } from "../services/types";
+
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
+import type { Destination } from "../services/types";
 import { useNavigate } from "react-router-dom";
 import ScrollToTopButton from "../components/ScrollToTop";
 import HeroSection from "../components/destination/HeroSection";
 import PackagesGrid from "../components/destination/PackagesGrid";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
-import CommentsFeed from "../components/destination/CommentsFeed";
+
 import InviteFriendsSection from "../components/destination/InviteFriendsSection";
 import QuickActionsBar from "../components/destination/QuickActionsBar";
 
-type TabType = "Packages" | "Activities" | "Comments";
+type TabType = "Packages" | "Activities";
 
 const DestinationPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const destinations = useStore((state) => state.destinations);
-  const comments = useActivitiesStore((state) => state.comments);
-  const [activeTab, setActiveTab] = useState<TabType>("Packages");
+  const destinations = useDestinationsStore((state) => state.destinations);
+  
+  const [activeTab, setActiveTab] = useState<TabType>("Activities");
 
   const currentDC: Destination | undefined = destinations.find((d) => d.id === id);
   if (!currentDC) return <div>Loading destination...</div>;
 
 
-  const dcComments: ActivityComment[] = Object.values(comments)
-    .flat()
-    .filter((c: ActivityComment) => c.activityId === id);
-
-  const tabs: TabType[] = ["Packages", "Activities", "Comments"];
+  const tabs: TabType[] = ["Packages", "Activities"];
 
   return (
     <div className="destination-page container mx-auto p-4 sm:p-6 lg:p-8">
@@ -91,7 +87,6 @@ const DestinationPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === "Comments" && <CommentsFeed comments={dcComments} />}
       </div>
         <ScrollToTopButton />
     </div>

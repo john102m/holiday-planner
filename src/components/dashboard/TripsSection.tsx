@@ -1,6 +1,7 @@
 import React from "react";
 import type { UserTrip } from "../../services/types";
 import TripCard from "../cards/TripCard";
+import { useDestinationsStore } from "../../services/slices/destinationsSlice";
 import { useStore } from "../../services/store";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +9,7 @@ const emptyTrips: UserTrip[] = [];
 
 const TripsSection: React.FC = () => {
   const trips = useStore((state) => state.userTrips ?? emptyTrips);
-  const destinations = useStore((state) => state.destinations);
+  const destinations = useDestinationsStore((state) => state.destinations);
   const navigate = useNavigate();
 
   return (
@@ -19,6 +20,8 @@ const TripsSection: React.FC = () => {
       >
         ➕ Add Trip
       </button>
+
+      
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
         {trips.map((trip) => {

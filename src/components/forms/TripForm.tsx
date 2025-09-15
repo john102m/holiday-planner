@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Destination, UserTrip } from "../../services/types";
-
+import ImageUploadWidget from "../common/ImageUploadWidget";
+import { formatDate } from "../utilities";
 interface Props {
   initialValues?: UserTrip;
   destinationId: string;
@@ -9,12 +10,7 @@ interface Props {
   onSubmit: (trip: UserTrip) => void;
   onCancel: () => void;
   onDestinationChange?: (id: string) => void; // <-- new
-}
-
-function formatDate(value: unknown): string {
-  if (typeof value === "string") return value.slice(0, 10);
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return "";
+  onImageSelect?: (file: File) => Promise<string>;
 }
 
 const TripForm: React.FC<Props> = ({
@@ -25,6 +21,7 @@ const TripForm: React.FC<Props> = ({
   onSubmit,
   onCancel,
   onDestinationChange,
+  onImageSelect
 }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [status, setStatus] = useState(initialValues?.status || "Upcoming");
@@ -118,15 +115,21 @@ const TripForm: React.FC<Props> = ({
         </select>
       </div>
 
-      <div>
-        <label className="block font-semibold">Image URL</label>
-        <input
-          type="text"
-          value={imageUrl}
-          onChange={e => setImageUrl(e.target.value)}
-          className="w-full border rounded p-2"
-        />
-      </div>
+      {onImageSelect && (
+        <div>
+          <label className="block font-semibold">Trip Image</label>
+          <ImageUploadWidget
+            initialUrl={imageUrl}
+            onSelect={async (file: File) => {
+              const previewUrl = await onImageSelect(file);
+              setImageUrl(previewUrl);
+              return previewUrl;
+            }}
+          />
+
+        </div>
+      )}
+
 
       <div>
         <label className="block font-semibold">Notes</label>

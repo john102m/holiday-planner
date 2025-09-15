@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { Itinerary } from "../../services/types";
+import ImageUploadWidget from "../common/ImageUploadWidget";
 
 interface Props {
   initialValues?: Itinerary;
@@ -7,11 +8,12 @@ interface Props {
   tripId?: string
   onSubmit: (it: Itinerary) => void;
   onCancel: () => void;
+  onImageSelect?: (file: File) => Promise<string>;
 }
 console.log("Itinerary Form");
 const DEFAULT_IMAGE = "https://myjohnblogimages.blob.core.windows.net/images/morocco.webp";
 
-const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, tripId, onSubmit, onCancel }) => {
+const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, tripId, onSubmit, onCancel, onImageSelect }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [description, setDescription] = useState(initialValues?.description || "");
   console.log("you are here");
@@ -20,7 +22,7 @@ const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, tripId, 
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
 
 
- console.log(initialValues);
+  console.log(initialValues);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,23 +85,20 @@ const ItineraryForm: React.FC<Props> = ({ initialValues, destinationId, tripId, 
         />
       </div>
 
-      <div>
-        <label className="block font-semibold">Image URL</label>
-        <input
-          type="text"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border rounded p-2"
-          placeholder="Paste blob URL or leave blank for default"
-        />
-        <div className="mt-2">
-          <img
-            src={imageUrl || DEFAULT_IMAGE}
-            alt="Itinerary preview"
-            className="w-full h-40 object-cover rounded"
+      {onImageSelect && (
+        <div>
+          <label className="block font-semibold">Trip Image</label>
+          <ImageUploadWidget
+            initialUrl={imageUrl} // shows existing image if editing
+            onSelect={async (file: File) => {
+              const previewUrl = await onImageSelect(file); // calls AddEditItineraryPage's wrapped handler
+              setImageUrl(previewUrl);                      // update local form state
+              return previewUrl;                            // return to widget for immediate preview
+            }}
           />
+
         </div>
-      </div>
+      )}
 
       <div className="flex gap-4 mt-4">
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">

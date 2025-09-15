@@ -11,9 +11,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { QueueTypes, CollectionTypes } from "../services/types"; // value import
 import type { ItineraryActivity, ItineraryActivitiesBatch } from "../services/types"
 // Zustand stores
-import { useStore, addOptimisticAndQueue } from "../services/store";
+import { addOptimisticAndQueue } from "../services/store";
 import { useItinerariesStore } from "../services/slices/itinerariesSlice";
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
+import {useDestinationsStore}from "../services/slices/destinationsSlice"
 
 // Resolver utility to hydrate itineraries with full activity objects
 import { getItinerariesWithActivities } from "../services/slices/itinerariesSlice";
@@ -38,7 +39,7 @@ const ItineraryEditPage: React.FC = () => {
     // --- Pull store data ---
 
     // Get all destinations from global store
-    const destinations = useStore(state => state.destinations);
+    const destinations = useDestinationsStore(state => state.destinations);
 
     // Find the current destination based on route param
     const currentDestination = destinations.find(d => d.id === destinationId);

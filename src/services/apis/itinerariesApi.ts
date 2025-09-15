@@ -1,9 +1,9 @@
 
 import type {
-  Itinerary, ItineraryActivity, 
+  Itinerary, ItineraryActivity,
   ItineraryActivitiesBatch
 } from "../types";
-import {api } from "../apis/api"
+import { api } from "../apis/api"
 
 export const getItineraryById = async (id: string): Promise<Itinerary> => {
   const res = await api.get<Itinerary>(`/Itinerary/${id}`);
@@ -15,19 +15,46 @@ export const getItineraries = async (): Promise<Itinerary[]> => {
   const res = await api.get<Itinerary[]>("/itinerary");
   return res.data;
 };
-export const createItinerary = async (
+export const createItinerary_old = async (
   data: Omit<Itinerary, "id" | "createdAt">  // leave id & createdAt to backend
 ): Promise<Itinerary> => {
   const res = await api.post<Itinerary>("/itinerary/create", data);
   return res.data;
 };
+export const createItinerary = async (
+  itinerary: Omit<Itinerary, "id" | "createdAt" | "createdBy">
+): Promise<{ itinerary: Itinerary; sasUrl?: string; imageUrl?: string }> => {
+  const res = await api.post<{ itinerary: Itinerary; sasUrl?: string; imageUrl?: string }>(
+    `/itinerary/create`,
+    itinerary
+  );
+
+  if (!res.data.itinerary) {
+    console.warn("⚠️ Backend did not return an itinerary object:", res.data);
+    throw new Error("Itinerary creation failed: missing itinerary in response");
+  }
+
+  return res.data;
+};
+export const editItinerary = async (
+  id: string,
+  itinerary: Omit<Itinerary, "createdAt" | "createdBy">
+): Promise<{ sasUrl?: string; imageUrl?: string }> => {
+  const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
+    `/itinerary/update/${id}`,
+    itinerary
+  );
+
+  return res.data;
+};
+
 
 export const deleteItinerary = async (id: string): Promise<void> => {
   await api.post(`/itinerary/delete/${id}`);
 };
 
 // Update itinerary
-export const editItinerary = async (id: string, data: Partial<Itinerary>): Promise<void> => {
+export const editItinerary_old = async (id: string, data: Partial<Itinerary>): Promise<void> => {
   await api.post(`/itinerary/update/${id}`, data);
 };
 

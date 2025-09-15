@@ -12,17 +12,20 @@
 // processQueue = sweeps through that to-do list when the network comes back.
 // Components = just read/write the store as if it’s the database — everything else happens behind the
 
-import { getComments, getUserTrips } from "./apis/api";
-import { getDestinations} from "./apis/destinationsApi";
+import { login, getUserTrips } from "./apis/api";
+import { getDestinations } from "./apis/destinationsApi";
 import { getActivities } from "./apis/activitiesApi";
 import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
+import { getDiaryEntriesByUser } from "./apis/diaryEntryApi";
+import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 
-import type { Activity, Package, Destination, Itinerary, ItineraryActivity, ActivityComment, UserTrip } from "./types";
+import type { Activity, Package, Destination, Itinerary, ItineraryActivity, UserTrip } from "./types";
 import { useStore, processQueue } from "./store";
 import { useActivitiesStore, } from "./slices/activitiesSlice";
 import { usePackageStore, } from "./slices/packagesSlice";
 import { useItinerariesStore, } from "./slices/itinerariesSlice";
+import { useDestinationsStore, } from "./slices/destinationsSlice";
 let initialized = false;
 
 export const initApp = async () => {
@@ -30,14 +33,14 @@ export const initApp = async () => {
   initialized = true;
 
   // login (idempotent)
-  //await login();
+  await login();
   // Hydrate store from localForage first
   await useStore.getState().hydrate();
 
 
   // Fetch and store destinations
   const destinations: Destination[] = await getDestinations();
-  useStore.getState().setDestinations(destinations);
+  useDestinationsStore.getState().setDestinations(destinations);
 
   // Fetch and store packages
   const packages: Package[] = await getPackages();
@@ -95,23 +98,14 @@ export const initApp = async () => {
 
   console.log("joined itinerary-activity relationships", joinsByItinerary);
 
-
-  // Fetch and store all ActivityComments
-  const comments: ActivityComment[] = await getComments();
-  const commentsByActivity: Record<string, ActivityComment[]> = {};
-  comments.forEach((c) => {
-    if (!c.activityId) return;
-    if (!commentsByActivity[c.activityId]) commentsByActivity[c.activityId] = [];
-    commentsByActivity[c.activityId].push(c);
-  });
-  Object.entries(commentsByActivity).forEach(([activityId, comms]) =>
-    useActivitiesStore.getState().setComments(activityId, comms)
-  );
-
   // Fetch and store userTrips
   const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9"; // replace with actual logged-in user id
   const trips: UserTrip[] = await getUserTrips(userId);
   useStore.getState().setUserTrips(trips);
+
+  // Fetch and store diary entries
+  const diaryEntries = await getDiaryEntriesByUser(userId);
+  useDiaryEntriesStore.getState().setDiaryEntries(diaryEntries);
 
   // Process any queued actions from previous offline sessions
   await processQueue();

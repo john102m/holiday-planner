@@ -1,11 +1,13 @@
 import React from "react";
-import { useStore, addOptimisticAndQueue } from "../../services/store";
+import { addOptimisticAndQueue } from "../../services/store";
+import { useDestinationsStore } from "../../services/slices/destinationsSlice"
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { useNavigate } from "react-router-dom";
 import type { Destination } from "../../services/types";
 
+
 const DestinationsGridSection: React.FC = () => {
-  const destinationsState = useStore((state) => state.destinations); // stable ref
+  const destinationsState = useDestinationsStore((state) => state.destinations); // stable ref
   const destinations = React.useMemo(() => destinationsState, [destinationsState]);
   const navigate = useNavigate();
 

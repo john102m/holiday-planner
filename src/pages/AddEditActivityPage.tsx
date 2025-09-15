@@ -1,57 +1,99 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore, addOptimisticAndQueue } from "../services/store";
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
-import { QueueTypes, CollectionTypes } from "../services/types"; // value import
-
-import type { Activity, QueueType } from "../services/types";
-import HeroSection from "../components/destination/HeroSection";
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
+import { CollectionTypes, QueueTypes } from "../services/types";
+import type { Activity } from "../services/types";
 import ActivityForm from "../components/forms/ActivityForm";
+import { useAddEditWithImage } from "../components/common/useAddEditWithImage";
 
 const AddEditActivityPage: React.FC = () => {
   const { destinationId, activityId } = useParams<{ destinationId: string; activityId?: string }>();
   const navigate = useNavigate();
-  const destinations = useStore((state) => state.destinations);
+  const destinations = useDestinationsStore((state) => state.destinations);
   const activities = useActivitiesStore((state) => state.activities);
 
-  const currentDestination = destinations.find((d) => d.id === destinationId);
-  const currentActivity: Activity | undefined = activityId ? activities[destinationId ?? ""]?.find(a => a.id === activityId) : undefined;
+  console.log("🏷️ AddEditActivityPage mount");
+  console.log("URL params:", { destinationId, activityId });
+  console.log("Current activities state:", activities);
 
-  if (!currentDestination || !destinationId) return <div>Loading destination...</div>;
+  const currentActivity: Activity | undefined = activityId
+    ? activities[destinationId ?? ""]?.find(a => a.id === activityId)
+    : undefined;
 
-  const handleSubmit = async (act: Activity) => {
-    console.log("Activity saved", act);
+  const { handleImageSelection, handleSubmit } = useAddEditWithImage<Activity>(CollectionTypes.Activities);
+  // Local state to track the preview URL
+  const [previewUrl, setPreviewUrl] = useState(currentActivity?.imageUrl);
+  // Wrap the hook's handleImageSelection to manage preview & cleanup
 
-    const queueType: QueueType = activityId
-      ? QueueTypes.UPDATE_ACTIVITY
-      : QueueTypes.CREATE_ACTIVITY;
+  const handleSelectImage = async (file: File): Promise<string> => {
+    const newPreview = await handleImageSelection(file);
 
-    // Use the generic helper to optimistically add + queue
-    const tempId = await addOptimisticAndQueue(
-      CollectionTypes.Activities,  // collection
-      act,                        // activity object
-      queueType,                  // queue type
-      currentDestination.id       // destination ID for nested collection
-    );
-    // toast.success("Activity saved! Syncing in background...");
-    // todo get real id from backend response and replace
-    console.log("Temporary ID assigned:", tempId);
+    // Revoke previous object URL if it exists
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
-    // Navigate after adding
-    navigate(`/destinations/${destinationId}`);
+    setPreviewUrl(newPreview);
+
+    return newPreview; // ✅ important: return for the widget
   };
+
+
+  // Cleanup on unmount to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+  const onSubmit = async (formValues: Activity) => {
+    console.log("📝 Form submitted:", formValues);
+
+    if (!destinationId) {
+      console.error("❌ No destinationId in URL");
+      return;
+    }
+
+    try {
+      const queueType = activityId
+        ? QueueTypes.UPDATE_ACTIVITY
+        : QueueTypes.CREATE_ACTIVITY;
+
+      console.log("⏳ Queueing activity with queueType:", queueType);
+      const tempId = await handleSubmit(formValues, queueType, destinationId);
+      console.log("✅ Activity queued with temp ID:", tempId);
+
+      // Log current store after submission
+      console.log("🔍 Activities after submission:", activities[destinationId ?? ""]);
+
+      navigate(`/destinations/${destinationId}`);
+    } catch (error) {
+      console.error("❌ Submit failed:", error);
+    }
+  };
+
+  if (!destinationId || !destinations.find(d => d.id === destinationId)) {
+    console.log("⌛ Loading destination...");
+    return <div>Loading destination...</div>;
+  }
+
+  const activitiesForDestination = activities[destinationId] ?? [];
+  console.log("📌 Rendering activities for this destination:", activitiesForDestination);
 
   return (
     <div className="container mx-auto p-4">
-      <HeroSection destination={currentDestination} />
-
       <div className="mt-6">
-        <h2 className="text-2xl font-bold mb-4">{currentActivity ? "Edit Activity" : "Add Activity"}</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          {currentActivity ? "Edit Activity" : "Add Activity"}
+        </h2>
         <ActivityForm
           initialValues={currentActivity}
           destinationId={destinationId}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           onCancel={() => navigate(`/destinations/${destinationId}`)}
+          onImageSelect={handleSelectImage}
         />
       </div>
     </div>

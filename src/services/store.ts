@@ -1,29 +1,30 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { updateItineraryActivitiesBatch } from "./apis/itinerariesApi"
+import { uploadToAzureBlob } from "./storeUtils";
+
 import {
-  createUserTrip, editUserTrip, deleteUserTrip,
-  createDestination, editDestination, deleteDestination
+  createUserTrip, editUserTrip, deleteUserTrip
 } from "./apis/api";
 import type {
-  Destination, Activity, Package,
-  Itinerary, ActivityComment, UserTrip,
+  Entity, Destination, Activity, Package,
+  Itinerary, UserTrip,
   QueueType, CollectionType, QueuedAction,
-  ItineraryActivity, ItineraryActivitiesBatch
+  ItineraryActivity, ItineraryActivitiesBatch,
+  DiaryEntry
 } from "./types";
 import { CollectionTypes, QueueTypes } from "./types";
 
 import { useActivitiesStore, handleCreateActivity, handleUpdateActivity, handleDeleteActivity } from "./slices/activitiesSlice";
 import { usePackageStore, handleCreatePackage, handleUpdatePackage, handleDeletePackage } from "./slices/packagesSlice";
+import { useDestinationsStore, handleCreateDestination, handleDeleteDestination, handleUpdateDestination } from "./slices/destinationsSlice";
+import { useDiaryEntriesStore, handleCreateDiaryEntry, handleUpdateDiaryEntry, handleDeleteDiaryEntry } from "./slices/diaryEntriesSlice";
 import {
   useItinerariesStore, handleCreateItinerary, handleUpdateItinerary,
   handleDeleteItinerary, handleCreateItineraryActivity, handleUpdateItineraryActivity, handleDeleteItineraryActivity
 
 } from "./slices/itinerariesSlice";
-type Entity =
-  Activity | Package | Destination |
-  Itinerary | ActivityComment | UserTrip |
-  ItineraryActivity | ItineraryActivitiesBatch;
+
 console.log("🔥 store.ts loaded — check new import resolution");
 
 
@@ -42,6 +43,8 @@ export const addOptimisticAndQueue = async (
   const activitiesStore = useActivitiesStore.getState();
   const packageStore = usePackageStore.getState();
   const itinerariesStore = useItinerariesStore.getState();
+  const destinationStore = useDestinationsStore.getState();
+  const diaryEntriesStore = useDiaryEntriesStore.getState();
   const store = useStore.getState();
 
 
@@ -49,8 +52,8 @@ export const addOptimisticAndQueue = async (
     [CollectionTypes.Activities]: (id, entity) =>
       activitiesStore.addActivity(id!, entity as Activity),
 
-    [CollectionTypes.Comments]: (id, entity) =>
-      activitiesStore.addComment(id!, entity as ActivityComment),
+    [CollectionTypes.DiaryEntries]: (_id, entity) =>
+      diaryEntriesStore.addDiaryEntry(entity as DiaryEntry),
 
     [CollectionTypes.Packages]: (id, entity) =>
       packageStore.addPackage(id!, entity as Package),
@@ -59,7 +62,7 @@ export const addOptimisticAndQueue = async (
       store.addUserTrip(entity as UserTrip),
 
     [CollectionTypes.Destinations]: (_, entity) =>
-      store.addDestination(entity as Destination),
+      destinationStore.addDestination(entity as Destination),
 
     [CollectionTypes.Itineraries]: (id, entity) =>
       itinerariesStore.addItinerary(id!, entity as Itinerary),
@@ -94,7 +97,7 @@ export const addOptimisticAndQueue = async (
 };
 
 interface AppState {
-  destinations: Destination[];
+  //destinations: Destination[];
   packages: Record<string, Package[]>;
   userTrips: UserTrip[];
   ui: { offline: boolean };
@@ -105,12 +108,6 @@ interface AppState {
   updateUserTrip: (tripId: string, updates: Partial<UserTrip>) => void;
   removeUserTrip: (tripId: string) => void;
   replaceUserTrip: (tempId: string, saved: UserTrip) => void;
-
-  setDestinations: (dest: Destination[]) => void;
-  addDestination: (dest: Destination) => void;
-  replaceDestination: (tempId: string, saved: Destination) => void;
-  updateDestination: (updated: Destination) => void;
-  removeDestination: (id: string) => void;
 
   // Queue
   addQueuedAction: (action: QueuedAction) => void;
@@ -175,30 +172,6 @@ export const useStore = create<AppState>()(
           userTrips: state.userTrips.filter((t) => t.id !== tripId)
         })),
 
-      setDestinations: (dest) => set({ destinations: dest }),
-      addDestination: (dest) => set((state) => ({ destinations: [...state.destinations, dest] })),
-      replaceDestination: (tempId, saved) =>
-        set((state) => {
-          const updated = state.destinations.map((d) =>
-            d.id === tempId ? saved : d
-          );
-          return { destinations: updated };
-        }),
-
-
-      updateDestination: (updated: Destination) =>
-        set((state) => ({
-          destinations: state.destinations.map((d) =>
-            d.id === updated.id ? { ...d, ...updated } : d
-          ),
-        })),
-
-      removeDestination: (id: string) => {
-        set((state) => ({
-          destinations: state.destinations.filter((d) => d.id !== id),
-        }));
-      },
-
 
       addQueuedAction: (action) => set((state) => ({ queue: [...state.queue, action] })),
       removeQueuedAction: (id) => set((state) => ({ queue: state.queue.filter((a) => a.id !== id) })),
@@ -239,27 +212,94 @@ window.addEventListener("offline", () => {
 
 });
 
+// const handleCreateUserTrip = async (action: QueuedAction) => {
+//   const { addUserTrip, replaceUserTrip } = useStore.getState();
+//   const trip = action.payload as UserTrip;
 
-const handleCreateUserTrip = async (action: QueuedAction) => {
+//   // Call backend
+//   const saved = await createUserTrip(trip);
+
+//   // Update store: replace tempId if exists, else add
+//   if (action.tempId) replaceUserTrip(action.tempId, saved);
+//   else addUserTrip(saved);
+// };
+export const handleCreateUserTrip = async (action: QueuedAction) => {
   const { addUserTrip, replaceUserTrip } = useStore.getState();
   const trip = action.payload as UserTrip;
 
-  // Call backend
-  const saved = await createUserTrip(trip);
+  console.log("📦 [Queue] Processing CREATE_USER_TRIP for:", trip.name);
 
-  // Update store: replace tempId if exists, else add
-  if (action.tempId) replaceUserTrip(action.tempId, saved);
-  else addUserTrip(saved);
+  try {
+    const { trip: saved, sasUrl } = await createUserTrip(trip);
+    console.log("✅ [API] Trip created:", saved);
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
+
+    // Replace optimistic trip if tempId exists, otherwise just add
+    if (action.tempId) {
+      console.log("🔄 [Store] Replacing optimistic trip with saved one");
+      replaceUserTrip(action.tempId, saved);
+    } else {
+      console.log("➕ [Store] Adding new trip to store");
+      addUserTrip(saved);
+    }
+
+    // Upload image if present
+    if (sasUrl && "imageFile" in trip && trip.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading trip image to Azure Blob...");
+      await uploadToAzureBlob(trip.imageFile, sasUrl);
+      console.log("✅ [Upload] Trip image upload complete");
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process CREATE_USER_TRIP:", error);
+  }
 };
 
-const handleUpdateUserTrip = async (action: QueuedAction) => {
+export const handleUpdateUserTrip = async (action: QueuedAction) => {
   const { updateUserTrip } = useStore.getState();
   const trip = action.payload as UserTrip;
-  if (!trip.id) throw new Error("Cannot update UserTrip: missing ID");
 
-  await editUserTrip(trip.id, trip);
-  updateUserTrip(trip.id, trip);
+  console.log("📦 [Queue] Processing UPDATE_USER_TRIP for:", trip.name);
+
+  try {
+    const { sasUrl, imageUrl } = await editUserTrip(trip.id!, trip);
+
+    // Optimistic update first
+    updateUserTrip(trip.id!, {
+      ...trip,
+      imageUrl: imageUrl ?? trip.imageUrl,
+    });
+
+    if (sasUrl && trip.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading trip image to Azure Blob...");
+      await uploadToAzureBlob(trip.imageFile, sasUrl);
+      console.log("✅ [Upload] Trip image upload complete");
+
+      if (imageUrl) {
+        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+        updateUserTrip(trip.id!, {
+          imageFile: undefined,
+          hasImage: true,
+          imageUrl: cacheBustedUrl,
+        });
+        console.log("🔄 [Store] Trip image updated to:", cacheBustedUrl);
+      }
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process UPDATE_USER_TRIP:", error);
+  }
 };
+// const handleUpdateUserTrip = async (action: QueuedAction) => {
+//   const { updateUserTrip } = useStore.getState();
+//   const trip = action.payload as UserTrip;
+//   if (!trip.id) throw new Error("Cannot update UserTrip: missing ID");
+
+//   await editUserTrip(trip.id, trip);
+//   updateUserTrip(trip.id, trip);
+// };
 
 const handleDeleteUserTrip = async (action: QueuedAction) => {
   const { removeUserTrip } = useStore.getState();
@@ -269,39 +309,6 @@ const handleDeleteUserTrip = async (action: QueuedAction) => {
   await deleteUserTrip(trip.id);
   removeUserTrip(trip.id);
 };
-
-// ----------------- CREATE -----------------
-export const handleCreateDestination = async (action: QueuedAction) => {
-  const { addDestination, replaceDestination } = useStore.getState();
-  const dest = action.payload as Destination;
-
-  const saved = await createDestination(dest);
-
-  if (action.tempId) replaceDestination(action.tempId, saved);
-  else addDestination(saved);
-};
-
-
-// ----------------- UPDATE -----------------
-export const handleUpdateDestination = async (action: QueuedAction) => {
-  const { updateDestination } = useStore.getState();
-  const dest = action.payload as Destination;
-  if (!dest.id) throw new Error("Cannot update Destination: missing ID");
-
-  await editDestination(dest.id, dest);
-  updateDestination(dest);
-};
-
-// ----------------- DELETE -----------------
-export const handleDeleteDestination = async (action: QueuedAction) => {
-  const { removeDestination } = useStore.getState();
-  const dest = action.payload as Destination;
-  if (!dest.id) throw new Error("Cannot delete Destination: missing ID");
-
-  await deleteDestination(dest.id);
-  removeDestination(dest.id);
-};
-
 
 
 const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> = {
@@ -322,10 +329,9 @@ const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> 
   [QueueTypes.UPDATE_DESTINATION]: handleUpdateDestination,
   [QueueTypes.DELETE_DESTINATION]: handleDeleteDestination,
 
-  // Comments
-  // [QueueTypes.CREATE_COMMENT]: handleCreateComment,
-  // [QueueTypes.UPDATE_COMMENT]: handleUpdateComment,
-  // [QueueTypes.DELETE_COMMENT]: handleDeleteComment,
+  [QueueTypes.CREATE_DIARY_ENTRY]: handleCreateDiaryEntry,
+  [QueueTypes.UPDATE_DIARY_ENTRY]: handleUpdateDiaryEntry,
+  [QueueTypes.DELETE_DIARY_ENTRY]: handleDeleteDiaryEntry,
 
   // // Itineraries
   [QueueTypes.CREATE_ITINERARY]: handleCreateItinerary,

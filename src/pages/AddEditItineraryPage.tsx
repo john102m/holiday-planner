@@ -1,17 +1,14 @@
-import React, { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-//import { useStore } from "../services/store";
 import { useItinerariesStore } from "../services/slices/itinerariesSlice";
-//import HeroSection from "../components/destination/HeroSection";
 import ItineraryForm from "../components/forms/ItineraryForm";
 import type { Itinerary } from "../services/types";
-import { addOptimisticAndQueue } from "../services/store";
 import { QueueTypes, CollectionTypes } from "../services/types";
-
-//const EMPTY_ITINERARIES: Itinerary[] = [];
+import { useAddEditWithImage } from "../components/common/useAddEditWithImage";
 
 const AddEditItineraryPage: React.FC = () => {
-    const { itineraryId } = useParams<{ itineraryId: string; }>();
+    const { itineraryId } = useParams<{ itineraryId: string }>();
+    const { handleImageSelection, handleSubmit } = useAddEditWithImage<Itinerary>(CollectionTypes.Itineraries);
 
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -20,70 +17,73 @@ const AddEditItineraryPage: React.FC = () => {
 
     const navigate = useNavigate();
     const isEditMode = Boolean(itineraryId);
-    console.log(isEditMode);
-    //const destinations = useStore((state) => state.destinations);
+
     const rawItineraries = useItinerariesStore(state => state.itineraries);
-
-    console.log(rawItineraries);
-
-    const allItineraries = useMemo(() => {
-        return Object.values(rawItineraries).flat();
-    }, [rawItineraries]);
-
-    console.log(allItineraries);
+    const allItineraries = useMemo(() => Object.values(rawItineraries).flat(), [rawItineraries]);
 
     const currentItinerary = useMemo(() => {
         if (!isEditMode) return undefined;
         return allItineraries.find(it => it.id === itineraryId);
     }, [isEditMode, allItineraries, itineraryId]);
 
-    console.log(currentItinerary);
     const destinationId = currentItinerary?.destinationId ?? destId;
     const memoizedInitialValues = useMemo(() => currentItinerary, [currentItinerary]);
 
-    console.log("Trip ID: ", tripId)
-    const handleSubmit = async (updated: Itinerary) => {
+    // --- Local preview state ---
+    const [previewUrl, setPreviewUrl] = useState(currentItinerary?.imageUrl);
+
+    // --- Wrap hook to manage preview + revoke previous blob ---
+    const handleSelectImage = async (file: File) => {
+        const newPreview = await handleImageSelection(file);
+
+        if (previewUrl?.startsWith("blob:")) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
+        setPreviewUrl(newPreview);
+        return newPreview;
+    };
+
+    // --- Cleanup on unmount ---
+    useEffect(() => {
+        return () => {
+            if (previewUrl?.startsWith("blob:")) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    const onSubmit = async (updated: Itinerary) => {
         const sanitizedItinerary: Itinerary = {
             ...updated,
             name: updated.name ?? "",
             description: updated.description ?? "",
-            tripId: tripId,
+            tripId,
             slug: updated.slug ?? "",
             imageUrl: updated.imageUrl ?? "",
-            tags: Array.isArray(updated.tags)
-                ? updated.tags.join(", ")
-                : updated.tags ?? "",
+            tags: Array.isArray(updated.tags) ? updated.tags.join(", ") : updated.tags ?? "",
             destinationId: updated.destinationId ?? destId
         };
 
-        const queueType = isEditMode
-            ? QueueTypes.UPDATE_ITINERARY
-            : QueueTypes.CREATE_ITINERARY;
+        const queueType = isEditMode ? QueueTypes.UPDATE_ITINERARY : QueueTypes.CREATE_ITINERARY;
 
-        await addOptimisticAndQueue(
-            CollectionTypes.Itineraries,
-            sanitizedItinerary,
-            queueType,
-            destinationId
-        );
-        // Navigate after adding
+        const tempId = await handleSubmit(sanitizedItinerary, queueType, destinationId);
+        console.log("✅ Itinerary queued with temp ID:", tempId);
+
         navigate(`/destinations/${destinationId}`);
-        //navigate(`/itineraries/view/${destinationId}/${itineraryId}`);
     };
-    console.log("you are here");
 
     return (
         <div className="container mx-auto p-4">
-            {/* <HeroSection destination={currentDestination} /> */}
             <div className="mt-6 max-w-3xl mx-auto">
                 <h2 className="text-2xl font-bold mb-4">{isEditMode ? 'Edit' : 'Create'} Itinerary</h2>
                 <ItineraryForm
                     initialValues={memoizedInitialValues}
                     destinationId={destinationId}
-                    onSubmit={handleSubmit}
+                    onSubmit={onSubmit}
                     onCancel={() => navigate(`/itineraries/view/${destinationId}/${itineraryId}`)}
+                    onImageSelect={handleSelectImage}
                 />
-
             </div>
         </div>
     );

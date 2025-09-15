@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import type { Destination } from "../../services/types";
-import ImageUpload from "../common/ImageUpload";
+import ImageUploadWidget from "../common/ImageUploadWidget";
 
 interface Props {
   initialValues?: Destination;
   onSubmit: (dest: Destination) => void;
   onCancel: () => void;
-  onImageUpload: (file: File) => Promise<string>;
+  onImageSelect: (file: File) => Promise<string>;
 }
 
-const DestinationForm: React.FC<Props> = ({ initialValues, onSubmit, onCancel, onImageUpload }) => {
+// ✅ Key points to note / pattern:
+// Page keeps a previewUrl state.
+// Page wraps handleImageSelection from the hook to revoke the old blob.
+// Cleanup URL.revokeObjectURL on unmount.
+// Form just calls onImageSelect and sets its own imageUrl.
+
+const DestinationForm: React.FC<Props> = ({ initialValues, onSubmit, onCancel, onImageSelect }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [area, setArea] = useState(initialValues?.area || "");
   const [country, setCountry] = useState(initialValues?.country || "");
@@ -66,22 +72,24 @@ const DestinationForm: React.FC<Props> = ({ initialValues, onSubmit, onCancel, o
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          maxLength={500}
           className="w-full border rounded p-2"
         />
       </div>
-
+      <div className="text-sm text-gray-500 text-right">
+        {description.length} / 500 characters
+      </div>
       <div>
         <div>
           <label className="block font-semibold">Image</label>
-          <ImageUpload
+          <ImageUploadWidget
             initialUrl={imageUrl}
-            onUpload={async (file: File): Promise<string> => {
-              const uploadedUrl = await onImageUpload(file); // calls parent
-              setImageUrl(uploadedUrl);                      // updates local state
-              return uploadedUrl;                            // returns to ImageUpload
+            onSelect={async (file: File): Promise<string> => {
+              const previewUrl = await onImageSelect(file); // calls parent
+              setImageUrl(previewUrl);                      // updates local state
+              return previewUrl;                            // returns to ImageUpload
             }}
           />
-
         </div>
 
         {imageUrl && (

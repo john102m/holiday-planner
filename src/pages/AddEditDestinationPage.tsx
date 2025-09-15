@@ -1,73 +1,62 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore, addOptimisticAndQueue } from "../services/store";
-import { QueueTypes, CollectionTypes } from "../services/types";
-import type { Destination, QueueType } from "../services/types";
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
+import { CollectionTypes, QueueTypes } from "../services/types";
+import type { Destination } from "../services/types";
 import DestinationForm from "../components/forms/DestinationForm";
-import imageCompression from "browser-image-compression";
-import { postNameForSasToken } from "../services/apis/api"
-import { BlockBlobClient } from "@azure/storage-blob";
+import { useAddEditWithImage } from "../components/common/useAddEditWithImage";
 
 const AddEditDestinationPage: React.FC = () => {
-
   const { destinationId } = useParams<{ destinationId?: string }>();
   const navigate = useNavigate();
-  const destinations = useStore((state) => state.destinations);
-  console.log("Destination ID: ", destinationId);
+  const destinations = useDestinationsStore((state) => state.destinations);
+
   const currentDestination: Destination | undefined = destinationId
     ? destinations.find((d) => d.id === destinationId)
     : undefined;
 
-  const handleSubmit = async (dest: Destination) => {
-    const queueType: QueueType = destinationId
-      ? QueueTypes.UPDATE_DESTINATION
-      : QueueTypes.CREATE_DESTINATION;
+  const { handleImageSelection, handleSubmit } = useAddEditWithImage<Destination>(
+    CollectionTypes.Destinations
+  );
 
-    const tempId = await addOptimisticAndQueue(
-      CollectionTypes.Destinations,
-      dest,
-      queueType,
-      "" // no nested collection needed
-    );
+  // --- Local preview state ---
+  const [previewUrl, setPreviewUrl] = useState(currentDestination?.imageUrl);
 
-    console.log("Destination saved with temp ID:", tempId);
-    navigate("/admindashboard"); // or wherever your dashboard routes
+  // --- Wrap the hook to manage preview + revoke previous blob ---
+  const handleSelectImage = async (file: File) => {
+    const newPreview = await handleImageSelection(file);
+
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setPreviewUrl(newPreview);
+    return newPreview;
   };
 
-  const handleUpload = async (file: File): Promise<string> => {
+  // --- Cleanup on unmount ---
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const onSubmit = async (formValues: Destination) => {
     try {
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1024,
-        useWebWorker: true,
-        fileType: "image/webp",
-      };
+      const queueType = destinationId
+        ? QueueTypes.UPDATE_DESTINATION
+        : QueueTypes.CREATE_DESTINATION;
 
-      const compressedFile = await imageCompression(file, options);
-      console.log("Compressed file:", compressedFile);
+      const tempId = await handleSubmit(formValues, queueType);
+      console.log("Destination queued with temp ID:", tempId);
 
-      //const blobName = `${currentDestination?.name}-blob.webp`;
-      const blobName = `${currentDestination?.name.toLowerCase().replace(/\s+/g, "-")}-blob.webp`;
-
-      const { sasUrl } = await postNameForSasToken(blobName);
-      console.log(blobName);
-      const blobClient = new BlockBlobClient(sasUrl);
-
-      await blobClient.uploadData(compressedFile, {
-        blobHTTPHeaders: {
-          blobContentType: "image/webp",
-        },
-      });
-      //Updated Line for Cache Busting
-      const publicUrl = `${sasUrl.split("?")[0]}?v=${Date.now()}`;
-
-      return publicUrl;
+      navigate("/admindashboard");
     } catch (error) {
-      console.error("Upload failed:", error);
-      return "";
+      console.error("Submit failed:", error);
     }
   };
-
 
   return (
     <div className="container mx-auto p-4">
@@ -77,9 +66,9 @@ const AddEditDestinationPage: React.FC = () => {
         </h2>
         <DestinationForm
           initialValues={currentDestination}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           onCancel={() => navigate("/admin")}
-          onImageUpload={handleUpload}
+          onImageSelect={handleSelectImage}
         />
       </div>
     </div>

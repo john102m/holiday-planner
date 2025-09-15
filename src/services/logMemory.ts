@@ -1,6 +1,8 @@
 // utils/logMemory.ts
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
 import { useItinerariesStore} from "../services/slices/itinerariesSlice"
+import { useDestinationsStore} from "../services/slices/destinationsSlice"
+import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 import { useStore } from "../services/store";
 
 // Rough size in bytes via JSON
@@ -15,12 +17,17 @@ const roughSize = (obj: unknown): number => {
 export const logMemory = () => {
     const activitiesState = useActivitiesStore.getState();
     const itinerariesState = useItinerariesStore.getState();
+    const destinationsState = useDestinationsStore.getState();
+    const diaryEntriesState = useDiaryEntriesStore.getState();
+
     const state = useStore.getState();
 
 
     // Store sizes
     console.log("📦 Store snapshot:");
-    console.log("  Destinations:", state.destinations.length);
+    console.log("  Destinations:", destinationsState.destinations.length);
+    console.log("  DiaryEntries:", diaryEntriesState.diaryEntries.length);
+
     console.log("  UserTrips:", state.userTrips.length);
     console.log(
         "  Activities (total):",

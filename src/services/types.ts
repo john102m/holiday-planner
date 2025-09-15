@@ -4,7 +4,7 @@ export const CollectionTypes = {
   Destinations: "destinations",
   Itineraries: "itineraries",
   ItineraryActivities: "itineraryActivities",
-  Comments: "comments",
+  DiaryEntries: "diaryEntries",
   ItineraryActivitiesBatch: "itineraryActivitiesBatch",
   UserTrips: "userTrips"
 
@@ -33,20 +33,28 @@ export const QueueTypes = {
   UPDATE_PACKAGE: "UPDATE_PACKAGE",
   DELETE_PACKAGE: "DELETE_PACKAGE",
 
-  CREATE_COMMENT: "CREATE_COMMENT",
-  UPDATE_COMMENT: "UPDATE_COMMENT",
-  DELETE_COMMENT: "DELETE_COMMENT",
-
   CREATE_USER_TRIP: "CREATE_USER_TRIP",
   UPDATE_USER_TRIP: "UPDATE_USER_TRIP",
   DELETE_USER_TRIP: "DELETE_USER_TRIP",
 
+  CREATE_DIARY_ENTRY: "CREATE_DIARY_ENTRY",
+  UPDATE_DIARY_ENTRY: "UPDATE_DIARY_ENTRY",
+  DELETE_DIARY_ENTRY: "DELETE_DIARY_ENTRY",
 
   VOTE: "VOTE"
 
   // Add more as needed
 }
 export type QueueType = typeof QueueTypes[keyof typeof QueueTypes];
+
+
+export type Entity =
+  Activity | Package | Destination |
+  Itinerary | DiaryEntry | UserTrip |
+  ItineraryActivity | ItineraryActivitiesBatch;
+
+// Only the entities that support images
+export type ImageEntity = Destination | Activity | DiaryEntry;  //to be added Activity | Package | 
 
 export interface QueuedAction {
   id: string;
@@ -68,18 +76,24 @@ export interface ItineraryActivitiesBatch {
   activities: ItineraryActivity[];
 }
 
-export interface Destination {
-  id?: string;               // Guid → string
-  name: string;           
-  area?: string;           
-  country?: string;         
-  description: string;     
-  imageUrl?: string;        
-  createdBy?: string;       
-  createdAt?: string;        
+export interface ImageAttachable {
+  imageFile?: File;
+  hasImage?: boolean;
 }
 
-export interface Activity {
+export interface Destination extends ImageAttachable {
+  id?: string;
+  name: string;
+  area?: string;
+  country?: string;
+  description: string;
+  imageUrl?: string;
+  createdBy?: string;
+  createdAt?: string;
+}
+
+
+export interface Activity extends ImageAttachable {
   id?: string;               // Guid → string
   destinationId: string;    // nullable Guid → optional string
   name?: string;             // nullable → optional
@@ -91,15 +105,23 @@ export interface Activity {
   isPrivate?: boolean;
 }
 
-export interface ActivityComment {
-  id?: string;               // Guid → string
-  activityId?: string;    // nullable Guid → optional string
-  content: string;             // nullable → optional
-  createdBy?: string;        // nullable Guid → optional string
-  createdAt?: string;        // nullable DateTime → optional string
+export interface DiaryEntry extends ImageAttachable {  //replacing ActivityComment
+  id?: string;
+  tripId?: string;
+  linkedActivityId?: string | null;
+
+  title?: string;
+  entryContent?: string;
+  imageUrl?: string;
+  location?: string;
+  dayNumber?: number;
+  entryDate?: string; // ISO string
+  tags?: string;
+
+  createdBy?: string;
+  createdAt?: string; // ISO string
 
 }
-// src/services/types.ts
 
 export interface Package {
   id?: string;
@@ -123,7 +145,7 @@ export interface User {
   createdAt?: string
 }
 
-export interface UserTrip {
+export interface UserTrip extends ImageAttachable {
   id?: string;
   userId: string;
   destinationId: string;
@@ -137,7 +159,7 @@ export interface UserTrip {
   collaborators?: string; // comma-separated emails
 }
 
-export interface Itinerary {
+export interface Itinerary extends ImageAttachable {
   id?: string;
   destinationId: string;
   tripId?: string;

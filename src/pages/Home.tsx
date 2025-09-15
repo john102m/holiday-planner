@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useStore } from "../services/store";
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import { initApp } from "../services/initApp";
 import DestinationCard from "../components/destination/DestinationCard";
 import Hero from "../components/Hero";
@@ -8,7 +8,7 @@ import ScrollToTopButton from "../components/ScrollToTop";
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const destinations = useStore((state) => state.destinations);
+  const destinations = useDestinationsStore((state) => state.destinations);
 
   useEffect(() => {
     const fetchData = async () => {

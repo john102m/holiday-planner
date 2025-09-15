@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore, addOptimisticAndQueue } from "../services/store";
+import { addOptimisticAndQueue } from "../services/store";
 import { usePackageStore } from "../services/slices/packagesSlice";
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import { QueueTypes, CollectionTypes } from "../services/types";
 
 import type { Package, QueueType } from "../services/types";
@@ -11,7 +12,7 @@ import PackageForm from "../components/forms/PackageForm";
 const AddEditPackagePage: React.FC = () => {
   const { destinationId, packageId } = useParams<{ destinationId: string; packageId?: string }>();
   const navigate = useNavigate();
-  const destinations = useStore((state) => state.destinations);
+  const destinations = useDestinationsStore((state) => state.destinations);
   const packages = usePackageStore((state) => state.packages);
 
   const currentDestination = destinations.find((d) => d.id === destinationId);

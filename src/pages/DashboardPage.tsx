@@ -2,7 +2,6 @@ import React from "react";
 import ItinerariesSection from "../components/dashboard/ItinerariesSection";
 import ActivitiesSection from "../components/dashboard/ActivitiesSection";
 import InvitationsSection from "../components/dashboard/InvitationsSection";
-import CommentsFeedSection from "../components/dashboard/CommentsFeedSection";
 import ProfileSection from "../components/dashboard/ProfileSection";
 import TravelMoodToggle from "../components/dashboard/TravelMoodleSection";
 import TripsSection from "../components/dashboard/TripsSection";
@@ -18,7 +17,6 @@ const DashboardPage: React.FC = () => {
       <ItinerariesSection />
       <ActivitiesSection />
       <InvitationsSection />
-      <CommentsFeedSection />
       <ScrollToTopButton />
     </div>
   );
