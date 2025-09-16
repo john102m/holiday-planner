@@ -10,7 +10,7 @@ import HeroSection from "../components/destination/HeroSection";
 import PackagesGrid from "../components/destination/PackagesGrid";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
 
-import InviteFriendsSection from "../components/destination/InviteFriendsSection";
+//import InviteFriendsSection from "../components/destination/InviteFriendsSection";
 import QuickActionsBar from "../components/destination/QuickActionsBar";
 
 type TabType = "Packages" | "Activities";
@@ -19,7 +19,7 @@ const DestinationPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const destinations = useDestinationsStore((state) => state.destinations);
-  
+
   const [activeTab, setActiveTab] = useState<TabType>("Activities");
 
   const currentDC: Destination | undefined = destinations.find((d) => d.id === id);
@@ -36,7 +36,7 @@ const DestinationPage: React.FC = () => {
       {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
       <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">
         <QuickActionsBar destinationId={currentDC.id ?? ""} />
-        <InviteFriendsSection destinationId={currentDC.id ?? ""} />
+        {/* <InviteFriendsSection destinationId={currentDC.id ?? ""} /> */}
       </div>
 
       {/* Tabs */}
@@ -60,35 +60,36 @@ const DestinationPage: React.FC = () => {
 
         {activeTab === "Packages" && (
           <div>
-            <div className="flex justify-end mb-4">
+
+            <div className="w-full flex justify-start sm:justify-end px-2 sm:px-0 mb-4">
               <button
                 onClick={() => navigate(`/destinations/${currentDC.id}/packages/edit`)}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
+                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base">
                 + Add Package
               </button>
             </div>
+
+
             <PackagesGrid destinationId={currentDC.id ?? ""} />
           </div>
         )}
 
         {activeTab === "Activities" && ( /*   path="/destinations/:destinationId/activities/edit/:activityId?" */
           <div>
-            <div className="flex justify-end mb-4">
+
+            <div className="w-full flex justify-start sm:justify-end px-2 sm:px-0 mb-4">
               <button
                 onClick={() => navigate(`/destinations/${currentDC.id}/activities/edit`)}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
+                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base">
                 + Add Activity
               </button>
             </div>
-
             <ActivitiesGrid destinationId={currentDC.id ?? ""} />
           </div>
         )}
 
       </div>
-        <ScrollToTopButton />
+      <ScrollToTopButton />
     </div>
   );
 };
