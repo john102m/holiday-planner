@@ -13,32 +13,26 @@ const QuickActionsBar: React.FC<Props> = ({ destinationId }) => {
   };
 
   return (
-    <div className="quick-actions-bar flex space-x-4 mt-4 p-3 border rounded-lg shadow-sm bg-white justify-center sm:justify-start">
-      <button
-        onClick={() => handleAction("pin")}
-        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-      >
-        <FaThumbtack /> <span className="hidden sm:inline">Pin</span>
-      </button>
-      <button
-        onClick={() => handleAction("favorite")}
-        className="flex items-center space-x-1 text-gray-600 hover:text-yellow-500 transition"
-      >
-        <FaStar /> <span className="hidden sm:inline">Favorite</span>
-      </button>
-      <button
-        onClick={() => handleAction("share")}
-        className="flex items-center space-x-1 text-gray-600 hover:text-green-500 transition"
-      >
-        <FaShareAlt /> <span className="hidden sm:inline">Share</span>
-      </button>
-      <button
-        onClick={() => handleAction("edit")}
-        className="flex items-center space-x-1 text-gray-600 hover:text-purple-500 transition"
-      >
-        <FaEdit /> <span className="hidden sm:inline">Edit</span>
-      </button>
+    <div className="w-full px-2 sm:px-0">
+      <div className="flex flex-wrap gap-3 p-3 border rounded-lg shadow-sm bg-white justify-center sm:justify-start">
+        {[
+          { icon: <FaThumbtack />, label: "Pin", color: "hover:text-blue-500", action: "pin" },
+          { icon: <FaStar />, label: "Favorite", color: "hover:text-yellow-500", action: "favorite" },
+          { icon: <FaShareAlt />, label: "Share", color: "hover:text-green-500", action: "share" },
+          { icon: <FaEdit />, label: "Edit", color: "hover:text-purple-500", action: "edit" },
+        ].map(({ icon, label, color, action }) => (
+          <button
+            key={action}
+            onClick={() => handleAction(action)}
+            className={`flex items-center gap-1 text-sm text-gray-600 ${color} transition`}
+          >
+            {icon}
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
+      </div>
     </div>
+
   );
 };
 
