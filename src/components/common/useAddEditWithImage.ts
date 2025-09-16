@@ -22,21 +22,22 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
 
     setImageFile(compressedFile);
 
+    // Show immediate blob preview
     if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-    const url = URL.createObjectURL(compressedFile);
-    setPreviewUrl(url);
-    return url;
+    const blobUrl = URL.createObjectURL(compressedFile);
+    setPreviewUrl(blobUrl);
+    return blobUrl;
   };
 
   const handleSubmit = async (formValues: T, queueType: QueueType, nestedId: string = "") => {
-    const queuePayload: T = { ...formValues, imageFile, hasImage: imageFile instanceof File };
+    // Include the image file in the queued payload
+    const queuePayload: T = { ...formValues, imageFile, hasImage: !!imageFile };
 
-    console.log("This is the handle submit function: ", imageFile);
-    console.log("These are the form values: ", formValues);
+    // Queue it optimistically
     const tempId = await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);
-    console.log("this is temp id", tempId);
+
     return tempId;
   };
 
-  return { imageFile, previewUrl, handleImageSelection, handleSubmit };
+  return { imageFile, previewUrl, handleImageSelection, handleSubmit, setPreviewUrl };
 }

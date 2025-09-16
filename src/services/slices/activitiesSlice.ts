@@ -110,8 +110,6 @@ export const handleCreateActivity = async (action: QueuedAction) => {
   }
 };
 
-
-
 export const handleUpdateActivity = async (action: QueuedAction) => {
   const { updateActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
@@ -119,21 +117,24 @@ export const handleUpdateActivity = async (action: QueuedAction) => {
   console.log("📦 [Queue] Processing UPDATE_ACTIVITY for:", act.name);
 
   try {
-    const { sasUrl, imageUrl } = await editActivityForSas(act.id!, act);
+    // Ask backend for SAS URL / final image URL **first**
+    const { sasUrl, imageUrl: backendImageUrl } = await editActivityForSas(act.id!, act);
 
-    // Optimistic update first
+    // Optimistic update: show blob preview until backend image is ready
     updateActivity(act.destinationId, {
       ...act,
-      imageUrl: imageUrl ?? act.imageUrl,
+      imageUrl: backendImageUrl ?? act.imageUrl,
     });
 
+    // Only upload if SAS URL + file exist
     if (sasUrl && act.imageFile instanceof File) {
       console.log("📤 [Upload] Uploading image to Azure Blob...");
       await uploadToAzureBlob(act.imageFile, sasUrl);
       console.log("✅ [Upload] Image upload complete");
 
-      if (imageUrl) {
-        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+      // Cache-bust the backend image URL so refresh gets the new image
+      if (backendImageUrl) {
+        const cacheBustedUrl = `${backendImageUrl}?t=${Date.now()}`;
         updateActivity(act.destinationId, {
           ...act,
           imageFile: undefined,
