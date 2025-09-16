@@ -1,7 +1,7 @@
 // ActivitiesGrid.tsx
 import React from "react";
 import { useActivitiesStore } from "../../services/slices/activitiesSlice";
-import type {Activity} from "../../services/types"
+import type { Activity } from "../../services/types"
 import ActivityCard from "../cards/ActivityCard";
 
 interface Props {
@@ -22,7 +22,8 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId }) => {
   if (activities.length === 0) return <div>No activities added yet.</div>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-2 sm:px-0">
+
       {activities.map((act) => (
         <ActivityCard key={act.id} activity={act} destinationId={destinationId} />
       ))}

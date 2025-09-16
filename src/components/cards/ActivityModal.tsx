@@ -13,11 +13,9 @@ interface Props {
 const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) => {
   const activities = useActivitiesStore((state) => state.activities[destinationId] || []);
   const [commentText, setCommentText] = useState("");
-
+  console.log("ACTIVITY MODAL")
   const activity: Activity | undefined = activities.find((a) => a.id === activityId);
   if (!activity) return null;
-
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

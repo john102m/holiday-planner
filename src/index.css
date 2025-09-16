@@ -99,6 +99,20 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 } 
 
+@media (max-width: 640px) {
+  :root {
+    font-size: 15px;
+    line-height: 1.4;
+    background-color: #fefefe;
+    color: rgba(30, 30, 30, 0.9);
+  }
+
+  body {
+    margin-top: 3rem; /* slightly tighter spacing for mobile */
+  }
+}
+
+
 /* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

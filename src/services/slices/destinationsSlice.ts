@@ -17,7 +17,7 @@ interface DestinationsSliceState {
   removeDestination: (id: string) => void;
 
 }
-console.log("🔥 activitiesSlice.ts loaded — check new import resolution");
+console.log("🔥 destinationsSlice.ts loaded — check new import resolution");
 export const useDestinationsStore = create<DestinationsSliceState>()(
   persist(
     (set) => ({

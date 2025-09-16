@@ -14,7 +14,7 @@ interface Props {
 const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = true }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
+  console.log("Activity card has the modal integrated")
   const truncatedDetails = (() => {
     if (!activity.details) return "";
     if (activity.details.length <= 120) return activity.details;
@@ -81,31 +81,36 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
       {/* Modal */}
       {isModalOpen && (
         <GenericModal onClose={() => setIsModalOpen(false)} title={activity.name}>
-          {activity.imageUrl && (
-            <img src={activity.imageUrl} alt={activity.name} className="mb-4 w-full rounded" />
-          )}
-
-          <p className="mb-4">{activity.details}</p>
-
-          <div className="mb-4">
-            <h4 className="font-semibold mb-1">Related Link</h4>
-            {activity.linkUrl ? (
-              <a
-                href={activity.linkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-                title={activity.linkUrl}
-              >
-                {getDomain(activity.linkUrl)}
-              </a>
-
-            ) : (
-              <p className="text-gray-500 italic">No link provided for this activity.</p>
+          <div className="space-y-4 text-sm">
+            {activity.imageUrl && (
+              <img
+                src={activity.imageUrl}
+                alt={activity.name}
+                className="w-full rounded max-h-48 object-cover"
+              />
             )}
-          </div>
 
+            <p className="text-gray-700 whitespace-pre-line">{activity.details}</p>
+
+            <div>
+              <h4 className="font-semibold mb-1">Related Link</h4>
+              {activity.linkUrl ? (
+                <a
+                  href={activity.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline break-words"
+                  title={activity.linkUrl}
+                >
+                  {getDomain(activity.linkUrl)}
+                </a>
+              ) : (
+                <p className="text-gray-500 italic">No link provided for this activity.</p>
+              )}
+            </div>
+          </div>
         </GenericModal>
+
       )}
     </>
   );

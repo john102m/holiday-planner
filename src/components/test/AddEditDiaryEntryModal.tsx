@@ -108,7 +108,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                     Writing for trip: <span className="font-semibold">{tripName}</span>
                 </div>
             )}
-            <form onSubmit={onFormSubmit} className="space-y-4">
+            <form onSubmit={onFormSubmit} className="space-y-4 text-sm">
                 <input
                     type="text"
                     placeholder="Title"
@@ -120,7 +120,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                     placeholder="Entry Content"
                     value={entryContent}
                     onChange={(e) => setEntryContent(e.target.value)}
-                    className="w-full border p-2 rounded h-32"
+                    className="w-full border p-2 rounded h-32 resize-none"
                     required
                 />
                 <input
@@ -130,27 +130,35 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                     className="w-full border p-2 rounded"
                     required
                 />
-                {/* <input
-                    type="text"
-                    placeholder="Location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full border p-2 rounded"
-                /> */}
-                {/* <input
-                    type="text"
-                    placeholder="Tags (comma-separated)"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                    className="w-full border p-2 rounded"
-                /> */}
-                {/* <input
-                    type="number"
-                    placeholder="Day Number"
-                    value={dayNumber ?? ""}
-                    onChange={(e) => setDayNumber(Number(e.target.value))}
-                    className="w-full border p-2 rounded"
-                /> */}
+
+                {/* Collapsible Optional Fields */}
+                <details className="border rounded p-2">
+                    <summary className="cursor-pointer text-gray-600">More Options</summary>
+                    <div className="mt-2 space-y-2">
+                        <input
+                            type="text"
+                            placeholder="Location"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="w-full border p-2 rounded"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Tags (comma-separated)"
+                            value={tags}
+                            onChange={(e) => setTags(e.target.value)}
+                            className="w-full border p-2 rounded"
+                        />
+                        <input
+                            type="number"
+                            placeholder="Day Number"
+                            value={dayNumber ?? ""}
+                            onChange={(e) => setDayNumber(Number(e.target.value))}
+                            className="w-full border p-2 rounded"
+                        />
+                    </div>
+                </details>
+
                 <ImageUploadWidget
                     onSelect={handleImageSelection}
                     initialUrl={initialValues?.imageUrl}
@@ -173,6 +181,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                 </div>
             </form>
         </GenericModal>
+
     );
 };
 
