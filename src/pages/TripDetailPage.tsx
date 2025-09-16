@@ -37,8 +37,7 @@ const TripDetailPage: React.FC = () => {
     const tabs: TabType[] = ["Itineraries", "Activities", "Diary"];
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
             <TripHeroSection destination={currentDest} trip={userTrip} />
             {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
             <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">
