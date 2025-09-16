@@ -7,52 +7,52 @@ import type { Destination, QueuedAction } from "../types";
 
 
 interface DestinationsSliceState {
-    destinations: Destination[];
+  destinations: Destination[];
 
-    // destinations
-    setDestinations: (dest: Destination[]) => void;
-    addDestination: (dest: Destination) => void;
-    replaceDestination: (tempId: string, saved: Destination) => void;
-    updateDestination: (updated: Destination) => void;
-    removeDestination: (id: string) => void;
+  // destinations
+  setDestinations: (dest: Destination[]) => void;
+  addDestination: (dest: Destination) => void;
+  replaceDestination: (tempId: string, saved: Destination) => void;
+  updateDestination: (updated: Destination) => void;
+  removeDestination: (id: string) => void;
 
 }
 console.log("🔥 activitiesSlice.ts loaded — check new import resolution");
 export const useDestinationsStore = create<DestinationsSliceState>()(
-    persist(
-        (set) => ({
+  persist(
+    (set) => ({
 
-            destinations: [],
-            setDestinations: (dest) => set({ destinations: dest }),
-            addDestination: (dest) => set((state) => ({ destinations: [...state.destinations, dest] })),
-            replaceDestination: (tempId, saved) =>
-                set((state) => {
-                    const updated = state.destinations.map((d) =>
-                        d.id === tempId ? saved : d
-                    );
-                    return { destinations: updated };
-                }),
-
-
-            updateDestination: (updated: Destination) =>
-                set((state) => ({
-                    destinations: state.destinations.map((d) =>
-                        d.id === updated.id ? { ...d, ...updated } : d
-                    ),
-                })),
-
-            removeDestination: (id: string) => {
-                set((state) => ({
-                    destinations: state.destinations.filter((d) => d.id !== id),
-                }));
-            }
-
+      destinations: [],
+      setDestinations: (dest) => set({ destinations: dest }),
+      addDestination: (dest) => set((state) => ({ destinations: [...state.destinations, dest] })),
+      replaceDestination: (tempId, saved) =>
+        set((state) => {
+          const updated = state.destinations.map((d) =>
+            d.id === tempId ? saved : d
+          );
+          return { destinations: updated };
         }),
-        {
-            name: "destinations-store",
-            storage: createJSONStorage(() => localStorage)
-        }
-    )
+
+
+      updateDestination: (updated: Destination) =>
+        set((state) => ({
+          destinations: state.destinations.map((d) =>
+            d.id === updated.id ? { ...d, ...updated } : d
+          ),
+        })),
+
+      removeDestination: (id: string) => {
+        set((state) => ({
+          destinations: state.destinations.filter((d) => d.id !== id),
+        }));
+      }
+
+    }),
+    {
+      name: "destinations-store",
+      storage: createJSONStorage(() => localStorage)
+    }
+  )
 );
 
 export const handleCreateDestination = async (action: QueuedAction) => {
@@ -95,7 +95,7 @@ export const handleUpdateDestination = async (action: QueuedAction) => {
   console.log("📦 [Queue] Processing UPDATE_DESTINATION for:", dest.name);
 
   try {
-    const { sasUrl, imageUrl } = await editDestinationForSas(dest.id!, dest);
+    const { sasUrl, imageUrl: backendImageUrl } = await editDestinationForSas(dest.id!, dest);
     console.log("✅ [API] Destination updated");
     console.log("🔗 [API] Received SAS URL:", sasUrl);
 
@@ -108,14 +108,15 @@ export const handleUpdateDestination = async (action: QueuedAction) => {
       console.log("✅ [Upload] Image upload complete");
 
       // 2. Replace blob: preview with final Azure URL + cache-busting
-      if (imageUrl) {
-        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+      if (backendImageUrl) {
+        const cacheBustedUrl = `${backendImageUrl}?t=${Date.now()}`;
         updateDestination({
           ...dest,
-          imageFile: undefined, // clear temp file reference
+          imageFile: undefined,
           hasImage: true,
-          imageUrl: cacheBustedUrl,
+          imageUrl: cacheBustedUrl, // always update the store with this
         });
+
         console.log("🔄 [Store] Destination image updated to:", cacheBustedUrl);
       }
     } else {
