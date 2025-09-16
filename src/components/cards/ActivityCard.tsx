@@ -45,7 +45,11 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
   return (
     <>
       {/* Card */}
-      <div className="card cursor-pointer" onClick={() => setIsModalOpen(true)}>
+      <div
+        className="card w-full max-w-[300px] mx-auto bg-white rounded shadow-md flex flex-col cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+      >
+
         {activity.imageUrl && <img src={activity.imageUrl} alt={activity.name} className="card-img" />}
         <div className="card-body">
           <h3 className="card-title">{activity.name}</h3>
