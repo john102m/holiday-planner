@@ -14,7 +14,6 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
 
   return (
 
-
     <div className="max-w-xs  border rounded-lg overflow-hidden shadow hover:shadow-lg transition mb-8 cursor-pointer flex flex-col">
       {/* Card Image */}
       <img

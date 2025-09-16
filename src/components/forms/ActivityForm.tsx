@@ -72,14 +72,16 @@ const ActivityForm: React.FC<Props> = ({
 
       <div>
         <label className="block font-semibold">Image</label>
-        <ImageUploadWidget
-          initialUrl={imageUrl}
-          onSelect={async (file: File) => {
-            const previewUrl = await onImageSelect(file); // calls parent
-            setImageUrl(previewUrl);                     // updates local state
-            return previewUrl;                           // returns to widget
-          }}
-        />
+  
+          <ImageUploadWidget
+            initialUrl={imageUrl}
+            onSelect={async (file: File) => {
+              const previewUrl = await onImageSelect(file);
+              setImageUrl(previewUrl);
+              return previewUrl;
+            }}
+          />
+      
         {imageUrl && (
           <div className="mt-2">
             <img
