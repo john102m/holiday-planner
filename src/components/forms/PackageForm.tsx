@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
 import type { Package } from "../../services/types";
+import ImageUploadWidget from "../common/ImageUploadWidget";
 
 interface Props {
   initialValues?: Package;      // for edit
   destinationId: string;        // pre-fill for context
   onSubmit: (pkg: Package) => void;
   onCancel: () => void;
+  onImageSelect: (file: File) => Promise<string>; // <-- add for uploads
 }
 
-const PackageForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, onCancel }) => {
+const PackageForm: React.FC<Props> = ({
+  initialValues,
+  destinationId,
+  onSubmit,
+  onCancel,
+  onImageSelect,
+}) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [region, setRegion] = useState(initialValues?.region || "");
   const [description, setDescription] = useState(initialValues?.description || "");
@@ -16,7 +24,7 @@ const PackageForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, 
   const [price, setPrice] = useState(initialValues?.price || 0);
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
 
-  // Sync form state whenever initialValues changes
+  // Sync when initialValues change
   useEffect(() => {
     setName(initialValues?.name || "");
     setRegion(initialValues?.region || "");
@@ -29,7 +37,7 @@ const PackageForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      id: initialValues?.id, // preserve id if editing
+      ...initialValues, // preserves id if editing
       destinationId,
       name,
       region,
@@ -98,13 +106,27 @@ const PackageForm: React.FC<Props> = ({ initialValues, destinationId, onSubmit, 
       </div>
 
       <div>
-        <label className="block font-semibold">Image URL</label>
-        <input
-          type="text"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border rounded p-2"
+        <label className="block font-semibold">Image</label>
+        <ImageUploadWidget
+          initialUrl={imageUrl}
+          onSelect={async (file: File) => {
+            const previewUrl = await onImageSelect(file);
+            setImageUrl(previewUrl);
+            return previewUrl;
+          }}
         />
+        {imageUrl && (
+          <div className="mt-2">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="w-full max-w-xs rounded shadow"
+              onError={(e) =>
+                ((e.target as HTMLImageElement).style.display = "none")
+              }
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex gap-4 mt-4">

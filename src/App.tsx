@@ -54,18 +54,13 @@ const App: React.FC = () => {
           element={<AddEditDestinationPage />}
         />
         <Route
-          path="/destinations/:destinationId/packages/add"
-          element={<AddEditPackagePage />}
-        />
-        <Route
-          path="/destinations/:destinationId/packages/edit/:packageId"
+          path="/destinations/:destinationId/packages/edit/:packageId?"
           element={<AddEditPackagePage />}
         />
         <Route
           path="/destinations/:destinationId/activities/edit/:activityId?"
           element={<AddEditActivityPage />}
-        />
-        
+        />  
         <Route
           path="/itineraries/view"
           element={<ItineraryEditPage />}

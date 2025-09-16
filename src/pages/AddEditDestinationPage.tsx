@@ -67,7 +67,7 @@ const AddEditDestinationPage: React.FC = () => {
         <DestinationForm
           initialValues={currentDestination}
           onSubmit={onSubmit}
-          onCancel={() => navigate("/admin")}
+          onCancel={() => navigate("/admindashboard")}
           onImageSelect={handleSelectImage}
         />
       </div>

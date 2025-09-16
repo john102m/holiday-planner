@@ -51,7 +51,12 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
         if (!isOpen) return; // only reset when modal is open
         setTitle(initialValues?.title || "");
         setEntryContent(initialValues?.entryContent || "");
-        setEntryDate(initialValues?.entryDate || new Date().toISOString().slice(0, 10));
+        // Only default to today’s date if there's no initial value
+        setEntryDate(
+            initialValues?.entryDate
+                ? initialValues.entryDate.slice(0, 10)
+                : new Date().toISOString().slice(0, 10)
+        );
         setLocation(initialValues?.location || "");
         setTags(initialValues?.tags || "");
         setDayNumber(initialValues?.dayNumber || undefined);
@@ -79,8 +84,6 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
             }),
         };
 
-        // Note: You could conditionally switch to QueueTypes.UPDATE_DIARY_ENTRY 
-        // if initialValues?.id exists — easy to add later.
         console.log("Submitting diary entry:", formValues);
         await handleSubmit(formValues, isEditMode ? QueueTypes.UPDATE_DIARY_ENTRY : QueueTypes.CREATE_DIARY_ENTRY);
         onClose();

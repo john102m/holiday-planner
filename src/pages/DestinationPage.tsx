@@ -62,7 +62,7 @@ const DestinationPage: React.FC = () => {
           <div>
             <div className="flex justify-end mb-4">
               <button
-                onClick={() => navigate(`/destinations/${currentDC.id}/packages/add`)}
+                onClick={() => navigate(`/destinations/${currentDC.id}/packages/edit`)}
                 className="px-4 py-2 bg-blue-500 text-white rounded"
               >
                 + Add Package

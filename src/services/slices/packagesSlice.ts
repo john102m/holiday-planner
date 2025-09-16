@@ -3,6 +3,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Package, QueuedAction } from "../types";
 import { createPackage, editPackage, deletePackage } from "../apis/packagesApi";
+import { uploadToAzureBlob } from "../storeUtils";
+
 export interface PackageSliceState {
     packages: Record<string, Package[]>;
 
@@ -78,20 +80,83 @@ export const usePackageStore = create<PackageSliceState>()(
     )
 );
 
+
+// CREATE
 export const handleCreatePackage = async (action: QueuedAction) => {
-    const { replacePackage, addPackage } = usePackageStore.getState();
-    const pkg = action.payload as Package;
-    const saved = await createPackage(pkg); // your backend call
-    if (action.tempId) replacePackage(action.tempId, saved);
-    else addPackage(saved.destinationId!, saved);
+  const { replacePackage, addPackage } = usePackageStore.getState();
+  const pkg = action.payload as Package;
+
+  console.log("📦 [Queue] Processing CREATE_PACKAGE for:", pkg.name);
+
+  try {
+    const { package: saved, sasUrl } = await createPackage(pkg);
+    console.log("✅ [API] Package created:", saved);
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
+
+    // Replace optimistic package if tempId exists, otherwise add
+    if (action.tempId) {
+      console.log("🔄 [Store] Replacing optimistic package with saved one");
+      replacePackage(action.tempId, saved);
+    } else {
+      console.log("➕ [Store] Adding new package to store");
+      addPackage(saved.destinationId!, saved);
+    }
+
+    // Upload image if present
+    if (sasUrl && "imageFile" in pkg && pkg.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading package image to Azure Blob...");
+      await uploadToAzureBlob(pkg.imageFile, sasUrl);
+      console.log("✅ [Upload] Image upload complete");
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process CREATE_PACKAGE:", error);
+  }
 };
 
+// UPDATE
 export const handleUpdatePackage = async (action: QueuedAction) => {
-    const { updatePackage } = usePackageStore.getState();
-    const pkg = action.payload as Package;
-    if (!pkg.id) throw new Error("Cannot update package: missing ID");
-    await editPackage(pkg.id, pkg);
-    updatePackage(pkg.destinationId!, pkg);
+  const { updatePackage } = usePackageStore.getState();
+  const pkg = action.payload as Package;
+
+  console.log("📦 [Queue] Processing UPDATE_PACKAGE for:", pkg.name);
+
+  if (!pkg.id) {
+    console.error("❌ Cannot update package: missing ID");
+    return;
+  }
+
+  try {
+    const { sasUrl, imageUrl } = await editPackage(pkg.id, pkg);
+
+    // Optimistic update first
+    updatePackage(pkg.destinationId!, {
+      ...pkg,
+      imageUrl: imageUrl ?? pkg.imageUrl,
+    });
+
+    if (sasUrl && pkg.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading package image to Azure Blob...");
+      await uploadToAzureBlob(pkg.imageFile, sasUrl);
+      console.log("✅ [Upload] Image upload complete");
+
+      if (imageUrl) {
+        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+        updatePackage(pkg.destinationId!, {
+          ...pkg,
+          imageFile: undefined,
+          hasImage: true,
+          imageUrl: cacheBustedUrl,
+        });
+        console.log("🔄 [Store] Package image updated to:", cacheBustedUrl);
+      }
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error) {
+    console.error("❌ [Queue] Failed to process UPDATE_PACKAGE:", error);
+  }
 };
 
 export const handleDeletePackage = async (action: QueuedAction) => {

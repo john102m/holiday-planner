@@ -16,7 +16,7 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
   return (
     <div className="hero relative rounded-lg overflow-hidden shadow-md">
       <img
-        src={destination.imageUrl}
+        src={trip.imageUrl ?? "/placeholder.png"}
         alt={trip.name}
         className="w-full h-64 object-cover sm:h-80 md:h-96"
       />
@@ -27,9 +27,19 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
       {/* Blurred overlay */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/30 backdrop-blur-sm rounded-t-lg">
         <div className="flex justify-between items-center">
-          <h1 className="text-white text-2xl sm:text-3xl font-bold">
-            {trip.name|| `Your Trip to ${destination.name}`}
-          </h1>
+          <h2 className="text-2xl text-violet-50 font-bold flex flex-wrap items-baseline gap-2">
+            {trip.name ? (
+              <>
+                <span>{trip.name}</span>
+                <span className="text-base text-gray-400 transition-opacity duration-300 opacity-80">
+                  {destination.name}
+                </span>
+              </>
+            ) : (
+              <>Your Trip to {destination.name}</>
+            )}
+          </h2>
+
           <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full">
             {trip.status}
           </span>

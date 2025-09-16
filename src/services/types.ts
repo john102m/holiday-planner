@@ -54,7 +54,7 @@ export type Entity =
   ItineraryActivity | ItineraryActivitiesBatch;
 
 // Only the entities that support images
-export type ImageEntity = Destination | Activity | DiaryEntry;  //to be added Activity | Package | 
+export type ImageEntity = Destination | Activity | DiaryEntry | Package ;  //to be added Activity | Package | 
 
 export interface QueuedAction {
   id: string;
@@ -98,6 +98,7 @@ export interface Activity extends ImageAttachable {
   destinationId: string;    // nullable Guid → optional string
   name?: string;             // nullable → optional
   details?: string;          // nullable → optional
+  linkUrl?:string;          // nullable → optional
   votes?: number;            // nullable int → optional number
   createdBy?: string;        // nullable Guid → optional string
   createdAt?: string;        // nullable DateTime → optional string
@@ -123,7 +124,7 @@ export interface DiaryEntry extends ImageAttachable {  //replacing ActivityComme
 
 }
 
-export interface Package {
+export interface Package extends ImageAttachable  {
   id?: string;
   destinationId: string;
   name: string;

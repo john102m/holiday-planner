@@ -22,6 +22,7 @@ const ActivityForm: React.FC<Props> = ({
   const [isPrivate, setIsPrivate] = useState(initialValues?.isPrivate || false);
   const [votes, setVotes] = useState(initialValues?.votes || 0);
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
+  const [linkUrl, setLinkUrl] = useState(initialValues?.linkUrl || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +34,7 @@ const ActivityForm: React.FC<Props> = ({
       votes,
       destinationId,
       isPrivate,
+      linkUrl
     } as Activity);
   };
 
@@ -55,6 +57,16 @@ const ActivityForm: React.FC<Props> = ({
           value={details}
           onChange={(e) => setDetails(e.target.value)}
           className="w-full border rounded p-2"
+        />
+      </div>
+      <div>
+        <label className="block font-semibold">Link URL</label>
+        <input
+          type="url"
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          className="w-full border rounded p-2"
+          placeholder="https://example.com"
         />
       </div>
 

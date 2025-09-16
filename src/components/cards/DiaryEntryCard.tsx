@@ -1,6 +1,6 @@
 import React from "react";
 import type { DiaryEntry } from "../../services/types";
-import { formatDate } from "../utilities";
+import { formatFriendlyDate } from "../utilities";
 
 interface Props {
     entry: DiaryEntry;
@@ -36,7 +36,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
                 </p>
                 <p className="text-[10px] text-gray-400 mt-2">
                     {entry.entryDate
-                        ? formatDate(entry.entryDate)
+                        ? formatFriendlyDate(entry.entryDate)
                         : "No date"}
                 </p>
             </div>

@@ -20,15 +20,37 @@ export const getPackagesByDestination = async (destId: string): Promise<Package[
     return res.data;
 };
 
-// Create a new package
-export const createPackage = async (payload: Package): Promise<Package> => {
-    const res = await api.post<Package>("/packages/create", payload);
+// // Create a new package
+// export const createPackage = async (payload: Package): Promise<Package> => {
+//     const res = await api.post<Package>("/packages/create", payload);
+//     return res.data;
+// };
+
+// // Update an existing package
+// export const editPackage = async (packageId: string, data: Package): Promise<void> => {
+//     await api.post(`/packages/update/${packageId}`, data);
+// };
+// Create package and get SAS token if needed
+export const createPackage = async (
+    pkg: Omit<Package, "id" | "createdAt" | "createdBy">
+): Promise<{ package: Package; sasUrl?: string; imageUrl?: string }> => {
+    const res = await api.post<{ package: Package; sasUrl?: string; imageUrl?: string }>(
+        `/packages/create`,
+        pkg
+    );
     return res.data;
 };
 
-// Update an existing package
-export const editPackage = async (packageId: string, data: Package): Promise<void> => {
-    await api.post(`/packages/update/${packageId}`, data);
+// Update package and get SAS token if needed
+export const editPackage = async (
+    id: string,
+    pkg: Omit<Package, "createdAt" | "createdBy">
+): Promise<{ sasUrl?: string; imageUrl?: string }> => {
+    const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
+        `/packages/update/${id}`,
+        pkg
+    );
+    return res.data;
 };
 
 // Delete a package

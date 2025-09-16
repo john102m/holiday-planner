@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
-import  {GenericModal } from "../GenericModal";
+import { GenericModal } from "../GenericModal";
 
 interface Props {
   activity: Activity;
@@ -32,6 +32,13 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
         destinationId
       );
       console.log(`Queued deletion for activity ${activity.name}`);
+    }
+  };
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, "");
+    } catch {
+      return url;
     }
   };
 
@@ -77,7 +84,27 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
           {activity.imageUrl && (
             <img src={activity.imageUrl} alt={activity.name} className="mb-4 w-full rounded" />
           )}
-          <p>{activity.details}</p>
+
+          <p className="mb-4">{activity.details}</p>
+
+          <div className="mb-4">
+            <h4 className="font-semibold mb-1">Related Link</h4>
+            {activity.linkUrl ? (
+              <a
+                href={activity.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+                title={activity.linkUrl}
+              >
+                {getDomain(activity.linkUrl)}
+              </a>
+
+            ) : (
+              <p className="text-gray-500 italic">No link provided for this activity.</p>
+            )}
+          </div>
+
         </GenericModal>
       )}
     </>
