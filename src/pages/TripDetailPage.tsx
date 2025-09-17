@@ -39,11 +39,11 @@ const TripDetailPage: React.FC = () => {
             <TripHeroSection destination={currentDest} trip={userTrip} />
 
             {/* Tabs */}
-            <div className="flex mb-4 gap-2 px-2">
+            <div className="flex mb-4 gap-1 w-full">
                 {tabs.map((tab) => (
                     <button
                         key={tab}
-                        className={`flex-1 py-1.5 rounded-full font-semibold text-sm sm:text-base md:text-base whitespace-nowrap transition ${activeTab === tab
+                        className={`flex-1 py-2 rounded-full font-semibold text-sm sm:text-base text-center transition ${activeTab === tab
                                 ? "bg-blue-500 text-white shadow"
                                 : "border border-gray-300 text-gray-800 hover:bg-gray-100"
                             }`}
@@ -53,6 +53,7 @@ const TripDetailPage: React.FC = () => {
                     </button>
                 ))}
             </div>
+
 
 
 
