@@ -35,7 +35,8 @@ const TripDetailPage: React.FC = () => {
         "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+        <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-8 pb-16">
+
             <TripHeroSection destination={currentDest} trip={userTrip} />
 
             {/* Tabs */}
@@ -53,9 +54,6 @@ const TripDetailPage: React.FC = () => {
                     </button>
                 ))}
             </div>
-
-
-
 
 
             {/* Tab Content */}
