@@ -36,11 +36,10 @@ const TripDetailPage: React.FC = () => {
 
     return (
         <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-8 pb-16">
-
             <TripHeroSection destination={currentDest} trip={userTrip} />
 
             {/* Tabs */}
-            <div className="flex mb-4 w-full">
+            <div className="flex mb-4 mt-1 w-full">
                 {tabs.map((tab) => (
                     <button
                         key={tab}
@@ -54,7 +53,6 @@ const TripDetailPage: React.FC = () => {
                     </button>
                 ))}
             </div>
-
 
             {/* Tab Content */}
             <div className="tab-content mt-4">
