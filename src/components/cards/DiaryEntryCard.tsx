@@ -15,42 +15,35 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
             : "/placeholder.png";
 
     //console.log("the title you are after: ", entry.title);  
-    console.log("the file you are after: ", entry.imageUrl);       
+    console.log("the file you are after: ", entry.imageUrl);
     return (
         <div
-            className="relative bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition max-w-xs w-full mx-auto"
+            className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full max-w-xs mx-auto"
             onClick={onClick}
         >
             <img
-                key={`${entry.id}-${Date.now()}`} 
+                key={`${entry.id}-${Date.now()}`}
                 src={imageSrc}
                 alt={entry.title ?? "Diary Entry"}
-                className="w-full h-28 object-cover"
+                className="w-24 h-24 object-cover flex-shrink-0"
             />
-            <div className="p-3 text-sm">
-                <h3 className="font-serif text-base font-semibold mb-1">
-                    {entry.title ?? "Untitled Entry"}
-                </h3>
-                <p className="text-gray-600 line-clamp-3">
-                    {entry.entryContent ?? "No content available."}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-2">
-                    {entry.entryDate
-                        ? formatFriendlyDate(entry.entryDate)
-                        : "No date"}
-                </p>
-            </div>
-            <div className="absolute bottom-2 right-2 flex gap-2  opacity-90 group-hover:opacity-100 transition-opacity">
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation(); // prevent triggering onClick (view modal)
-                        onEdit?.(entry);     // call edit handler if provided
-                    }}
-                    className="text-xs text-blue-600 hover:underline"
-                >
-                    ✎
-                </button>
-
+            <div className="p-2 flex-1 flex flex-col justify-between gap-1">
+                <div className="flex flex-col gap-1">
+                    <h3 className="font-serif text-base font-semibold">{entry.title ?? "Untitled Entry"}</h3>
+                    <p className="text-gray-600 line-clamp-1">{entry.entryContent ?? "No content available."}</p>
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-gray-400">
+                    <p>{entry.entryDate ? formatFriendlyDate(entry.entryDate) : "No date"}</p>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.(entry);
+                        }}
+                        className="text-xs text-blue-600 hover:underline"
+                    >
+                        ✎
+                    </button>
+                </div>
             </div>
         </div>
     );
