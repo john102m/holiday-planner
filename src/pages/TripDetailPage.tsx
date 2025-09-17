@@ -59,7 +59,7 @@ const TripDetailPage: React.FC = () => {
                 {activeTab === "Activities" && (
                     <div>
                         {/* Desktop/tablet inline button */}
-                        <div className="hidden sm:flex justify-end mb-4">
+                        <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
                                 onClick={() => navigate(`/destinations/${currentDest.id}/activities/edit`)}
                                 className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
@@ -84,7 +84,7 @@ const TripDetailPage: React.FC = () => {
                 {activeTab === "Itineraries" && (
                     <div>
                         {/* Desktop/tablet inline button */}
-                        <div className="hidden sm:flex justify-end mb-4">
+                        <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
                                 onClick={() =>
                                     navigate(`/itineraries/edit?tripId=${userTrip.id}&destId=${currentDest.id}`)
@@ -113,7 +113,7 @@ const TripDetailPage: React.FC = () => {
                 {activeTab === "Diary" && (
                     <div>
                         {/* Desktop/tablet inline button */}
-                        <div className="hidden sm:flex justify-end mb-4">
+                        <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
                                 onClick={() => setAddModalOpen(true)}
                                 className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"

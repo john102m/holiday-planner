@@ -32,6 +32,14 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+        document.body.style.overflow = originalStyle;
+    };
+}, []);
+
 
   const imageSrc =
     entry.imageUrl?.trim() && entry.imageUrl !== ""

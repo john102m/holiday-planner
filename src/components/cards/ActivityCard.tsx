@@ -53,7 +53,7 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
         {activity.imageUrl && <img src={activity.imageUrl} alt={activity.name} className="card-img" />}
         <div className="card-body">
           <h3 className="card-title">{activity.name}</h3>
-          <p className="card-text">{truncatedDetails}</p>
+          <p className="card-text line-clamp-1">{truncatedDetails}</p>
           <div className="card-footer flex justify-between items-center">
             <span>{activity.votes ?? 0} votes</span>
           </div>
