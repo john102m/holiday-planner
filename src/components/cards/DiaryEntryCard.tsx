@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect }from "react";
 import type { DiaryEntry } from "../../services/types";
 import { formatFriendlyDate } from "../utilities";
 
@@ -9,11 +9,35 @@ interface Props {
 }
 
 const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
-    const imageSrc =
-        entry.imageUrl?.trim() && entry.imageUrl !== ""
-            ? `${entry.imageUrl}`
-            : "/placeholder.png";
 
+    // const stripQueryParam = (url: string) => url.split("?")[0];
+    // const imageSrc =
+    //     entry.imageUrl?.trim()
+    //         ? navigator.onLine
+    //             ? entry.imageUrl
+    //             : stripQueryParam(entry.imageUrl)
+    //         : "/placeholder.png";
+
+
+    // const imageSrc =
+    //     entry.imageUrl?.trim() && entry.imageUrl !== ""
+    //         ? `${entry.imageUrl}`
+    //         : "/placeholder.png";
+    const imageSrc = entry.imageUrl?.trim() || "/placeholder.png";
+
+    useEffect(() => {
+        if (!entry.imageUrl) return;
+
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = entry.imageUrl;
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, [entry.imageUrl]);
     //console.log("the title you are after: ", entry.title);  
     console.log("the file you are after: ", entry.imageUrl);
     return (

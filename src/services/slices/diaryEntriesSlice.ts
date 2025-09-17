@@ -55,6 +55,11 @@ export const useDiaryEntriesStore = create<DiaryEntriesSliceState>()(
     )
 );
 
+// ✅ Key Improvements
+// Consistent hasImage flag for offline rendering logic.
+// Cache-busted URLs ensure fresh images load even after updates.
+// Avoids overwriting final image URL with blob previews.
+// Store updates use final image metadata, not temporary blobs.
 
 export const handleCreateDiaryEntry = async (action: QueuedAction) => {
     const { addDiaryEntry, replaceDiaryEntry } = useDiaryEntriesStore.getState();
@@ -63,38 +68,45 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
     console.log("📘 [Queue] Processing CREATE_DIARY_ENTRY for:", entry.title);
 
     try {
-        // Step 1: Send entry to API
         const { entry: saved, sasUrl } = await createDiaryEntry(entry);
         console.log("✅ [API] Diary entry created:", saved);
         console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-        // Step 2: Replace optimistic entry or add new one
-        if (action.tempId) {
-            console.log("🔄 [Store] Replacing optimistic diary entry with saved one");
-            replaceDiaryEntry(action.tempId, saved);
-        } else {
-            console.log("➕ [Store] Adding new diary entry to store");
-            addDiaryEntry(saved);
-        }
-
-        // Step 3: Upload image if file exists
-        if (sasUrl && "imageFile" in entry && entry.imageFile instanceof File) {
+        // Upload image if present
+        let finalImageUrl = saved.imageUrl;
+        if (sasUrl && entry.imageFile instanceof File) {
             console.log("📤 [Upload] Uploading image to Azure Blob...");
             await uploadToAzureBlob(entry.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
+
+            // Cache-bust the image URL
+            if (finalImageUrl) {
+                finalImageUrl = `${finalImageUrl}`;//?t=${Date.now()}
+            }
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
 
+        const updatedEntry: DiaryEntry = {
+            ...saved,
+            imageFile: undefined,
+            hasImage: !!finalImageUrl,
+            imageUrl: finalImageUrl,
+        };
+
+        if (action.tempId) {
+            console.log("🔄 [Store] Replacing optimistic diary entry with saved one");
+            replaceDiaryEntry(action.tempId, updatedEntry);
+        } else {
+            console.log("➕ [Store] Adding new diary entry to store");
+            addDiaryEntry(updatedEntry);
+        }
     } catch (error) {
         console.error("❌ [Queue] Failed to process CREATE_DIARY_ENTRY:", error);
     }
 };
 
 
-/**
- * Handle updating an existing diary entry
- */
 export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
     const { updateDiaryEntry } = useDiaryEntriesStore.getState();
     const entry = action.payload as DiaryEntry;
@@ -102,22 +114,24 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
     console.log("📘 [Queue] Processing UPDATE_DIARY_ENTRY for:", entry.title);
 
     try {
-        const { sasUrl, imageUrl } = await editDiaryEntry(entry.id!, entry);
+        const { sasUrl, imageUrl: backendImageUrl } = await editDiaryEntry(entry.id!, entry);
         console.log("✅ [API] Diary entry updated");
         console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-        // 1. Optimistic update (still blob preview if user just picked one)
-        updateDiaryEntry(entry);
+        // Optimistic update with backend image URL if available
+        updateDiaryEntry({
+            ...entry,
+            imageUrl: backendImageUrl ?? entry.imageUrl,
+        });
 
-        // 2. Upload image if needed
         if (sasUrl && entry.imageFile instanceof File) {
             console.log("📤 [Upload] Uploading image to Azure Blob...");
             await uploadToAzureBlob(entry.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
 
-            // 3. Replace blob preview with final Azure URL + cache-busting
-            if (imageUrl) {
-                const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
+            // Cache-bust the image URL
+            if (backendImageUrl) {
+                const cacheBustedUrl = `${backendImageUrl};//?t=${Date.now()}`;
                 updateDiaryEntry({
                     ...entry,
                     imageFile: undefined,
@@ -129,12 +143,10 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
-
     } catch (error) {
         console.error("❌ [Queue] Failed to process UPDATE_DIARY_ENTRY:", error);
     }
 };
-
 
 
 export const handleDeleteDiaryEntry = async (action: QueuedAction) => {

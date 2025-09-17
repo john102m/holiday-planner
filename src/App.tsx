@@ -29,6 +29,17 @@ const App: React.FC = () => {
   const hydrateStore = useStore((state) => state.hydrate);
 
   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log("Service worker registered");
+      }).catch((error) => {
+        console.error("Service worker registration failed:", error);
+      });
+    }
+  }, []);
+
+
+  useEffect(() => {
     const init = async () => {
       await hydrateStore();
       logMemory();
@@ -60,7 +71,7 @@ const App: React.FC = () => {
         <Route
           path="/destinations/:destinationId/activities/edit/:activityId?"
           element={<AddEditActivityPage />}
-        />  
+        />
         <Route
           path="/itineraries/view"
           element={<ItineraryEditPage />}
