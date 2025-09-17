@@ -22,7 +22,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
             onClick={onClick}
         >
             <img
-                key={`${entry.id}-${Date.now()}`}
+                key={`${entry.id}`}
                 src={imageSrc}
                 alt={entry.title ?? "Diary Entry"}
                 className="w-24 h-24 object-cover flex-shrink-0"
