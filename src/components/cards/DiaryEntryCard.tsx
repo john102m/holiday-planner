@@ -11,7 +11,7 @@ interface Props {
 const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
     const imageSrc =
         entry.imageUrl?.trim() && entry.imageUrl !== ""
-            ? `${entry.imageUrl}?123`
+            ? `${entry.imageUrl}`
             : "/placeholder.png";
 
     //console.log("the title you are after: ", entry.title);  
