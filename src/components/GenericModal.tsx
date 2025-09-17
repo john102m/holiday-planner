@@ -59,18 +59,22 @@ export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, t
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Overlay with semi-transparent black + blur */}
+            <div className="absolute inset-0 bg-black/30 sm:backdrop-blur-md"></div>
+
+            {/* Modal content */}
             <div
                 ref={modalRef}
                 className="relative bg-white rounded-lg p-4 sm:p-6 w-full max-w-[92vw] sm:max-w-lg max-h-[85vh] overflow-y-auto shadow-lg text-sm"
             >
+                {title && <h2 className="text-lg font-bold mb-4">{title}</h2>}
                 <button
                     onClick={onClose}
                     className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
                 >
                     ×
                 </button>
-                {title && <h2 className="text-lg font-bold mb-4">{title}</h2>}
                 <div>{children}</div>
             </div>
         </div>
