@@ -23,6 +23,9 @@ const ItineraryCard: React.FC<Props> = ({ itinerary }) => {
           src={itinerary.imageUrl}
           alt={name}
           className="w-full h-32 object-cover"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.png";
+          }}
         />
       )}
       <div className="p-4">

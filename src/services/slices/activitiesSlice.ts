@@ -1,7 +1,7 @@
 // slices/activitiesSlice.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Activity, QueuedAction } from "../types";
+import type { ImageEntity, Activity, QueuedAction } from "../types";
 import { uploadToAzureBlob } from "../storeUtils";
 import { createActivityWithSas, editActivityForSas, deleteActivity } from "../apis/activitiesApi";
 
@@ -77,8 +77,25 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
   )
 );
 
+
+export const finalizeImageUpload = (
+  entity: ImageEntity,
+  sasUrl: string
+): ImageEntity => {
+  if (entity.previewBlobUrl) {
+    URL.revokeObjectURL(entity.previewBlobUrl);
+  }
+  return {
+    ...entity,
+    imageUrl: sasUrl,
+    previewBlobUrl: undefined,
+    isPendingUpload: false,
+    imageFile: undefined
+  };
+};
+
 export const handleCreateActivity = async (action: QueuedAction) => {
-  const { addActivity, replaceActivity } = useActivitiesStore.getState();
+  const { addActivity, replaceActivity, updateActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
 
   console.log("📦 [Queue] Processing CREATE_ACTIVITY for:", act.name);
@@ -88,20 +105,31 @@ export const handleCreateActivity = async (action: QueuedAction) => {
     console.log("✅ [API] Activity created:", saved);
     console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-    // Replace optimistic activity if tempId exists, otherwise just add
+    // Preserve preview and upload flags from optimistic payload
+    const merged = {
+      ...saved,
+      previewBlobUrl: act.previewBlobUrl,
+      isPendingUpload: !!act.imageFile,
+      imageFile: act.imageFile
+    };
+
     if (action.tempId) {
       console.log("🔄 [Store] Replacing optimistic activity with saved one");
-      replaceActivity(action.tempId, saved);
+      replaceActivity(action.tempId, merged);
     } else {
       console.log("➕ [Store] Adding new activity to store");
-      addActivity(saved.destinationId, saved);
+      addActivity(saved.destinationId, merged);
     }
 
     // Upload image if present
-    if (sasUrl && "imageFile" in act && act.imageFile instanceof File) {
+    if (sasUrl && act.imageFile instanceof File) {
       console.log("📤 [Upload] Uploading image to Azure Blob...");
       await uploadToAzureBlob(act.imageFile, sasUrl);
       console.log("✅ [Upload] Image upload complete");
+
+      // Finalize image swap
+      const finalized = finalizeImageUpload(saved, sasUrl);
+      updateActivity(saved.destinationId, finalized as Activity);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
@@ -109,6 +137,7 @@ export const handleCreateActivity = async (action: QueuedAction) => {
     console.error("❌ [Queue] Failed to process CREATE_ACTIVITY:", error);
   }
 };
+
 
 export const handleUpdateActivity = async (action: QueuedAction) => {
   const { updateActivity } = useActivitiesStore.getState();
@@ -134,14 +163,14 @@ export const handleUpdateActivity = async (action: QueuedAction) => {
 
       // Cache-bust the backend image URL so refresh gets the new image
       if (backendImageUrl) {
-        const cacheBustedUrl = `${backendImageUrl}?t=${Date.now()}`;
+        //const cacheBustedUrl = `${backendImageUrl}?t=${Date.now()}`;
         updateActivity(act.destinationId, {
           ...act,
           imageFile: undefined,
           hasImage: true,
-          imageUrl: cacheBustedUrl,
+          imageUrl: backendImageUrl,
         });
-        console.log("🔄 [Store] Activity image updated to:", cacheBustedUrl);
+        console.log("🔄 [Store] Activity image updated to:", backendImageUrl);
       }
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");

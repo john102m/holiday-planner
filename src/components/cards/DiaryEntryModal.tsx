@@ -66,6 +66,9 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
           src={imageSrc}
           alt="Diary Entry"
           className="w-full h-64 object-cover rounded mb-4"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.png";
+          }}          
         />
 
         <h2 className="text-xl font-serif font-bold mb-2">

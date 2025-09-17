@@ -4,6 +4,7 @@ import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
 import { GenericModal } from "../GenericModal";
+import {useSmoothImageSwap} from "../../components/common/useSmoothImageSwap"
 
 interface Props {
   activity: Activity;
@@ -41,6 +42,12 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
       return url;
     }
   };
+  
+  // const imageSrc = activity.isPendingUpload
+  //   ? activity.previewBlobUrl
+  //   : activity.imageUrl || "/placeholder.png";
+
+  const imageSrc = useSmoothImageSwap(activity);
 
   return (
     <>
@@ -86,12 +93,15 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
       {isModalOpen && (
         <GenericModal onClose={() => setIsModalOpen(false)} title={activity.name}>
           <div className="space-y-4 text-sm">
-            {activity.imageUrl && (
+            {imageSrc && (
               <img
-                src={activity.imageUrl}
+                src={imageSrc}
                 alt={activity.name}
-                className="w-full rounded max-h-48 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.png";
+                }}
               />
+
             )}
 
             <p className="text-gray-700 whitespace-pre-line">{activity.details}</p>

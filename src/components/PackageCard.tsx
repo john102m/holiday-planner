@@ -13,6 +13,9 @@ const PackageCard: React.FC<Props> = ({ package: pkg }) => {
           src={pkg.imageUrl}
           alt={pkg.name}
           className="w-full h-48 object-cover"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.png";
+          }}
         />
       )}
       <div className="p-4">

@@ -32,12 +32,12 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
   const handleSubmit = async (formValues: T, queueType: QueueType, nestedId: string = "") => {
     // Include the image file in the queued payload
     //const queuePayload: T = { ...formValues, imageFile, hasImage: !!imageFile };
-const queuePayload: T = {
-  ...formValues,
-  imageFile,
-  hasImage: !!imageFile,
-  imageUrl: formValues.imageUrl, // leave this to be updated by backend
-};
+    const queuePayload: T = {
+      ...formValues,
+      imageFile,
+      hasImage: !!imageFile,
+      imageUrl: formValues.imageUrl, // leave this to be updated by backend
+    };
 
     // Queue it optimistically
     const tempId = await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);

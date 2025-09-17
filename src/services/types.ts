@@ -79,6 +79,8 @@ export interface ItineraryActivitiesBatch {
 export interface ImageAttachable {
   imageFile?: File;
   hasImage?: boolean;
+  previewBlobUrl? :string;
+  isPendingUpload?: boolean;
 }
 
 export interface Destination extends ImageAttachable {

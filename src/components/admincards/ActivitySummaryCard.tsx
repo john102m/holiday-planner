@@ -30,7 +30,10 @@ const ActivitySummaryCard: React.FC<Props> = ({ activity, showActions = true }) 
           src={activity.imageUrl}
           alt={activity.name}
           className="w-16 h-16 object-cover rounded"
-        />
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.png";
+          }}
+          />
       )}
 
       <div className="flex-1">

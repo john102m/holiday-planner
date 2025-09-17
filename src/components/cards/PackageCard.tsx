@@ -26,7 +26,14 @@ const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
 
   return (
     <div className="card">
-      {pkg.imageUrl && <img src={pkg.imageUrl} alt={pkg.name} className="card-img" />}
+      {pkg.imageUrl && <img
+        src={pkg.imageUrl}
+        alt={pkg.name}
+        className="card-img"
+        onError={(e) => {
+          e.currentTarget.src = "/placeholder.png";
+        }}
+      />}
       <div className="card-body">
         <h3 className="card-title">{pkg.name}</h3>
         <p className="card-text">{pkg.description}</p>
