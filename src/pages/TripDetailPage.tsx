@@ -39,7 +39,7 @@ const TripDetailPage: React.FC = () => {
             <TripHeroSection destination={currentDest} trip={userTrip} />
 
             {/* Tabs */}
-            <div className="flex mb-4 gap-1 w-full">
+            <div className="flex mb-4 w-full">
                 {tabs.map((tab) => (
                     <button
                         key={tab}
