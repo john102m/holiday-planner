@@ -1,58 +1,51 @@
 // DestinationPage.tsx
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "../services/store";
-import { useDestinationsStore } from "../services/slices/destinationsSlice"
+import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import type { Destination } from "../services/types";
-import { useNavigate } from "react-router-dom";
 import ScrollToTopButton from "../components/ScrollToTop";
 import TripHeroSection from "../components/destination/TripHeroSection";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
 import ItinerariesGrid from "../components/destination/ItinerariesGrid";
-import DiaryGrid from "../components/destination/DiaryGrid"
-//import InviteFriendsSection from "../components/destination/InviteFriendsSection";
-import QuickActionsBar from "../components/destination/QuickActionsBar";
+import DiaryGrid from "../components/destination/DiaryGrid";
 import AddEditDiaryEntryModal from "../components/test/AddEditDiaryEntryModal";
 
 type TabType = "Activities" | "Itineraries" | "Diary";
 
 const TripDetailPage: React.FC = () => {
-    console.log("Trip Details Page");
     const navigate = useNavigate();
     const { tripId } = useParams<{ tripId: string }>();
-    console.log("Trip Id", tripId);
     const destinations = useDestinationsStore((state) => state.destinations);
     const userTrip = useStore((state) => state.userTrips.find((t) => t.id === tripId));
-    console.log("Trip :", userTrip);
 
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>("Itineraries");
-    const currentDest: Destination | undefined = destinations.find((d) => d.id === userTrip?.destinationId);
-    console.log("Destination :", currentDest);
+
+    const currentDest: Destination | undefined = destinations.find(
+        (d) => d.id === userTrip?.destinationId
+    );
 
     if (!currentDest) return <div>Loading destination...</div>;
     if (!userTrip) return <div>User trip not found...</div>;
 
-
     const tabs: TabType[] = ["Itineraries", "Activities", "Diary"];
+
+    const fabBase =
+        "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
 
     return (
         <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
             <TripHeroSection destination={currentDest} trip={userTrip} />
-            {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
-            <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">
-                <QuickActionsBar destinationId={currentDest.id ?? ""} />
-                {/* <InviteFriendsSection destinationId={currentDest.id ?? ""} /> */}
-            </div>
 
             {/* Tabs */}
-            <div className="tabs flex overflow-x-auto border-b mb-4">
+            <div className="flex overflow-x-auto gap-2 mt-4 mb-4 px-2 sm:px-0">
                 {tabs.map((tab) => (
                     <button
                         key={tab}
-                        className={`px-4 py-2 font-semibold min-w-[90px] whitespace-nowrap ${activeTab === tab
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-600"
+                        className={`px-4 py-2 rounded-full font-semibold whitespace-nowrap transition ${activeTab === tab
+                                ? "bg-blue-500 text-white shadow"
+                                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
                             }`}
                         onClick={() => setActiveTab(tab)}
                     >
@@ -61,63 +54,100 @@ const TripDetailPage: React.FC = () => {
                 ))}
             </div>
 
+
             {/* Tab Content */}
             <div className="tab-content mt-4">
-
-                {activeTab === "Activities" && ( /*   path="/destinations/:destinationId/activities/edit/:activityId?" */
+                {activeTab === "Activities" && (
                     <div>
-
-                        <div className="w-full flex justify-start sm:justify-end px-2 sm:px-0 mb-4">
+                        {/* Desktop/tablet inline button */}
+                        <div className="hidden sm:flex justify-end mb-4">
                             <button
                                 onClick={() => navigate(`/destinations/${currentDest.id}/activities/edit`)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base">
+                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
+                            >
                                 + Add Activity
                             </button>
                         </div>
 
                         <ActivitiesGrid destinationId={currentDest.id ?? ""} />
+
+                        {/* FAB for mobile */}
+                        <button
+                            onClick={() => navigate(`/destinations/${currentDest.id}/activities/edit`)}
+                            className={`${fabBase} bottom-4`}
+                            aria-label="Add Activity"
+                        >
+                            ＋
+                        </button>
                     </div>
                 )}
-                {activeTab === "Itineraries" && ( /*"/itineraries/edit/:destinationId/:itineraryId"*/
-                    <div>
 
-                        <div className="w-full flex justify-start sm:justify-end px-2 sm:px-0 mb-4">
+                {activeTab === "Itineraries" && (
+                    <div>
+                        {/* Desktop/tablet inline button */}
+                        <div className="hidden sm:flex justify-end mb-4">
                             <button
-                                onClick={() => navigate(`/itineraries/edit?tripId=${userTrip.id}&destId=${currentDest.id}`)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base">
+                                onClick={() =>
+                                    navigate(`/itineraries/edit?tripId=${userTrip.id}&destId=${currentDest.id}`)
+                                }
+                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
+                            >
                                 + Add Itinerary
                             </button>
                         </div>
 
-
-
                         <ItinerariesGrid destinationId={currentDest.id ?? ""} tripId={userTrip.id} />
+
+                        {/* FAB for mobile */}
+                        <button
+                            onClick={() =>
+                                navigate(`/itineraries/edit?tripId=${userTrip.id}&destId=${currentDest.id}`)
+                            }
+                            className={`${fabBase} bottom-4`}
+                            aria-label="Add Itinerary"
+                        >
+                            ＋
+                        </button>
                     </div>
                 )}
+
                 {activeTab === "Diary" && (
                     <div>
-
-                        <div className="w-full flex justify-start sm:justify-end px-2 sm:px-0 mb-4">
+                        {/* Desktop/tablet inline button */}
+                        <div className="hidden sm:flex justify-end mb-4">
                             <button
                                 onClick={() => setAddModalOpen(true)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base">
+                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
+                            >
                                 + Add Diary Entry
                             </button>
                         </div>
+
                         <DiaryGrid tripName={userTrip.name} tripId={userTrip.id ?? ""} />
 
-                        {/* Modal for adding diary entry */}
+                        {/* FAB for mobile */}
+                        <button
+                            onClick={() => setAddModalOpen(true)}
+                            className={`${fabBase} bottom-4`}
+                            aria-label="Add Diary Entry"
+                        >
+                            ＋
+                        </button>
+
+                        {/* Modal */}
                         <AddEditDiaryEntryModal
                             tripName={userTrip.name}
                             isOpen={isAddModalOpen}
                             onClose={() => setAddModalOpen(false)}
-                            initialValues={{ tripId: userTrip.id ?? "" }} // prefill tripId
+                            initialValues={{ tripId: userTrip.id ?? "" }}
                         />
                     </div>
                 )}
             </div>
+
             <ScrollToTopButton />
         </div>
     );
 };
+
 export default TripDetailPage;
