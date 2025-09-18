@@ -13,6 +13,9 @@ self.addEventListener('activate', (event) => {
 
 // 🖼️ Fetch: Cache Azure Blob images
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== "GET") {
+    return; // Skip non-GET requests
+  }
   const url = event.request.url;
 
   if (url.includes('blob.core.windows.net')) {
