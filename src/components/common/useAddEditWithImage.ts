@@ -36,7 +36,7 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
       ...formValues,
       imageFile,
       hasImage: !!imageFile,
-      imageUrl: formValues.imageUrl, // leave this to be updated by backend
+      imageUrl: `${formValues.imageUrl}?${crypto.randomUUID()}`, // leave this to be updated by backend
     };
 
     // Queue it optimistically
