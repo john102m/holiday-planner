@@ -1,6 +1,6 @@
 // DestinationPage.tsx
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState} from "react";
+import { useParams, useNavigate} from "react-router-dom";
 import { useStore } from "../services/store";
 import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import type { Destination } from "../services/types";
@@ -14,6 +14,7 @@ import AddEditDiaryEntryModal from "../components/cards/AddEditDiaryEntryModal";
 type TabType = "Activities" | "Itineraries" | "Diary";
 const TripDetailPage: React.FC = () => {
     const navigate = useNavigate();
+
     const { tripId } = useParams<{ tripId: string }>();
     const destinations = useDestinationsStore((state) => state.destinations);
     const userTrip = useStore((state) => state.userTrips.find((t) => t.id === tripId));
@@ -24,6 +25,7 @@ const TripDetailPage: React.FC = () => {
     const currentDest: Destination | undefined = destinations.find(
         (d) => d.id === userTrip?.destinationId
     );
+
 
     if (!currentDest) return <div>Loading destination...</div>;
     if (!userTrip) return <div>User trip not found...</div>;
@@ -39,6 +41,7 @@ const TripDetailPage: React.FC = () => {
         console.log("Sending trip id: ", tripId);
         navigate(`/destinations/${currentDest.id}/activities/edit?${params.toString()}`);
     }
+
 
     return (
         <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-4 pb-16">
@@ -67,7 +70,7 @@ const TripDetailPage: React.FC = () => {
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
-                                onClick={() => navigateToAddEdit }
+                                onClick={() => navigateToAddEdit}
                                 className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
                             >
                                 + Add Activity
@@ -78,7 +81,7 @@ const TripDetailPage: React.FC = () => {
 
                         {/* FAB for mobile */}
                         <button
-                            onClick={() => navigateToAddEdit }
+                            onClick={() => navigateToAddEdit}
                             className={`${fabBase} bottom-4`}
                             aria-label="Add Activity"
                         >

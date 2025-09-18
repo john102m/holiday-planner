@@ -16,6 +16,7 @@ import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import ItineraryEditPage from "./pages/ItineraryEditPage";
 import AddEditTripPage from "./pages/AddEditTripPage";
 import AddEditDestinationPage from "./pages/AddEditDestinationPage";
+import {ScrollToTop} from "./components/NavigateTop"
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -52,6 +53,7 @@ const App: React.FC = () => {
 
   return (
     <>
+    <ScrollToTop />
       <Navbar />
       <Routes>
         <Route index element={<Home />} />
