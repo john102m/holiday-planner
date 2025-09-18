@@ -98,6 +98,7 @@ export interface Destination extends ImageAttachable {
 export interface Activity extends ImageAttachable {
   id?: string;               // Guid → string
   destinationId: string;    // nullable Guid → optional string
+  tripId?: string | null;     // nullable Guid → optional string
   name?: string;             // nullable → optional
   details?: string;          // nullable → optional
   linkUrl?:string;          // nullable → optional

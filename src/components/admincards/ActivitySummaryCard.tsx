@@ -22,6 +22,12 @@ const ActivitySummaryCard: React.FC<Props> = ({ activity, showActions = true }) 
       );
     }
   };
+  const navigateToAddEdit = () => {
+    const params = new URLSearchParams();
+    if (activity.id) params.set("activityId", activity.id);
+    console.log("Sending activity id: ", activity.id);
+    navigate(`/destinations/${activity.destinationId}/activities/edit?${params.toString()}`);
+  }
 
   return (
     <div className="border rounded p-4 shadow-sm hover:shadow-md transition flex gap-4 items-start">
@@ -33,7 +39,7 @@ const ActivitySummaryCard: React.FC<Props> = ({ activity, showActions = true }) 
           onError={(e) => {
             e.currentTarget.src = "/placeholder.png";
           }}
-          />
+        />
       )}
 
       <div className="flex-1">
@@ -48,7 +54,7 @@ const ActivitySummaryCard: React.FC<Props> = ({ activity, showActions = true }) 
         {showActions && (
           <div className="mt-2 flex gap-2">
             <button
-              onClick={() => navigate(`/destinations/${activity.destinationId}/activities/edit/${activity.id}`)}
+              onClick={navigateToAddEdit}
               className="px-2 py-1 bg-gray-100 text-sm rounded hover:bg-gray-200"
             >
               Edit

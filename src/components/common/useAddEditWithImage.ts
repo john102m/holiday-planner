@@ -32,11 +32,14 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
   const handleSubmit = async (formValues: T, queueType: QueueType, nestedId: string = "") => {
     // Include the image file in the queued payload
     //const queuePayload: T = { ...formValues, imageFile, hasImage: !!imageFile };
+    const baseImageUrl = formValues.imageUrl?.split('?')[0];
+    const imageUrlWithCacheBuster = `${baseImageUrl}?${crypto.randomUUID()}`;
+
     const queuePayload: T = {
       ...formValues,
       imageFile,
       hasImage: !!imageFile,
-      imageUrl: `${formValues.imageUrl}?${crypto.randomUUID()}`, // leave this to be updated by backend
+      imageUrl: imageUrlWithCacheBuster, // leave this to be updated by backend
     };
 
     // Queue it optimistically

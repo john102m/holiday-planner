@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Activity } from "../../services/types";
 import ImageUploadWidget from "../common/ImageUploadWidget";
+import { Tooltip } from "../Tooltip";
 
 interface Props {
   initialValues?: Activity;
@@ -72,16 +73,16 @@ const ActivityForm: React.FC<Props> = ({
 
       <div>
         <label className="block font-semibold">Image</label>
-  
-          <ImageUploadWidget
-            initialUrl={imageUrl}
-            onSelect={async (file: File) => {
-              const previewUrl = await onImageSelect(file);
-              setImageUrl(previewUrl);
-              return previewUrl;
-            }}
-          />
-      
+
+        <ImageUploadWidget
+          initialUrl={imageUrl}
+          onSelect={async (file: File) => {
+            const previewUrl = await onImageSelect(file);
+            setImageUrl(previewUrl);
+            return previewUrl;
+          }}
+        />
+
         {imageUrl && (
           <div className="mt-2">
             <img
@@ -105,6 +106,7 @@ const ActivityForm: React.FC<Props> = ({
             className="border rounded p-2 w-24"
           />
         </div>
+
         <div className="flex items-center mt-6">
           <label className="inline-flex items-center">
             <input
@@ -115,6 +117,9 @@ const ActivityForm: React.FC<Props> = ({
             />
             Private
           </label>
+          <Tooltip maxWidth= "200px" content="Private activities belong only to this trip. Uncheck to move to another trip.">
+            <span className="text-gray-400 ml-2 cursor-help">ℹ️</span>
+          </Tooltip>
         </div>
       </div>
 

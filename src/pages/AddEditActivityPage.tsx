@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
 import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import { CollectionTypes, QueueTypes } from "../services/types";
@@ -8,14 +8,20 @@ import ActivityForm from "../components/forms/ActivityForm";
 import { useAddEditWithImage } from "../components/common/useAddEditWithImage";
 
 const AddEditActivityPage: React.FC = () => {
-  const { destinationId, activityId } = useParams<{ destinationId: string; activityId?: string }>();
+  const { destinationId } = useParams<{ destinationId: string; }>();
+  const [searchParams] = useSearchParams();
+
+  const activityId = searchParams.get("activityId") ?? undefined;
+  const currentTripId = searchParams.get("tripId") ?? undefined;
+
   const navigate = useNavigate();
   const destinations = useDestinationsStore((state) => state.destinations);
   const activities = useActivitiesStore((state) => state.activities);
 
   console.log("🏷️ AddEditActivityPage mount");
-  console.log("URL params:", { destinationId, activityId });
+  console.log("URL params:", { destinationId, activityId, currentTripId });
   console.log("Current activities state:", activities);
+  console.log(currentTripId);
 
   const currentActivity: Activity | undefined = activityId
     ? activities[destinationId ?? ""]?.find(a => a.id === activityId)
@@ -35,7 +41,6 @@ const AddEditActivityPage: React.FC = () => {
     }
 
     setPreviewUrl(newPreview);
-
     return newPreview; // ✅ important: return for the widget
   };
 
@@ -61,14 +66,27 @@ const AddEditActivityPage: React.FC = () => {
         ? QueueTypes.UPDATE_ACTIVITY
         : QueueTypes.CREATE_ACTIVITY;
 
+      // 'currentTripId' is the tripId from context/params
+      const formWithTripId: Activity = {
+        ...formValues,
+        tripId: formValues.isPrivate ? currentTripId : undefined
+      };
+
+
+
       console.log("⏳ Queueing activity with queueType:", queueType);
-      const tempId = await handleSubmit(formValues, queueType, destinationId);
+      const tempId = await handleSubmit(formWithTripId, queueType, destinationId);
       console.log("✅ Activity queued with temp ID:", tempId);
 
       // Log current store after submission
       console.log("🔍 Activities after submission:", activities[destinationId ?? ""]);
 
-      navigate(`/destinations/${destinationId}`);
+      if (currentTripId) {
+        navigate(`/trips/${currentTripId}`);
+      } else {
+        navigate(`/destinations/${destinationId}`);
+      }
+
     } catch (error) {
       console.error("❌ Submit failed:", error);
     }
@@ -92,9 +110,16 @@ const AddEditActivityPage: React.FC = () => {
           initialValues={currentActivity}
           destinationId={destinationId}
           onSubmit={onSubmit}
-          onCancel={() => navigate(`/destinations/${destinationId}`)}
+          onCancel={() => {
+            if (currentTripId) {
+              navigate(`/trips/${currentTripId}`);
+            } else {
+              navigate(`/destinations/${destinationId}`);
+            }
+          }}
           onImageSelect={handleSelectImage}
         />
+
       </div>
     </div>
   );

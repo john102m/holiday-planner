@@ -7,9 +7,10 @@ import { addOptimisticAndQueue } from "../../services/store";
 interface Props {
   pkg: Package;
   destinationId: string;
+  showActions?: boolean;
 }
 
-const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
+const PackageCard: React.FC<Props> = ({ pkg, destinationId, showActions }) => {
   const navigate = useNavigate();
 
   const handleDelete = async () => {
@@ -41,20 +42,24 @@ const PackageCard: React.FC<Props> = ({ pkg, destinationId }) => {
           <span>{pkg.nights ?? ""} nights</span>
           <span>{pkg.price ? `$${pkg.price}` : ""}</span>
         </div>
-        <div className="mt-2 flex gap-2">
-          <button
-            onClick={() => navigate(`/destinations/${destinationId}/packages/edit/${pkg.id}`)}
-            className="px-3 py-1 bg-gray-200 rounded text-sm"
-          >
-            Edit
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-3 py-1 bg-red-500 text-white rounded text-sm"
-          >
-            Delete
-          </button>
-        </div>
+        {showActions && (
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() =>
+                navigate(`/destinations/${destinationId}/packages/edit/${pkg.id}`)
+              }
+              className="px-3 py-1 bg-gray-200 rounded text-sm"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

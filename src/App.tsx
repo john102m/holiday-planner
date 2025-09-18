@@ -69,7 +69,7 @@ const App: React.FC = () => {
           element={<AddEditPackagePage />}
         />
         <Route
-          path="/destinations/:destinationId/activities/edit/:activityId?"
+          path="/destinations/:destinationId/activities/edit"
           element={<AddEditActivityPage />}
         />
         <Route

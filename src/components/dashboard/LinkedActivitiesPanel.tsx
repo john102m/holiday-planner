@@ -23,7 +23,7 @@ const LinkedActivitiesPanel: React.FC<Props> = ({ itineraryId }) => {
     const itinerary = useItinerariesStore(state =>
         state.getItineraries().find(i => i.id === itineraryId)
     );
-
+    console.log("Itinerary: ", itinerary)
     const flatActivitiesById = useMemo(() => {
         const flat: Record<string, Activity> = {};
         Object.values(activitiesByDestId).flat().forEach(act => { if (act.id) flat[act.id] = act; });
@@ -31,9 +31,15 @@ const LinkedActivitiesPanel: React.FC<Props> = ({ itineraryId }) => {
     }, [activitiesByDestId]);
 
     const linkedActivityIds = new Set(joins.map(j => j.activityId));
-    const availableActivities = Object.values(flatActivitiesById).filter(
-        act => !linkedActivityIds.has(act.id!) && act.destinationId === itinerary?.destinationId
-    );
+    //this will make the dropdown have activities for this destination but not private ones from another trip
+    const filteredActivities = Object.values(flatActivitiesById)
+        .filter(act =>
+            !linkedActivityIds.has(act.id!) &&                         // exclude already linked activities
+            act.destinationId === itinerary?.destinationId &&          // only for this destination
+            (!itinerary?.tripId || !act.tripId || act.tripId === itinerary.tripId) // exclude private activities from other trips
+        );
+
+
 
     const selectedActivity = selectedActivityId ? flatActivitiesById[selectedActivityId] : null;
 
@@ -118,12 +124,12 @@ const LinkedActivitiesPanel: React.FC<Props> = ({ itineraryId }) => {
                         className="text-sm px-2 py-1 border rounded w-full"
                     >
                         <option value="">Select an activity</option>
-                        {availableActivities.map((act) => (
+                        {filteredActivities.map((act) => (
                             <option key={act.id} value={act.id}>
                                 {act.name}
                             </option>
                         ))}
-                        {availableActivities.length === 0 && <option disabled>No available activities</option>}
+                        {filteredActivities.length === 0 && <option disabled>No available activities</option>}
                     </select>
 
                     <Tooltip content={!selectedActivityId ? "Select an activity first" : ""}>

@@ -4,15 +4,16 @@ import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
 import { GenericModal } from "../GenericModal";
-import {useSmoothImageSwap} from "../../components/common/useSmoothImageSwap"
+import { useSmoothImageSwap } from "../../components/common/useSmoothImageSwap"
 
 interface Props {
   activity: Activity;
   destinationId: string;
+  tripId?: string;
   showActions?: boolean; // optional, defaults to true
 }
 
-const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = true }) => {
+const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showActions = true }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   console.log("Activity card has the modal integrated")
@@ -42,12 +43,13 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
       return url;
     }
   };
-  
+
   // const imageSrc = activity.isPendingUpload
   //   ? activity.previewBlobUrl
   //   : activity.imageUrl || "/placeholder.png";
-
+  console.log("Activity Id:", activity.id)
   const imageSrc = useSmoothImageSwap(activity);
+
 
   return (
     <>
@@ -69,7 +71,10 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, showActions = 
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // prevent opening modal when clicking edit
-                  navigate(`/destinations/${destinationId}/activities/edit/${activity.id}`);
+                  const params = new URLSearchParams();
+                  params.set("activityId", activity.id ?? "");
+                  if (tripId) params.set("tripId", tripId);
+                  navigate(`/destinations/${destinationId}/activities/edit?${params.toString()}`);
                 }}
                 className="px-3 py-1 bg-gray-200 rounded text-sm"
               >

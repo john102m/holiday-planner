@@ -3,7 +3,7 @@ import type { DiaryEntry } from "../../services/types";
 import DiaryEntryCard from "../../components/cards/DiaryEntryCard";
 import DiaryEntryModal from "../../components/cards/DiaryEntryModal";
 import { useDiaryEntriesStore } from "../../services/slices/diaryEntriesSlice";
-import AddEditDiaryEntryModal from "../test/AddEditDiaryEntryModal";
+import AddEditDiaryEntryModal from "../cards/AddEditDiaryEntryModal";
 
 interface Props {
     tripId: string;

@@ -5,6 +5,7 @@ import PackageCard from "../cards/PackageCard";
 
 interface Props {
   destinationId: string;
+  tripId?: string;
 }
 
 // ✅ Define a single, stable empty array reference.
@@ -12,7 +13,7 @@ interface Props {
 // which was causing Zustand + React to think state changed → infinite re-renders.
 const empty: Package[] = [];
 
-const PackagesGrid: React.FC<Props> = ({ destinationId }) => {
+const PackagesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
   // ✅ Selector now always returns either the actual packages array
   // or the stable `empty` array reference above.
   // Because `empty` never changes identity, React won’t trigger
@@ -29,7 +30,14 @@ const PackagesGrid: React.FC<Props> = ({ destinationId }) => {
       {/* ✅ Safe to map now — if no packages exist,
           `packages` is just the stable `empty` array (length 0). */}
       {packages.map((pkg) => (
-        <PackageCard key={pkg.id} pkg={pkg} destinationId={destinationId} />
+        // PackagesGrid.tsx
+        <PackageCard
+          key={pkg.id}
+          pkg={pkg}
+          destinationId={destinationId}
+          showActions={!!tripId} // only show buttons if viewing within a trip
+        />
+
       ))}
     </div>
   );
