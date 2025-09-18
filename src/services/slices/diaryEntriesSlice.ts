@@ -129,16 +129,16 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
             await uploadToAzureBlob(entry.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
 
-            // Cache-bust the image URL
+            // Dont Cache-bust the image URL
             if (backendImageUrl) {
-                const cacheBustedUrl = `${backendImageUrl};//?t=${Date.now()}`;
+                //const cacheBustedUrl = `${backendImageUrl};//?t=${Date.now()}`;
                 updateDiaryEntry({
                     ...entry,
                     imageFile: undefined,
                     hasImage: true,
-                    imageUrl: cacheBustedUrl,
+                    imageUrl: `${backendImageUrl}?${crypto.randomUUID()}`,
                 });
-                console.log("🔄 [Store] Diary entry image updated to:", cacheBustedUrl);
+                console.log("🔄 [Store] Diary entry image updated to:", backendImageUrl);
             }
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");

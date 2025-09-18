@@ -1,4 +1,4 @@
-import React, {useEffect }from "react";
+import React from "react";
 import type { DiaryEntry } from "../../services/types";
 import { formatFriendlyDate } from "../utilities";
 
@@ -23,21 +23,21 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
     //     entry.imageUrl?.trim() && entry.imageUrl !== ""
     //         ? `${entry.imageUrl}`
     //         : "/placeholder.png";
-    const imageSrc = entry.imageUrl?.trim() || "/placeholder.png";
+    //const imageSrc = entry.imageUrl?.trim() || "/placeholder.png";
 
-    useEffect(() => {
-        if (!entry.imageUrl) return;
+    // useEffect(() => {
+    //     if (!entry.imageUrl) return;
 
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = entry.imageUrl;
-        document.head.appendChild(link);
+    //     const link = document.createElement("link");
+    //     link.rel = "preload";
+    //     link.as = "image";
+    //     link.href = entry.imageUrl;
+    //     document.head.appendChild(link);
 
-        return () => {
-            document.head.removeChild(link);
-        };
-    }, [entry.imageUrl]);
+    //     return () => {
+    //         document.head.removeChild(link);
+    //     };
+    // }, [entry.imageUrl]);
     //console.log("the title you are after: ", entry.title);  
     console.log("the file you are after: ", entry.imageUrl);
     return (
@@ -47,13 +47,13 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
         >
             <img
                 key={`${entry.id}`}
-                src={imageSrc}
+                src={entry.imageUrl}
                 alt={entry.title ?? "Diary Entry"}
                 className="w-24 h-24 object-cover flex-shrink-0"
             />
             <div className="p-2 flex-1 flex flex-col justify-between gap-1">
                 <div className="flex flex-col gap-1">
-                    <h3 className="font-serif text-base font-semibold">{entry.title ?? "Untitled Entry"}</h3>
+                    <h3 className="font-serif text-base  line-clamp-1 font-semibold">{entry.title ?? "Untitled Entry"}</h3>
                     <p className="text-gray-600 line-clamp-1">{entry.entryContent ?? "No content available."}</p>
                 </div>
                 <div className="flex justify-between items-center text-[10px] text-gray-400">
