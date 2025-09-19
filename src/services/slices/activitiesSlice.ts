@@ -5,8 +5,10 @@ import type { Activity, QueuedAction } from "../types";
 import { finalizeImageUpload } from "../../components/utilities"
 import { uploadToAzureBlob } from "../storeUtils";
 import { createActivityWithSas, editActivityForSas, deleteActivity } from "../apis/activitiesApi";
+import { handleQueueError } from "../../components/common/useErrorHandler";
+import type { BaseSliceState } from "../../components/common/useErrorHandler";
 
-interface ActivitiesSliceState {
+interface ActivitiesSliceState extends BaseSliceState {
   activities: Record<string, Activity[]>;
 
 
@@ -19,6 +21,9 @@ interface ActivitiesSliceState {
   getActivities: () => Activity[];
 
 
+  // new error state
+  errorMessage: string | null;
+  setError: (msg: string | null) => void;
 
 }
 console.log("🔥 activitiesSlice.ts loaded — check new import resolution");
@@ -68,7 +73,9 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
         })),
       getActivities: () => Object.values(get().activities).flat(),
 
-
+      // error handling
+      errorMessage: null,
+      setError: (msg) => set({ errorMessage: msg }),
     }),
 
     {
@@ -78,22 +85,6 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
   )
 );
 
-
-// export const finalizeImageUpload = (
-//   entity: ImageEntity,
-//   sasUrl: string
-// ): ImageEntity => {
-//   if (entity.previewBlobUrl) {
-//     URL.revokeObjectURL(entity.previewBlobUrl);
-//   }
-//   return {
-//     ...entity,
-//     imageUrl: sasUrl,
-//     previewBlobUrl: undefined,
-//     isPendingUpload: false,
-//     imageFile: undefined
-//   };
-// };
 
 export const handleCreateActivity = async (action: QueuedAction) => {
   const { addActivity, replaceActivity, updateActivity } = useActivitiesStore.getState();
@@ -134,8 +125,8 @@ export const handleCreateActivity = async (action: QueuedAction) => {
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
-  } catch (error) {
-    console.error("❌ [Queue] Failed to process CREATE_ACTIVITY:", error);
+  } catch (error: unknown) {
+    handleQueueError(useActivitiesStore.getState(), error);
   }
 };
 
@@ -177,46 +168,27 @@ export const handleUpdateActivity = async (action: QueuedAction) => {
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
-  } catch (error) {
-    console.error("❌ [Queue] Failed to process UPDATE_ACTIVITY:", error);
+  } catch (error: unknown) {
+    handleQueueError(useActivitiesStore.getState(), error);
   }
 };
 
 
-// export const handleCreateActivity = async (action: QueuedAction) => {
-//   const { replaceActivity, addActivity } = useActivitiesStore.getState();
-//   const act = action.payload as Activity;
-//   const saved = await createActivity(act);
-//   if (action.tempId) replaceActivity(action.tempId, saved);
-//   else addActivity(saved.destinationId!, saved);
-// };
-
-// export const handleUpdateActivity = async (action: QueuedAction) => {
-//   const { updateActivity } = useActivitiesStore.getState();
-//   const act = action.payload as Activity;
-
-//   //persist the change to backend
-//   if (!act.id) {
-//     throw new Error("Cannot update activity: missing activity ID");
-//   }
-//   await editActivity(act.id, act);
-
-//   //mutate the store with the queued version
-//   updateActivity(act.destinationId, act);
-
-// };
-
 export const handleDeleteActivity = async (action: QueuedAction) => {
   const { removeActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
+  console.log("Deleting Activity", act);
+  try {
+    //persist the change to backend
+    if (!act.id) {
+      throw new Error("Cannot delete activity: missing activity ID");
+    }
+    await deleteActivity(act.id);
+    //mutate the store
+    removeActivity(act.destinationId, act.id);
 
-  //persist the change to backend
-  if (!act.id) {
-    throw new Error("Cannot delete activity: missing activity ID");
+  } catch (error: unknown) {
+    handleQueueError(useActivitiesStore.getState(), error);
   }
-  await deleteActivity(act.id);
-
-  //mutate the store
-  removeActivity(act.destinationId, act.id);
 
 };

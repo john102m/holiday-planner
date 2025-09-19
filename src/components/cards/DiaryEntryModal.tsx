@@ -55,12 +55,6 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
         ref={modalRef}
         className="bg-yellow-50 rounded-lg w-full max-w-lg max-h-[85vh] overflow-y-auto relative shadow-lg p-6"
       >
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
-        >
-          ×
-        </button>
 
         <img
           src={imageSrc}
@@ -68,7 +62,7 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
           className="w-full h-64 object-cover rounded mb-4"
           onError={(e) => {
             e.currentTarget.src = "/placeholder.png";
-          }}          
+          }}
         />
 
         <h2 className="text-xl font-serif font-bold mb-2">
@@ -82,6 +76,17 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
         <p className="text-xs text-gray-500">
           {entry.entryDate ? formatDate(entry.entryDate) : "No date"}
         </p>
+        {/* close button at bottom right */}
+        <div className="mt-auto flex justify-end">
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-400"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
       </div>
     </div>
   );

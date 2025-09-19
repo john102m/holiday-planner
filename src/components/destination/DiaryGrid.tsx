@@ -4,6 +4,7 @@ import DiaryEntryCard from "../../components/cards/DiaryEntryCard";
 import DiaryEntryModal from "../../components/cards/DiaryEntryModal";
 import { useDiaryEntriesStore } from "../../services/slices/diaryEntriesSlice";
 import AddEditDiaryEntryModal from "../cards/AddEditDiaryEntryModal";
+import ErrorToast from "../../components/common/ErrorToast";
 
 interface Props {
     tripId: string;
@@ -12,6 +13,8 @@ interface Props {
 
 const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
     const allEntries = useDiaryEntriesStore((s) => s.diaryEntries);
+    const { errorMessage, setError } = useDiaryEntriesStore();
+
     console.log("Diary entries: ", allEntries);
     const entries = useMemo(
         () => allEntries.filter((e) => e.tripId?.toLowerCase() === tripId.toLowerCase()),
@@ -25,6 +28,7 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
 
     return (
         <>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {entries.map((entry) => (
                     <DiaryEntryCard
@@ -51,8 +55,12 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
                     initialValues={editEntry} // ← full entry object
                 />
             )}
-
+            <ErrorToast errorMessage={errorMessage} onClose={() => setError(null)} />
         </>
+        //You could even expand it later to:
+        // Stack multiple errors in a queue.
+        // Auto-dismiss after a few seconds.
+        // Highlight slice or source (like [DiarySlice] vs [ActivitiesSlice]).
 
     );
 };

@@ -3,6 +3,7 @@ import { useItinerariesStore, getItinerariesWithActivities } from "../../service
 import { useActivitiesStore } from "../../services/slices/activitiesSlice";
 import ItineraryCard from "../cards/ItineraryCard";
 import type { Itinerary, ResolvedItinerary } from "../../services/types";
+import ErrorToast from "../../components/common/ErrorToast";
 
 interface Props {
   tripId?: string;
@@ -29,9 +30,7 @@ interface Props {
 const EMPTY_ITINERARIES: Itinerary[] = [];
 
 const ItinerariesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
-
-  // TODO: Refactor to use tripId exclusively once all itineraries are migrated
-
+  const { errorMessage, setError } = useItinerariesStore();
   const rawItineraries = useItinerariesStore(state => state.itineraries);
   console.log(rawItineraries);
   const itineraries = useMemo(() => {
@@ -49,14 +48,18 @@ const ItinerariesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
   if (!resolvedItineraries.length) return <div>No itineraries added yet.</div>;
 
   return (
-    <div className="flex justify-center">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-2 sm:px-4 place-items-center">
-        {resolvedItineraries.map(it => (
-          <ItineraryCard key={it.id} itinerary={it} destinationId={destinationId} tripId={tripId} />
-        ))}
-      </div>
-    </div>
+    <>
 
+      <div className="flex justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-2 sm:px-4 place-items-center">
+          {resolvedItineraries.map(it => (
+            <ItineraryCard key={it.id} itinerary={it} destinationId={destinationId} tripId={tripId} />
+          ))}
+        </div>
+      </div>
+
+      <ErrorToast errorMessage={errorMessage} onClose={() => setError(null)} />
+    </>
   );
 };
 

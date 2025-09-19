@@ -18,7 +18,6 @@ import { getActivities } from "./apis/activitiesApi";
 import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
 import { getAllDiaryEntries } from "./apis/diaryEntryApi";
-import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 
 import type { Activity, Package, Destination, Itinerary, ItineraryActivity, UserTrip } from "./types";
 import { useStore, processQueue } from "./store";
@@ -26,6 +25,8 @@ import { useActivitiesStore, } from "./slices/activitiesSlice";
 import { usePackageStore, } from "./slices/packagesSlice";
 import { useItinerariesStore, } from "./slices/itinerariesSlice";
 import { useDestinationsStore, } from "./slices/destinationsSlice";
+import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
+
 let initialized = false;
 
 

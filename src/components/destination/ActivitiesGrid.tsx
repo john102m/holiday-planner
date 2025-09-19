@@ -3,6 +3,7 @@ import React from "react";
 import { useActivitiesStore } from "../../services/slices/activitiesSlice";
 import type { Activity } from "../../services/types"
 import ActivityCard from "../cards/ActivityCard";
+import ErrorToast from "../../components/common/ErrorToast";
 
 interface Props {
   destinationId: string;
@@ -14,6 +15,9 @@ interface Props {
 // Eliminates props stale problem → no more “name doesn’t update after hard refresh”.
 const empty: Activity[] = [];
 const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
+  //const errorMessage = useActivitiesStore(state => state.errorMessage);
+  // setError = useActivitiesStore(state => state.setError);
+  const { errorMessage, setError } = useActivitiesStore();
   // ✅ Selector returns either the real array from the store
   // or the stable `empty` fallback above.
   const activities = useActivitiesStore(
@@ -35,21 +39,26 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
   );
 
   return (
-    <div className="flex justify-center">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-2 sm:px-4 place-items-center">
-        {filteredActivities.map((act) => (
-          <ActivityCard
-            key={act.id}
-            activity={act}
-            destinationId={destinationId}
-            tripId={tripId}
-            showActions={!!tripId} // only show edit/delete if viewing within a trip
-          />
+    <>
+      <div className="flex justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full px-2 sm:px-4 place-items-center">
+          {filteredActivities.map((act) => (
+            <ActivityCard
+              key={act.id}
+              activity={act}
+              destinationId={destinationId}
+              tripId={tripId}
+              showActions={!!tripId} // only show edit/delete if viewing within a trip
+            />
 
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
 
+      {/* your grid content */}
+      <ErrorToast errorMessage={errorMessage} onClose={() => setError(null)} />
+
+    </>
   );
 };
 

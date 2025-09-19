@@ -5,9 +5,10 @@ import { finalizeImageUpload } from "../../components/utilities"
 import { uploadToAzureBlob } from "../storeUtils";
 import { createDiaryEntry, editDiaryEntry, deleteDiaryEntry } from "../apis/diaryEntryApi";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { handleQueueError } from "../../components/common/useErrorHandler";
+import type { BaseSliceState } from "../../components/common/useErrorHandler";
 
-
-export interface DiaryEntriesSliceState {
+export interface DiaryEntriesSliceState extends BaseSliceState {
     diaryEntries: DiaryEntry[];
 
     setDiaryEntries: (entries: DiaryEntry[]) => void;
@@ -15,6 +16,10 @@ export interface DiaryEntriesSliceState {
     replaceDiaryEntry: (tempId: string, saved: DiaryEntry) => void;
     updateDiaryEntry: (updated: DiaryEntry) => void;
     removeDiaryEntry: (id: string) => void;
+
+    // new error state
+    errorMessage: string | null;
+    setError: (msg: string | null) => void;
 }
 
 
@@ -48,6 +53,9 @@ export const useDiaryEntriesStore = create<DiaryEntriesSliceState>()(
                 set((state) => ({
                     diaryEntries: state.diaryEntries.filter((e) => e.id !== id),
                 })),
+            // error handling
+            errorMessage: null,
+            setError: (msg) => set({ errorMessage: msg }),
         }),
         {
             name: "diary-entries-store",
@@ -102,8 +110,8 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
-    } catch (error) {
-        console.error("❌ [Queue] Failed to process CREATE_DIARY_ENTRY:", error);
+    } catch (error: unknown) {
+        handleQueueError(useDiaryEntriesStore.getState(), error);
     }
 };
 
@@ -147,8 +155,8 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
-    } catch (error) {
-        console.error("❌ [Queue] Failed to process UPDATE_DIARY_ENTRY:", error);
+    } catch (error: unknown) {
+        handleQueueError(useDiaryEntriesStore.getState(), error);
     }
 };
 
@@ -156,15 +164,13 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
 export const handleDeleteDiaryEntry = async (action: QueuedAction) => {
     const { removeDiaryEntry } = useDiaryEntriesStore.getState();
     const entry = action.payload as DiaryEntry;
-
     console.log("🗑️ [Queue] Processing DELETE_DIARY_ENTRY for:", entry.title);
-
     try {
         await deleteDiaryEntry(entry.id!);
         removeDiaryEntry(entry.id!);
         console.log("✅ [Store] Diary entry removed:", entry.id);
-    } catch (error) {
-        console.error("❌ [Queue] Failed to process DELETE_DIARY_ENTRY:", error);
+    } catch (error: unknown) {
+        handleQueueError(useDiaryEntriesStore.getState(), error);
     }
 };
 
