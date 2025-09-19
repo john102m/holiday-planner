@@ -28,12 +28,35 @@ import { useItinerariesStore, } from "./slices/itinerariesSlice";
 import { useDestinationsStore, } from "./slices/destinationsSlice";
 let initialized = false;
 
+
+
+export function resetAllStores() {
+  localStorage.removeItem("holiday-planner-store");
+  localStorage.removeItem("activities-store");
+  localStorage.removeItem("packages-store");
+  localStorage.removeItem("itineraries-store");
+  localStorage.removeItem("diary-entries-store");
+  localStorage.removeItem("destinations-store");
+  window.location.reload();
+}
+
+
 export const initApp = async () => {
   if (initialized) return;
   initialized = true;
 
   // login (idempotent)
   await login();
+
+  // Uncomment this during testing to wipe persisted store
+  const RESET_STORE = false;
+
+  if (RESET_STORE) {
+    resetAllStores();
+  }
+
+
+
   // Hydrate store from localForage first
   await useStore.getState().hydrate();
 

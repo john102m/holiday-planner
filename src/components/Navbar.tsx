@@ -1,19 +1,26 @@
 
 import { NavLink } from 'react-router-dom';
-
+import NavbarUserInfo from "../components/NavbarUserInfo";
+import LogoutButton from "../components/LogoutButton"
+import { hasRole } from "../services/auth"; // your JWT helpers
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Dashboard", to: "/dashboard" },
-  // { label: "Admin", to: "/admindashboard" }, // optional
+
 ];
 
 function Navbar() {
+
+  if (hasRole("admin")) {
+    navLinks.push({ label: "Admin", to: "/admin" });
+  }
+
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
-    `px-4 py-2 rounded-md text-sm font-medium transition ${
-      isActive
-        ? 'bg-blue-500 text-white shadow-sm'
-        : 'text-blue-900 hover:bg-blue-100 hover:text-blue-700'
+    `px-4 py-2 rounded-md text-sm font-medium transition ${isActive
+      ? 'bg-blue-500 text-white shadow-sm'
+      : 'text-blue-900 hover:bg-blue-100 hover:text-blue-700'
     }`;
+
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-100 border-b border-blue-300 z-50 shadow-sm">
@@ -24,7 +31,10 @@ function Navbar() {
         >
           Itinera
         </NavLink>
-
+        <div className="flex items-center gap-2">
+          <NavbarUserInfo />
+          <LogoutButton />
+        </div>
         <div className="flex space-x-4">
           {navLinks.map(link => (
             <NavLink key={link.to} to={link.to} className={navLinkStyles}>

@@ -1,10 +1,11 @@
 import axios from "axios";
 import type { User, UserTrip } from "../types";
 
-const SUPABASE_URL = "https://flsfxunqswwasoeqckjk.supabase.co/auth/v1/token";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsc2Z4dW5xc3d3YXNvZXFja2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTQ4NTEsImV4cCI6MjA3MTk5MDg1MX0.buHOMU8QuLJ3LI9s-sOg0vGEqQyezWiLFAVUr6UiI0k"; // from Supabase settings
-const EMAIL = "john@test.com";
-const PASSWORD = "my4321pass";
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const EMAIL = import.meta.env.VITE_SUPABASE_EMAIL;
+const PASSWORD = import.meta.env.VITE_SUPABASE_PASSWORD;
 
 export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
@@ -137,7 +138,33 @@ export const getUserByEmail = async (user: string) => {
   }
 };
 
+export const getUsers = async () => {
+  try {
+    const response = await api.get<User[]>(`/Users`);
+    return response.data; // Should include user ID and other details
+  } catch (error) {
+    console.error("Error fetching users, ", error);
+    return null;
+  }
+};
+export const updateUser = async (user: User) => {
+  await api.post("/Users/updateuser", user);
+};
 
+export const deleteUser = async (id: string) => {
+  await api.post(`/Users/delete/${id}`);
+};
+
+export const getUserById = async (id: string): Promise<User> => {
+  console.log("Fetching user from API:", id);
+  const response = await api.get(`/Users/${id}`);
+  console.log("API response:", response.data);
+  return response.data;
+};
+
+export async function setUserRoles(userId: string, roles: string[]) {
+  return api.post(`/api/users/${userId}/roles`, roles);
+}
 
 
 function sanitizeDate(input: unknown): string | undefined {

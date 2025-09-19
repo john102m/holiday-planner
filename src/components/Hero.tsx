@@ -14,7 +14,7 @@ export default function Hero() {
         </h1>
 
         <p className="mt-4 text-white/80 text-lg sm:text-xl font-light drop-shadow">
-          Your journey, beautifully mapped.
+          Itinera isn’t just a travel app; it’s a platform for storytelling, collaboration, and memory-making.
         </p>
         <a
           href="#"

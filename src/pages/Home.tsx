@@ -4,7 +4,7 @@ import { initApp } from "../services/initApp";
 import DestinationCard from "../components/destination/DestinationCard";
 import Hero from "../components/Hero";
 import ScrollToTopButton from "../components/ScrollToTop";
-
+import {inspectRoles} from "../services/auth"
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -25,6 +25,8 @@ const Home: React.FC = () => {
   }, []);
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
+
+  inspectRoles();
 
   return (
     <>

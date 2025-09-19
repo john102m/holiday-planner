@@ -16,7 +16,8 @@ import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import ItineraryEditPage from "./pages/ItineraryEditPage";
 import AddEditTripPage from "./pages/AddEditTripPage";
 import AddEditDestinationPage from "./pages/AddEditDestinationPage";
-import {ScrollToTop} from "./components/NavigateTop"
+import UserEditPage from "./components/admindashboard/UserEditPage";
+import { ScrollToTop } from "./components/NavigateTop"
 
 // The main App component that sets up routing and ensures the store is hydrated before rendering pages.
 // ✅ Key points:
@@ -29,15 +30,15 @@ const App: React.FC = () => {
   const [hydrated, setHydrated] = useState(false);
   const hydrateStore = useStore((state) => state.hydrate);
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then(() => {
-        console.log("Service worker registered");
-      }).catch((error) => {
-        console.error("Service worker registration failed:", error);
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if ('serviceWorker' in navigator) {
+  //     navigator.serviceWorker.register('/sw.js').then(() => {
+  //       console.log("Service worker registered");
+  //     }).catch((error) => {
+  //       console.error("Service worker registration failed:", error);
+  //     });
+  //   }
+  // }, []);
 
 
   useEffect(() => {
@@ -53,13 +54,15 @@ const App: React.FC = () => {
 
   return (
     <>
-    <ScrollToTop />
+      <ScrollToTop />
       <Navbar />
       <Routes>
         <Route index element={<Home />} />
         <Route path="/destinations/:id" element={<DestinationPage />} />
         <Route path="/trips/:tripId" element={<TripDetailPage />} />
         <Route path="/dashboard/:id?" element={<DashboardPage />} />
+        <Route path="/admin/users/edit/:id" element={<UserEditPage />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
 
 
         <Route
