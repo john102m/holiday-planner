@@ -69,13 +69,19 @@ export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, t
                 className="relative bg-white rounded-lg p-4 sm:p-6 w-full max-w-[92vw] sm:max-w-lg max-h-[85vh] overflow-y-auto shadow-lg text-sm"
             >
                 {title && <h2 className="text-lg font-bold mb-4">{title}</h2>}
-                <button
-                    onClick={onClose}
-                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
-                >
-                    ×
-                </button>
+
                 <div>{children}</div>
+                {/* close button at bottom right */}
+                <div className="mt-auto flex justify-end">
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-400"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+                </div>
+
             </div>
         </div>
     );
