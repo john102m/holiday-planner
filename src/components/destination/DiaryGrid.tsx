@@ -12,11 +12,14 @@ interface Props {
 
 const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
     const allEntries = useDiaryEntriesStore((s) => s.diaryEntries);
+    console.log("Diary entries: ", allEntries);
     const entries = useMemo(
-        () => allEntries.filter((e) => e.tripId === tripId),
+        () => allEntries.filter((e) => e.tripId?.toLowerCase() === tripId.toLowerCase()),
         [allEntries, tripId]
     );
 
+    console.log("tripId: ", tripId);
+    console.log("Diary entries for this trip: ", entries);
     const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
     const [editEntry, setEditEntry] = useState<DiaryEntry | null>(null);
 

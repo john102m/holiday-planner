@@ -93,6 +93,8 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
             hasImage: !!finalImageUrl,
             imageUrl: finalImageUrl,
         };
+        const { updateDiaryEntry } = useDiaryEntriesStore.getState();
+        updateDiaryEntry(updatedEntry);
 
         if (action.tempId) {
             console.log("🔄 [Store] Replacing optimistic diary entry with saved one");

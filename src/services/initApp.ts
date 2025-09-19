@@ -17,7 +17,7 @@ import { getDestinations } from "./apis/destinationsApi";
 import { getActivities } from "./apis/activitiesApi";
 import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
-import { getDiaryEntriesByUser } from "./apis/diaryEntryApi";
+import { getAllDiaryEntries } from "./apis/diaryEntryApi";
 import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 
 import type { Activity, Package, Destination, Itinerary, ItineraryActivity, UserTrip } from "./types";
@@ -126,8 +126,10 @@ export const initApp = async () => {
   const trips: UserTrip[] = await getUserTrips(userId);
   useStore.getState().setUserTrips(trips);
 
-  // Fetch and store diary entries
-  const diaryEntries = await getDiaryEntriesByUser(userId);
+  // Fetch and store diary entries 
+  const diaryEntries = await getAllDiaryEntries();
+  //const diaryEntries = await getDiaryEntriesByUser(userId);
+  console.log("diaryEntries", diaryEntries)
   useDiaryEntriesStore.getState().setDiaryEntries(diaryEntries);
 
   // Process any queued actions from previous offline sessions
