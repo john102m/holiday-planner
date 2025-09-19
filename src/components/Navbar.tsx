@@ -21,6 +21,7 @@ const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,13 +43,17 @@ function Navbar() {
           Itinera
         </NavLink>
 
-        {/* Center: Always-visible Dashboard link */}
-        <NavLink
-          to="/dashboard"
-          className="text-blue-900 font-semibold text-sm sm:text-base hover:text-blue-700"
-        >
-          📋 Dashboard
-        </NavLink>
+
+
+        {/* Center: All visible links */}
+        <div className="hidden sm:flex gap-4">
+          {baseLinks.map((link) => (
+            <NavLink key={link.to} to={link.to} className={navLinkStyles}>
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
+
 
         {/* Right: User info + Logout */}
         <div className="hidden sm:flex items-center gap-2">
