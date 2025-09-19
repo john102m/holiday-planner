@@ -3,6 +3,7 @@ import { useActivitiesStore } from "../services/slices/activitiesSlice";
 import { useItinerariesStore} from "../services/slices/itinerariesSlice"
 import { useDestinationsStore} from "../services/slices/destinationsSlice"
 import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
+import { usePackageStore } from "./slices/packagesSlice";
 import { useStore } from "../services/store";
 
 // Rough size in bytes via JSON
@@ -20,6 +21,7 @@ export const logMemory = () => {
     const destinationsState = useDestinationsStore.getState();
     const diaryEntriesState = useDiaryEntriesStore.getState();
 
+    const packagesState = usePackageStore.getState();
     const state = useStore.getState();
 
 
@@ -33,7 +35,7 @@ export const logMemory = () => {
         "  Activities (total):",
         Object.values(activitiesState.activities).flat().length
     );
-    console.log("  Packages:", Object.values(state.packages).flat().length);
+    console.log("  Packages:", Object.values(packagesState.packages).flat().length);
     console.log("  Itineraries:", Object.values(itinerariesState.itineraries).flat().length);
     console.log("  Queue length:", state.queue.length);
 
