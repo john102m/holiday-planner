@@ -42,7 +42,12 @@ function Navbar() {
         >
           Itinera
         </NavLink>
-
+        {/* Mobile Quick Dashboard Link */}
+        <div className="sm:hidden px-4 pb-2">
+          <NavLink to="/dashboard" className={navLinkStyles}>
+            📋 Dashboard
+          </NavLink>
+        </div>
 
 
         {/* Center: All visible links */}
@@ -69,6 +74,7 @@ function Navbar() {
           ☰
         </button>
       </div>
+
 
       {/* Mobile Menu */}
       {menuOpen && (
