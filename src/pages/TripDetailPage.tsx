@@ -36,6 +36,7 @@ const TripDetailPage: React.FC = () => {
         "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
 
     const navigateToAddEdit = () => {
+        console.log("HELLO");
         const params = new URLSearchParams();
         if (tripId) params.set("tripId", tripId);
         console.log("Sending trip id: ", tripId);
@@ -70,7 +71,7 @@ const TripDetailPage: React.FC = () => {
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
-                                onClick={() => navigateToAddEdit}
+                                onClick={() => navigateToAddEdit()}
                                 className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
                             >
                                 + Add Activity
@@ -81,7 +82,7 @@ const TripDetailPage: React.FC = () => {
 
                         {/* FAB for mobile */}
                         <button
-                            onClick={() => navigateToAddEdit}
+                            onClick={() => navigateToAddEdit()}
                             className={`${fabBase} bottom-4`}
                             aria-label="Add Activity"
                         >
