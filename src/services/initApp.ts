@@ -67,6 +67,7 @@ export const initApp = async () => {
 
   // Fetch and store packages
   const packages: Package[] = await getPackages();
+  console.log("Packages fetched: ",packages);
   const packagesByDest: Record<string, Package[]> = {};
   packages.forEach((p) => {
     if (!p.destinationId) return;

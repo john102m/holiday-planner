@@ -98,7 +98,7 @@ export const addOptimisticAndQueue = async (
 
 interface AppState {
   //destinations: Destination[];
-  packages: Record<string, Package[]>;
+
   userTrips: UserTrip[];
   ui: { offline: boolean };
   queue: QueuedAction[];
@@ -144,8 +144,6 @@ export const useStore = create<AppState>()(
       queue: [],
       destinations: [],
       userTrips: [],
-      // Grouped by destinationId
-      packages: {},
 
       // UI state
       ui: { offline: false },
@@ -212,17 +210,6 @@ window.addEventListener("offline", () => {
 
 });
 
-// const handleCreateUserTrip = async (action: QueuedAction) => {
-//   const { addUserTrip, replaceUserTrip } = useStore.getState();
-//   const trip = action.payload as UserTrip;
-
-//   // Call backend
-//   const saved = await createUserTrip(trip);
-
-//   // Update store: replace tempId if exists, else add
-//   if (action.tempId) replaceUserTrip(action.tempId, saved);
-//   else addUserTrip(saved);
-// };
 export const handleCreateUserTrip = async (action: QueuedAction) => {
   const { addUserTrip, replaceUserTrip } = useStore.getState();
   const trip = action.payload as UserTrip;

@@ -14,6 +14,8 @@ interface Props {
 const empty: Package[] = [];
 
 const PackagesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
+
+   console.log("Hello  from the packages grid");
   // ✅ Selector now always returns either the actual packages array
   // or the stable `empty` array reference above.
   // Because `empty` never changes identity, React won’t trigger

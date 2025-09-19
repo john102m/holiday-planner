@@ -37,7 +37,7 @@ const AdminDashboardPage: React.FC = () => {
             resetAllStores();
           }
         }}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
       >
         🔄 Master Reset (Dev Only)
       </button>
