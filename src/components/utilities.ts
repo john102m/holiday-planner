@@ -1,3 +1,5 @@
+import type { ImageEntity } from "../services/types";
+
 export function formatDate(value: unknown): string {
   if (typeof value === "string") return value.slice(0, 10);
   if (value instanceof Date) return value.toISOString().slice(0, 10);
@@ -21,3 +23,21 @@ export function formatFriendlyDate(value: unknown): string {
     return "";
   }
 }
+
+
+export const finalizeImageUpload = (
+  entity: ImageEntity,
+  sasUrl: string
+): ImageEntity => {
+  if (entity.previewBlobUrl) {
+    URL.revokeObjectURL(entity.previewBlobUrl);
+  }
+  return {
+    ...entity,
+    imageUrl: sasUrl,
+    previewBlobUrl: undefined,
+    isPendingUpload: false,
+    imageFile: undefined
+  };
+};
+

@@ -1,7 +1,8 @@
 // slices/activitiesSlice.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { ImageEntity, Activity, QueuedAction } from "../types";
+import type { Activity, QueuedAction } from "../types";
+import { finalizeImageUpload } from "../../components/utilities"
 import { uploadToAzureBlob } from "../storeUtils";
 import { createActivityWithSas, editActivityForSas, deleteActivity } from "../apis/activitiesApi";
 
@@ -78,21 +79,21 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
 );
 
 
-export const finalizeImageUpload = (
-  entity: ImageEntity,
-  sasUrl: string
-): ImageEntity => {
-  if (entity.previewBlobUrl) {
-    URL.revokeObjectURL(entity.previewBlobUrl);
-  }
-  return {
-    ...entity,
-    imageUrl: sasUrl,
-    previewBlobUrl: undefined,
-    isPendingUpload: false,
-    imageFile: undefined
-  };
-};
+// export const finalizeImageUpload = (
+//   entity: ImageEntity,
+//   sasUrl: string
+// ): ImageEntity => {
+//   if (entity.previewBlobUrl) {
+//     URL.revokeObjectURL(entity.previewBlobUrl);
+//   }
+//   return {
+//     ...entity,
+//     imageUrl: sasUrl,
+//     previewBlobUrl: undefined,
+//     isPendingUpload: false,
+//     imageFile: undefined
+//   };
+// };
 
 export const handleCreateActivity = async (action: QueuedAction) => {
   const { addActivity, replaceActivity, updateActivity } = useActivitiesStore.getState();
@@ -161,17 +162,18 @@ export const handleUpdateActivity = async (action: QueuedAction) => {
       await uploadToAzureBlob(act.imageFile, sasUrl);
       console.log("✅ [Upload] Image upload complete");
 
-      // Cache-bust the backend image URL so refresh gets the new image
-      if (backendImageUrl) {
-        //const cacheBustedUrl = `${backendImageUrl}?t=${Date.now()}`;
-        updateActivity(act.destinationId, {
-          ...act,
-          imageFile: undefined,
-          hasImage: true,
-          imageUrl: backendImageUrl,
-        });
-        console.log("🔄 [Store] Activity image updated to:", backendImageUrl);
-      }
+      const finalImageUrl = backendImageUrl
+        ? `${backendImageUrl}?${crypto.randomUUID()}`
+        : "/images/placeholder.webp";
+
+      updateActivity(act.destinationId, {
+        ...act,
+        imageFile: undefined,
+        hasImage: !!backendImageUrl,
+        imageUrl: finalImageUrl,
+      });
+
+      console.log("🔄 [Store] Activity image updated to:", finalImageUrl);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
