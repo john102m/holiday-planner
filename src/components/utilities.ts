@@ -24,20 +24,21 @@ export function formatFriendlyDate(value: unknown): string {
   }
 }
 
-
 export const finalizeImageUpload = (
   entity: ImageEntity,
   sasUrl: string
 ): ImageEntity => {
-  if (entity.previewBlobUrl) {
-    URL.revokeObjectURL(entity.previewBlobUrl);
-  }
+  const { previewBlobUrl } = entity;
+  setTimeout(() => {
+    if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+  }, 5000); // delay cleanup by 5s
   return {
     ...entity,
     imageUrl: sasUrl,
-    previewBlobUrl: undefined,
+    previewBlobUrl: previewBlobUrl, // keep temporarily
     isPendingUpload: false,
     imageFile: undefined
   };
 };
+
 
