@@ -106,15 +106,6 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
 
             // Finalize image swap using shared utility
             const finalized = finalizeImageUpload(saved, saved.imageUrl!);//`${saved.imageUrl}?${crypto.randomUUID()}`);
-
-            // Create a new object with final imageUrl so React triggers re-render
-            // const finalized: DiaryEntry = {
-            //     ...merged,
-            //     imageFile: undefined,
-            //     isPendingUpload: false,
-            //     imageUrl: saved.imageUrl, // final URL from backend
-            // };
-
             updateDiaryEntry(finalized as DiaryEntry);
             console.log("🔄 [Store] Diary entry image updated to:", finalized.imageUrl);
         } else {
@@ -128,29 +119,22 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
 export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
     const { updateDiaryEntry } = useDiaryEntriesStore.getState();
     const entry = action.payload as DiaryEntry;
-
     console.log("📘 [Queue] Processing UPDATE_DIARY_ENTRY for:", entry.title);
-
     try {
-        // Ask backend for SAS URL and final image URL first
-        const { sasUrl, imageUrl: backendImageUrl } = await editDiaryEntry(entry.id!, entry);
-        console.log("✅ [API] Diary entry updated");
-        console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-        // Optimistic update: show blob preview until backend image is ready
-        // updateDiaryEntry({
-        //     ...entry,
-        //     imageUrl: backendImageUrl ?? entry.imageUrl,
-        // });
-        // Optimistic update: preserve current image until upload completes
         updateDiaryEntry({
             ...entry,
             imageFile: entry.imageFile,
             previewBlobUrl: entry.previewBlobUrl,
             isPendingUpload: !!entry.imageFile,
             imageUrl: entry.imageUrl, // don't overwrite yet
+
         });
 
+        // Ask backend for SAS URL and final image URL first
+        const { sasUrl, imageUrl: backendImageUrl } = await editDiaryEntry(entry.id!, entry);
+        console.log("✅ [API] Diary entry updated");
+        console.log("🔗 [API] Received SAS URL:", sasUrl);
 
         // Only upload if SAS URL and image file exist
         if (sasUrl && entry.imageFile instanceof File) {
@@ -160,24 +144,16 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
 
             // Finalize image swap using backend image URL or fallback
             const finalImageUrl = backendImageUrl;
-            // ? `${backendImageUrl}?${crypto.randomUUID()}`
-            // : "/images/placeholder.webp";
 
-            // updateDiaryEntry({
-            //     ...entry,
-            //     imageFile: undefined,
-            //     hasImage: !!backendImageUrl,
-            //     imageUrl: finalImageUrl,
-            // });
             updateDiaryEntry({
                 ...entry,
                 imageFile: undefined,
-                previewBlobUrl: undefined,
+                //previewBlobUrl: undefined,
                 isPendingUpload: false,
                 hasImage: !!backendImageUrl,
                 imageUrl: backendImageUrl,
+                previewBlobUrl: entry.previewBlobUrl,
             });
-
 
             console.log("🔄 [Store] Diary entry image updated to:", finalImageUrl);
         } else {

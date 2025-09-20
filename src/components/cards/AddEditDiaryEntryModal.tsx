@@ -12,8 +12,6 @@ import { useDiaryEntriesStore } from "../../services/slices/diaryEntriesSlice";
 // AddEditDiaryEntryModal is a modal-based form that allows users 
 // to create or edit a DiaryEntry. It’s designed to be reusable, reactive, 
 // and tightly scoped to the diary entry entity.
-
-
 // isOpen: Controls whether the modal is visible.
 // onClose: Callback to close the modal.
 // initialValues: Optional — used to prefill the form when editing an existing entry.
@@ -23,7 +21,6 @@ interface Props {
     initialValues?: DiaryEntry;
     tripName?: string; // ← new prop
 }
-
 
 const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValues, tripName }) => {
 
@@ -35,32 +32,25 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
     const isEditMode = !!initialValues?.id;
     console.log(isEditMode ? `You are in edit mode` : `You are in create mode`);
 
-    // const { handleImageSelection, handleSubmit } = useAddEditWithImage<DiaryEntry>(
-    //     CollectionTypes.DiaryEntries
-    // );
- const { handleImageSelection, handleSubmit, imageFile} = useAddEditWithImage<DiaryEntry>(
-  CollectionTypes.DiaryEntries
-);
+    const { handleImageSelection, handleSubmit } = useAddEditWithImage<DiaryEntry>(
+        CollectionTypes.DiaryEntries
+    );
 
-// Wrap the image selection to also update the store
-const handleImageSelectionAndUpdate = async (file: File) => {
-  const previewBlobUrl = await handleImageSelection(file);
+    // Wrap the image selection to also update the store
+    const handleImageSelectionAndUpdate = async (file: File) => {
+        const previewBlobUrl = await handleImageSelection(file);
 
-  // Immediately update the store so the preview shows up
-  if (initialValues?.id) {
-    useDiaryEntriesStore.getState().updateDiaryEntry({
-      ...initialValues,
-      imageFile,
-      previewBlobUrl,
-      isPendingUpload: true,
-    });
-  }
-
-  return previewBlobUrl;
-};
-
-    
-
+        // Immediately update the store so the preview shows up
+        if (initialValues?.id) {
+            useDiaryEntriesStore.getState().updateDiaryEntry({
+                ...initialValues,
+                imageFile: file,
+                previewBlobUrl,
+                isPendingUpload: true,
+            });
+        }
+        return previewBlobUrl;
+    };
 
     //   Each field is initialized from initialValues if present — perfect for edit mode. 
     //   Otherwise, it defaults to sensible values for a new entry.
@@ -93,7 +83,6 @@ const handleImageSelectionAndUpdate = async (file: File) => {
         e.preventDefault();
 
         const isEditMode = !!initialValues?.id;
-
         const formValues: DiaryEntry = {
             title,
             entryContent,
@@ -107,7 +96,6 @@ const handleImageSelectionAndUpdate = async (file: File) => {
                 imageUrl: initialValues.imageUrl,
             }),
         };
-
         console.log("Submitting diary entry:", formValues);
         //await handleSubmit(formValues, isEditMode ? QueueTypes.UPDATE_DIARY_ENTRY : QueueTypes.CREATE_DIARY_ENTRY);
         // Fire-and-forget queue submission

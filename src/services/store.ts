@@ -47,13 +47,27 @@ export const addOptimisticAndQueue = async (
   const diaryEntriesStore = useDiaryEntriesStore.getState();
   const store = useStore.getState();
 
-
+  // 🔁 Recap of the Flow
+  // User drops a new image → You generate a preview blob and compress the file.
+  // Optimistic update is applied to the store → You call updateDiaryEntry() with the blob, file, and isPendingUpload: true.
+  // UI re-renders with the blob → useImageBlobSrc() picks up the blob and shows it immediately.
+  // Queue processes the update → Backend returns SAS URL, image is uploaded, final image URL is injected.
+  // Blob is revoked after swap → UI transitions seamlessly to the final image.
   const collectionHandlers: Record<CollectionType, (id: string | undefined, entity: Entity) => void> = {
     [CollectionTypes.Activities]: (id, entity) =>
       activitiesStore.addActivity(id!, entity as Activity),
 
-    [CollectionTypes.DiaryEntries]: (_id, entity) =>
-      diaryEntriesStore.addDiaryEntry(entity as DiaryEntry),
+    //  [CollectionTypes.DiaryEntries]: (_id, entity) =>
+    //    diaryEntriesStore.addDiaryEntry(entity as DiaryEntry),
+
+    [CollectionTypes.DiaryEntries]: (_id, entity) => {
+      const diaryEntry = entity as DiaryEntry;
+      if (diaryEntry.id?.startsWith("temp-")) {
+        diaryEntriesStore.addDiaryEntry(diaryEntry); // treat as optimistic create
+      } else {
+        diaryEntriesStore.updateDiaryEntry(diaryEntry); // treat as confirmed update
+      }
+    },
 
     [CollectionTypes.Packages]: (id, entity) =>
       packageStore.addPackage(id!, entity as Package),
@@ -77,9 +91,14 @@ export const addOptimisticAndQueue = async (
   };
 
   // Only mutate local state if it's a CREATE
-  if (isCreate) {
+  // if (isCreate) {
+  //   collectionHandlers[collection](destId, optimisticEntity);
+  // }
+
+  if (isCreate || collection === CollectionTypes.DiaryEntries) {
     collectionHandlers[collection](destId, optimisticEntity);
   }
+
 
   store.addQueuedAction({
     id: crypto.randomUUID(),

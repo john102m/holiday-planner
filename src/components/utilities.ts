@@ -24,16 +24,18 @@ export function formatFriendlyDate(value: unknown): string {
   }
 }
 
-export const finalizeImageUpload = (entity: ImageEntity,sasUrl: string): ImageEntity => {
-
+export const finalizeImageUpload = (entity: ImageEntity, finalImageUrl: string): ImageEntity => {
   return {
     ...entity,
-    imageUrl: sasUrl,        // point <img> directly at final URL
-    previewBlobUrl: undefined, // clear blob immediately
+    imageUrl: finalImageUrl,       // point <img> directly at final URL
     isPendingUpload: false,
+    hasImage: true,
     imageFile: undefined,
+    previewBlobUrl: entity.previewBlobUrl, // keep blob until image loads
   };
 };
+
+
 
 
 
