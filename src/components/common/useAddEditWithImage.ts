@@ -40,6 +40,7 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
       imageFile,
       hasImage: !!imageFile,
       imageUrl: imageUrlWithCacheBuster, // leave this to be updated by backend
+      previewBlobUrl: previewUrl
     };
 
     // Queue it optimistically

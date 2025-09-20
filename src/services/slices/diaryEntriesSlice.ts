@@ -1,7 +1,7 @@
 // slices/diaryEntriesSlice.ts
 import { create } from "zustand";
 import type { DiaryEntry, QueuedAction } from "../types";
-//import { finalizeImageUpload } from "../../components/utilities"
+import { finalizeImageUpload } from "../../components/utilities"
 import { uploadToAzureBlob } from "../storeUtils";
 import { createDiaryEntry, editDiaryEntry, deleteDiaryEntry } from "../apis/diaryEntryApi";
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -105,16 +105,15 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
             console.log("✅ [Upload] Image upload complete");
 
             // Finalize image swap using shared utility
-            //const finalized = finalizeImageUpload(saved, saved.imageUrl!);//`${saved.imageUrl}?${crypto.randomUUID()}`);
-
+            const finalized = finalizeImageUpload(saved, saved.imageUrl!);//`${saved.imageUrl}?${crypto.randomUUID()}`);
 
             // Create a new object with final imageUrl so React triggers re-render
-            const finalized: DiaryEntry = {
-                ...merged,
-                imageFile: undefined,
-                isPendingUpload: false,
-                imageUrl: saved.imageUrl, // final URL from backend
-            };
+            // const finalized: DiaryEntry = {
+            //     ...merged,
+            //     imageFile: undefined,
+            //     isPendingUpload: false,
+            //     imageUrl: saved.imageUrl, // final URL from backend
+            // };
 
             updateDiaryEntry(finalized as DiaryEntry);
             console.log("🔄 [Store] Diary entry image updated to:", finalized.imageUrl);
