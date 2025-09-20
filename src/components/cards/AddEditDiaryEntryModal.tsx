@@ -85,7 +85,10 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
         };
 
         console.log("Submitting diary entry:", formValues);
-        await handleSubmit(formValues, isEditMode ? QueueTypes.UPDATE_DIARY_ENTRY : QueueTypes.CREATE_DIARY_ENTRY);
+        //await handleSubmit(formValues, isEditMode ? QueueTypes.UPDATE_DIARY_ENTRY : QueueTypes.CREATE_DIARY_ENTRY);
+        // Fire-and-forget queue submission
+        handleSubmit(formValues, isEditMode ? QueueTypes.UPDATE_DIARY_ENTRY : QueueTypes.CREATE_DIARY_ENTRY)
+            .catch(err => console.error("Error queuing diary entry:", err));
         onClose();
     };
 
