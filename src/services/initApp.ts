@@ -29,8 +29,6 @@ import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 
 let initialized = false;
 
-
-
 export function resetAllStores() {
   localStorage.removeItem("holiday-planner-store");
   localStorage.removeItem("activities-store");
@@ -40,7 +38,6 @@ export function resetAllStores() {
   localStorage.removeItem("destinations-store");
   window.location.reload();
 }
-
 
 export const initApp = async () => {
   if (initialized) return;
@@ -56,11 +53,8 @@ export const initApp = async () => {
     resetAllStores();
   }
 
-
-
   // Hydrate store from localForage first
   await useStore.getState().hydrate();
-
 
   // Fetch and store destinations
   const destinations: Destination[] = await getDestinations();

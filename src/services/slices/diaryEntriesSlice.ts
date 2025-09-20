@@ -138,10 +138,19 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
         console.log("🔗 [API] Received SAS URL:", sasUrl);
 
         // Optimistic update: show blob preview until backend image is ready
+        // updateDiaryEntry({
+        //     ...entry,
+        //     imageUrl: backendImageUrl ?? entry.imageUrl,
+        // });
+        // Optimistic update: preserve current image until upload completes
         updateDiaryEntry({
             ...entry,
-            imageUrl: backendImageUrl ?? entry.imageUrl,
+            imageFile: entry.imageFile,
+            previewBlobUrl: entry.previewBlobUrl,
+            isPendingUpload: !!entry.imageFile,
+            imageUrl: entry.imageUrl, // don't overwrite yet
         });
+
 
         // Only upload if SAS URL and image file exist
         if (sasUrl && entry.imageFile instanceof File) {
@@ -150,16 +159,25 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
             console.log("✅ [Upload] Image upload complete");
 
             // Finalize image swap using backend image URL or fallback
-            const finalImageUrl = backendImageUrl
-                ? `${backendImageUrl}?${crypto.randomUUID()}`
-                : "/images/placeholder.webp";
+            const finalImageUrl = backendImageUrl;
+            // ? `${backendImageUrl}?${crypto.randomUUID()}`
+            // : "/images/placeholder.webp";
 
+            // updateDiaryEntry({
+            //     ...entry,
+            //     imageFile: undefined,
+            //     hasImage: !!backendImageUrl,
+            //     imageUrl: finalImageUrl,
+            // });
             updateDiaryEntry({
                 ...entry,
                 imageFile: undefined,
+                previewBlobUrl: undefined,
+                isPendingUpload: false,
                 hasImage: !!backendImageUrl,
-                imageUrl: finalImageUrl,
+                imageUrl: backendImageUrl,
             });
+
 
             console.log("🔄 [Store] Diary entry image updated to:", finalImageUrl);
         } else {

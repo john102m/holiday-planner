@@ -5,6 +5,7 @@ import { useAddEditWithImage } from "../common/useAddEditWithImage";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import type { DiaryEntry } from "../../services/types";
 import ImageUploadWidget from "../common/ImageUploadWidget";
+import { useDiaryEntriesStore } from "../../services/slices/diaryEntriesSlice";
 
 
 // 🧱 Component Purpose
@@ -34,9 +35,32 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
     const isEditMode = !!initialValues?.id;
     console.log(isEditMode ? `You are in edit mode` : `You are in create mode`);
 
-    const { handleImageSelection, handleSubmit } = useAddEditWithImage<DiaryEntry>(
-        CollectionTypes.DiaryEntries
-    );
+    // const { handleImageSelection, handleSubmit } = useAddEditWithImage<DiaryEntry>(
+    //     CollectionTypes.DiaryEntries
+    // );
+ const { handleImageSelection, handleSubmit, imageFile} = useAddEditWithImage<DiaryEntry>(
+  CollectionTypes.DiaryEntries
+);
+
+// Wrap the image selection to also update the store
+const handleImageSelectionAndUpdate = async (file: File) => {
+  const previewBlobUrl = await handleImageSelection(file);
+
+  // Immediately update the store so the preview shows up
+  if (initialValues?.id) {
+    useDiaryEntriesStore.getState().updateDiaryEntry({
+      ...initialValues,
+      imageFile,
+      previewBlobUrl,
+      isPendingUpload: true,
+    });
+  }
+
+  return previewBlobUrl;
+};
+
+    
+
 
     //   Each field is initialized from initialValues if present — perfect for edit mode. 
     //   Otherwise, it defaults to sensible values for a new entry.
@@ -163,7 +187,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                 </details>
 
                 <ImageUploadWidget
-                    onSelect={handleImageSelection}
+                    onSelect={handleImageSelectionAndUpdate}
                     initialUrl={initialValues?.imageUrl}
                 />
 
