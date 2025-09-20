@@ -1,6 +1,7 @@
 import React from "react";
 import type { DiaryEntry } from "../../services/types";
 import { formatFriendlyDate } from "../utilities";
+import Spinner from "../common/Spinner";
 
 interface Props {
     entry: DiaryEntry;
@@ -9,13 +10,18 @@ interface Props {
 }
 
 const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
- 
+
     console.log("the file you are after: ", entry.imageUrl);
     return (
         <div
             className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full max-w-xs mx-auto"
             onClick={onClick}
         >
+            {entry.isPendingUpload && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                    <Spinner />
+                </div>
+            )}
             <img
                 key={`${entry.id}`}
                 src={entry.previewBlobUrl || entry.imageUrl || "/placeholder.png"}
