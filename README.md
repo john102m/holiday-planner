@@ -1,3 +1,85 @@
+✈️ Holiday Planner
+A modern, offline-first travel planning app built with React + TypeScript. Plan trips, manage destinations, attach diary entries, and sync seamlessly—even when your network drops.
+
+🚀 Features
+Offline-first architecture using localForage and queue-based syncing
+
+Image uploading with preview blobs and smooth transitions
+
+Modular store slices for destinations, activities, packages, itineraries, and diary entries
+
+Optimistic UI updates for instant feedback
+
+Automatic queue flushing when network restores
+
+Blob lifecycle management for reliable previews
+
+Vercel deployment for fast, serverless hosting
+
+🧠 Architecture Overview
+text
+User Action ──▶ Store Slice ──▶ LocalForage Cache
+        │             │
+        ▼             ▼
+     Queue         UI Update (Optimistic)
+        │
+        ▼
+  Network Available ──▶ processQueue()
+                          └─▶ Sync with API
+📦 Tech Stack
+Frontend: React, TypeScript, Vite
+
+State Management: Zustand
+
+Storage: localForage
+
+Deployment: Vercel
+
+API: Swagger-documented backend
+
+🛠 Setup
+bash
+git clone https://github.com/john102m/holiday-planner.git
+cd holiday-planner
+npm install
+npm run dev
+🌐 Live Demo
+Check it out on holiday-planner-six.vercel.app
+
+📁 Project Structure
+Code
+src/
+├── components/         # UI components
+├── services/           # API calls and store logic
+├── slices/             # Zustand store slices
+├── utilities/          # Shared helpers
+├── common/             # Reusable UI elements (e.g. Spinner)
+🧪 Testing
+Coming soon: unit tests for store logic and queue handling.
+
+🤝 Contributing
+Pull requests welcome! If you're interested in improving offline UX, blob handling, or adding new travel features, feel free to fork and submit a PR.
+
+📄 License
+MIT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Activity Filtering Flow
 
