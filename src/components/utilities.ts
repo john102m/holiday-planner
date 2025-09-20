@@ -24,16 +24,7 @@ export function formatFriendlyDate(value: unknown): string {
   }
 }
 
-export const finalizeImageUpload = (
-  entity: ImageEntity,
-  sasUrl: string
-): ImageEntity => {
-  const { previewBlobUrl } = entity;
-
-  // revoke blob AFTER the imageUrl is safely assigned and rendered
-  setTimeout(() => {
-    if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
-  }, 5000);
+export const finalizeImageUpload = (entity: ImageEntity,sasUrl: string): ImageEntity => {
 
   return {
     ...entity,
