@@ -18,7 +18,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
         >
             <img
                 key={`${entry.id}`}
-                src={entry.imageUrl}
+                src={entry.previewBlobUrl || entry.imageUrl || "/placeholder.png"}
                 alt={entry.title ?? "Diary Entry"}
                 className="w-24 h-24 object-cover flex-shrink-0"
             />
