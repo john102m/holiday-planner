@@ -12,6 +12,7 @@ interface Props {
 const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
 
     console.log("the file you are after: ", entry.imageUrl);
+
     return (
         <div
             className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full max-w-xs mx-auto"
@@ -28,6 +29,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
                 alt={entry.title ?? "Diary Entry"}
                 className="w-24 h-24 object-cover flex-shrink-0"
             />
+
             <div className="p-2 flex-1 flex flex-col justify-between gap-1">
                 <div className="flex flex-col gap-1">
                     <h3 className="font-serif text-base  line-clamp-1 font-semibold">{entry.title ?? "Untitled Entry"}</h3>

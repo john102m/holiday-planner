@@ -9,8 +9,8 @@ export function formatFriendlyDate(value: unknown): string {
   try {
     const date =
       typeof value === "string" ? new Date(value) :
-      value instanceof Date ? value :
-      null;
+        value instanceof Date ? value :
+          null;
 
     if (!date || isNaN(date.getTime())) return "";
 
@@ -29,16 +29,20 @@ export const finalizeImageUpload = (
   sasUrl: string
 ): ImageEntity => {
   const { previewBlobUrl } = entity;
+
+  // revoke blob AFTER the imageUrl is safely assigned and rendered
   setTimeout(() => {
     if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
-  }, 5000); // delay cleanup by 5s
+  }, 5000);
+
   return {
     ...entity,
-    imageUrl: sasUrl,
-    previewBlobUrl: previewBlobUrl, // keep temporarily
+    imageUrl: sasUrl,        // point <img> directly at final URL
+    previewBlobUrl: undefined, // clear blob immediately
     isPendingUpload: false,
-    imageFile: undefined
+    imageFile: undefined,
   };
 };
+
 
 
