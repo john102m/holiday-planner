@@ -104,7 +104,7 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
             console.log("✅ [Upload] Image upload complete");
 
             // Finalize image swap using shared utility
-            const finalized = finalizeImageUpload(saved, `${saved.imageUrl}?${crypto.randomUUID()}`);
+            const finalized = finalizeImageUpload(saved, saved.imageUrl!);//`${saved.imageUrl}?${crypto.randomUUID()}`);
             updateDiaryEntry(finalized as DiaryEntry);
             console.log("🔄 [Store] Diary entry image updated to:", finalized.imageUrl);
         } else {
