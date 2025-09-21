@@ -51,12 +51,19 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
     };
 
     console.log("addOptimisticAndQueue for payload: ", queuePayload);
-
+  // Fire async queue but don’t await it — modal can close immediately
+  (async () => {
+    try {
+      await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);
+    } catch (err) {
+      console.error("Queue error:", err);
+    }
+  })();
 
     // Queue it optimistically
-    const tempId = await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);
+    //const tempId = await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);
 
-    return tempId;
+    return queuePayload;
   };
 
   return { imageFile, previewUrl, handleImageSelection, handleSubmit, setPreviewUrl };

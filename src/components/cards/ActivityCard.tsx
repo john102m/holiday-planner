@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
+import Spinner from "../common/Spinner";
+import { useImageBlobSrc } from "../../components/common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
-import { useSmoothImageSwap } from "../../components/common/useSmoothImageSwap"
 
 interface Props {
   activity: Activity;
@@ -13,10 +14,24 @@ interface Props {
   showActions?: boolean; // optional, defaults to true
 }
 
-const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showActions = true }) => {
+const ActivityCard: React.FC<Props> = ({
+  activity,
+  destinationId,
+  tripId,
+  showActions = true,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  console.log("Activity card has the modal integrated")
+
+  // --- Spinner/Image logic from safer POC ---
+  const imgSrc = useImageBlobSrc(activity);//activity.previewBlobUrl || activity.imageUrl || undefined;
+  const showSpinner = activity.isPendingUpload && !!activity.imageFile && navigator.onLine;
+  // const showSpinner =
+  //   activity.isPendingUpload === true ||
+  //   !!activity.imageFile ||
+  //   !!activity.previewBlobUrl;
+
+  // --- Keep truncated details logic ---
   const truncatedDetails = (() => {
     if (!activity.details) return "";
     if (activity.details.length <= 120) return activity.details;
@@ -26,7 +41,9 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
   })();
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete "${activity.name}"?`)) {
+    if (
+      window.confirm(`Are you sure you want to delete "${activity.name}"?`)
+    ) {
       await addOptimisticAndQueue(
         CollectionTypes.Activities,
         activity,
@@ -36,6 +53,7 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
       console.log(`Queued deletion for activity ${activity.name}`);
     }
   };
+
   const getDomain = (url: string) => {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -44,37 +62,41 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
     }
   };
 
-  // const imageSrc = activity.isPendingUpload
-  //   ? activity.previewBlobUrl
-  //   : activity.imageUrl || "/placeholder.png";
-  console.log("Activity Id:", activity.id)
-  const imageSrc = useSmoothImageSwap(activity);
-
-
   return (
     <>
       {/* Card */}
       <div
-        className="card w-full max-w-[300px] mx-auto bg-white rounded shadow-md flex flex-col cursor-pointer"
+        className="card w-full max-w-[300px] mx-auto bg-white rounded shadow-md flex flex-col cursor-pointer relative"
         onClick={() => setIsModalOpen(true)}
       >
-
-        {activity.imageUrl && <img src={activity.imageUrl} alt={activity.name} className="card-img" />}
-        <div className="card-body">
-          <h3 className="card-title">{activity.name}</h3>
-          <p className="card-text line-clamp-1">{truncatedDetails}</p>
-          <div className="card-footer flex justify-between items-center">
-            <span>{activity.votes ?? 0} votes</span>
+        {showSpinner && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <Spinner />
           </div>
+        )}
+
+        <img
+          src={imgSrc}
+          alt={activity.name}
+          className={`card-img w-full h-48 object-cover ${showSpinner ? "opacity-50" : "opacity-100"
+            }`}
+        />
+
+        <div className="card-body p-2 flex flex-col justify-between gap-1">
+          <h3 className="card-title font-semibold">{activity.name}</h3>
+          <p className="card-text line-clamp-1">{truncatedDetails}</p>
+
           {showActions && (
             <div className="mt-2 flex gap-2">
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent opening modal when clicking edit
+                  e.stopPropagation();
                   const params = new URLSearchParams();
                   params.set("activityId", activity.id ?? "");
                   if (tripId) params.set("tripId", tripId);
-                  navigate(`/destinations/${destinationId}/activities/edit?${params.toString()}`);
+                  navigate(
+                    `/destinations/${destinationId}/activities/edit?${params.toString()}`
+                  );
                 }}
                 className="px-3 py-1 bg-gray-200 rounded text-sm"
               >
@@ -82,7 +104,7 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent opening modal when clicking delete
+                  e.stopPropagation();
                   handleDelete();
                 }}
                 className="px-3 py-1 bg-red-500 text-white rounded text-sm"
@@ -98,15 +120,15 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
       {isModalOpen && (
         <GenericModal onClose={() => setIsModalOpen(false)} title={activity.name}>
           <div className="space-y-4 text-sm">
-            {imageSrc && (
+            {imgSrc && (
               <img
-                src={imageSrc}
+                src={imgSrc}
                 alt={activity.name}
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.png";
                 }}
+                className="w-full object-cover"
               />
-
             )}
 
             <p className="text-gray-700 whitespace-pre-line">{activity.details}</p>
@@ -129,7 +151,6 @@ const ActivityCard: React.FC<Props> = ({ activity, destinationId, tripId, showAc
             </div>
           </div>
         </GenericModal>
-
       )}
     </>
   );
