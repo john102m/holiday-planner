@@ -13,7 +13,7 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
   const daysToGo = start ? Math.ceil((start.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
 
   return (
-    <div className="w-full border rounded-lg overflow-hidden shadow hover:shadow-lg transition mb-6 flex flex-col cursor-pointer">
+    <div className="w-full border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col cursor-pointer">
       {/* Card Image */}
       <img
         src={trip.imageUrl || destination.imageUrl}

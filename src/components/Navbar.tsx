@@ -21,17 +21,24 @@ const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
         setMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   return (
     <nav className="bg-blue-100 border-b border-blue-300 shadow-sm fixed top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
@@ -43,11 +50,16 @@ function Navbar() {
           Itinera
         </NavLink>
         {/* Mobile Quick Dashboard Link */}
-        <div className="sm:hidden px-4 pb-2">
-          <NavLink to="/dashboard" className={navLinkStyles}>
-            📋 Dashboard
+        <div className="sm:hidden mt-2 px-4 pb-2 h-14 flex items-center">
+          <NavLink
+            to="/dashboard"
+            className="text-blue-900 rounded p-0.5 border font-bold text-lg hover:text-blue-700"
+          >
+            Dashboard
           </NavLink>
         </div>
+
+
 
 
         {/* Center: All visible links */}
@@ -68,6 +80,7 @@ function Navbar() {
 
         {/* Hamburger Toggle */}
         <button
+          ref={buttonRef}
           className="sm:hidden text-blue-900 text-xl"
           onClick={() => setMenuOpen(!menuOpen)}
         >
@@ -75,10 +88,13 @@ function Navbar() {
         </button>
       </div>
 
-
       {/* Mobile Menu */}
       {menuOpen && (
-        <div ref={menuRef} className="sm:hidden px-4 pb-4">
+        <div
+          ref={menuRef}
+          className={`sm:hidden px-4 pb-4 transform transition-all duration-300 ease-in-out ${menuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"
+            }`}
+        >
           {baseLinks.map((link) => (
             <NavLink
               key={link.to}

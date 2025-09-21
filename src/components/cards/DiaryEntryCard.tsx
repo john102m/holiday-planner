@@ -2,7 +2,7 @@ import React from "react";
 import type { DiaryEntry } from "../../services/types";
 import { formatFriendlyDate } from "../utilities";
 import Spinner from "../common/Spinner";
-import { useImageBlobSrc } from "../../components/common/useImageBlobSrc";
+import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
 
 interface Props {
     entry: DiaryEntry;
@@ -11,24 +11,24 @@ interface Props {
 }
 
 const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
-    const imgSrc = useImageBlobSrc(entry);
-
-    // Detailed logging for debugging
-    console.log("💡 DiaryEntryCard render:");
-    console.log("  title:", entry.title);
-    console.log("  previewBlobUrl:", entry.previewBlobUrl);
-    console.log("  imageFile:", entry.imageFile);
-    console.log("  imageUrl:", entry.imageUrl);
-    console.log("  isPendingUpload:", entry.isPendingUpload);
-    console.log("  Computed imgSrc:", imgSrc);
-    console.log("  Online status:", navigator.onLine);
-
     /**
      * Show spinner only if uploading is in progress.
      * - Offline only blob should not show spinner
      * - Online uploading (has imageFile and isPendingUpload) shows spinner
      */
-    const showSpinner = entry.isPendingUpload && !!entry.imageFile && navigator.onLine;
+    const imgSrc = useImageBlobSrc(entry);
+    const showSpinner = isSpinnerVisible(entry);
+
+    // Detailed logging for debugging
+    // console.log("💡 DiaryEntryCard render:");
+    // console.log("  title:", entry.title);
+    // console.log("  previewBlobUrl:", entry.previewBlobUrl);
+    // console.log("  imageFile:", entry.imageFile);
+    // console.log("  imageUrl:", entry.imageUrl);
+    // console.log("  isPendingUpload:", entry.isPendingUpload);
+    // console.log("  Computed imgSrc:", imgSrc);
+    // console.log("  Online status:", navigator.onLine);
+
 
     return (
         <div

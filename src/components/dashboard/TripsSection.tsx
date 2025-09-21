@@ -86,7 +86,10 @@ const TripsSection: React.FC = () => {
       </button>
 
       {/* Trips Grid */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {/* <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"> */}
+        {/* Trips Grid */}
+<div className="grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
         {sortedTrips.map((trip) => {
           const destination = destinations.find((d) => d.id === trip.destinationId);
           return destination && (

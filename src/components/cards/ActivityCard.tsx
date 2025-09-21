@@ -4,7 +4,7 @@ import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
 import Spinner from "../common/Spinner";
-import { useImageBlobSrc } from "../../components/common/useImageBlobSrc";
+import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
 
 interface Props {
@@ -24,12 +24,8 @@ const ActivityCard: React.FC<Props> = ({
   const navigate = useNavigate();
 
   // --- Spinner/Image logic from safer POC ---
-  const imgSrc = useImageBlobSrc(activity);//activity.previewBlobUrl || activity.imageUrl || undefined;
-  const showSpinner = activity.isPendingUpload && !!activity.imageFile && navigator.onLine;
-  // const showSpinner =
-  //   activity.isPendingUpload === true ||
-  //   !!activity.imageFile ||
-  //   !!activity.previewBlobUrl;
+  const imgSrc = useImageBlobSrc(activity);
+  const showSpinner = isSpinnerVisible(activity);
 
   // --- Keep truncated details logic ---
   const truncatedDetails = (() => {

@@ -23,47 +23,68 @@ const PackageSummaryCard: React.FC<Props> = ({ pkg, showActions = true }) => {
     }
   };
 
-  return (
-    <div className="border rounded p-4 shadow-sm hover:shadow-md transition flex gap-4 items-start">
-      {pkg.imageUrl && (
-        <img
-          src={pkg.imageUrl}
-          alt={pkg.name}
-          className="w-16 h-16 object-cover rounded"
-        />
-      )}
+  const navigateToAddEdit = () => {
+    navigate(`/destinations/${pkg.destinationId}/packages/edit/${pkg.id}`);
+  };
 
-      <div className="flex-1">
-        <h3 className="font-semibold text-md">{pkg.name}</h3>
-        {pkg.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">{pkg.description}</p>
-        )}
-        <div className="text-xs text-gray-500 mt-1 flex gap-4">
-          {pkg.nights && <span>{pkg.nights} nights</span>}
-          {pkg.price && <span>${pkg.price}</span>}
-        </div>
-
-        {showActions && (
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={() =>
-                navigate(`/destinations/${pkg.destinationId}/packages/edit/${pkg.id}`)
-              }
-              className="px-2 py-1 bg-gray-100 text-sm rounded hover:bg-gray-200"
-            >
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
-            >
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
+return (
+  <div
+    className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer flex flex-col sm:flex-row gap-3 p-2 min-w-[300px]"
+    onClick={navigateToAddEdit}
+  >
+    {/* Left: Image */}
+    <div className="sm:w-1/3 w-full flex-shrink-0">
+      <img
+        src={pkg.imageUrl || "/placeholder.png"}
+        alt={pkg.name}
+        className="w-full h-28 sm:h-full object-cover rounded"
+        onError={(e) => {
+          e.currentTarget.src = "/placeholder.png";
+        }}
+      />
     </div>
-  );
+
+    {/* Right: Text */}
+    <div className="sm:w-2/3 w-full flex flex-col justify-between">
+      <div>
+        <h3 className="font-semibold text-md">{pkg.name}</h3>
+        {pkg.region && <p className="text-xs text-gray-500">{pkg.region}</p>}
+        {pkg.description && (
+          <p className="text-sm text-gray-600 line-clamp-1 mt-1">{pkg.description}</p>
+        )}
+        <div className="text-xs text-gray-500 flex gap-4 mt-1">
+          {pkg.nights && <span>{pkg.nights} nights</span>}
+          {pkg.price != null && <span>${pkg.price.toFixed(2)}</span>}
+        </div>
+      </div>
+
+      {/* Bottom row: actions */}
+      {showActions && (
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateToAddEdit();
+            }}
+            className="px-2 py-1 bg-gray-100 text-sm rounded hover:bg-gray-200"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            className="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 };
 
 export default PackageSummaryCard;

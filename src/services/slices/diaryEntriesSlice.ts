@@ -64,13 +64,6 @@ export const useDiaryEntriesStore = create<DiaryEntriesSliceState>()(
     )
 );
 
-// ✅ Key Improvements
-// Consistent hasImage flag for offline rendering logic.
-// Cache-busted URLs ensure fresh images load even after updates.
-// Avoids overwriting final image URL with blob previews.
-// Store updates use final image metadata, not temporary blobs.
-
-
 export const handleCreateDiaryEntry = async (action: QueuedAction) => {
     const { addDiaryEntry, replaceDiaryEntry, updateDiaryEntry } = useDiaryEntriesStore.getState();
     const entry = action.payload as DiaryEntry;
@@ -125,54 +118,6 @@ export const handleCreateDiaryEntry = async (action: QueuedAction) => {
     }
 };
 
-
-
-
-// export const handleCreateDiaryEntry = async (action: QueuedAction) => {
-//     const { addDiaryEntry, replaceDiaryEntry, updateDiaryEntry } = useDiaryEntriesStore.getState();
-//     const entry = action.payload as DiaryEntry;
-
-//     console.log("📘 [Queue] Processing CREATE_DIARY_ENTRY for:", entry.title);
-
-//     try {
-//         const { entry: saved, sasUrl } = await createDiaryEntry(entry);
-//         console.log("✅ [API] Diary entry created:", saved);
-//         console.log("🔗 [API] Received SAS URL:", sasUrl);
-
-//         // Preserve preview and upload flags from optimistic payload
-//         const merged: DiaryEntry = {
-//             ...saved,
-//             previewBlobUrl: entry.previewBlobUrl,
-//             isPendingUpload: !!entry.imageFile,
-//             imageFile: entry.imageFile,
-//             imageUrl: entry.imageUrl, // initially may be undefined  the saturday tweak
-//         };
-
-//         if (action.tempId) {
-//             console.log("🔄 [Store] Replacing optimistic diary entry with saved one");
-//             replaceDiaryEntry(action.tempId, merged);
-//         } else {
-//             console.log("➕ [Store] Adding new diary entry to store");
-//             addDiaryEntry(merged);
-//         }
-
-//         // Upload image if present
-//         if (sasUrl && entry.imageFile instanceof File) {
-//             console.log("📤 [Upload] Uploading image to Azure Blob...");
-//             await uploadToAzureBlob(entry.imageFile, sasUrl);
-//             console.log("✅ [Upload] Image upload complete");
-
-//             // Finalize image swap using shared utility
-//             const finalized = finalizeImageUpload(saved, saved.imageUrl!);//`${saved.imageUrl}?${crypto.randomUUID()}`);
-//             updateDiaryEntry(finalized as DiaryEntry);
-//             console.log("🔄 [Store] Diary entry image updated to:", finalized.imageUrl);
-//         } else {
-//             console.log("⚠️ [Upload] No image file found or SAS URL missing");
-//         }
-//     } catch (error: unknown) {
-//         handleQueueError(useDiaryEntriesStore.getState(), error);
-//     }
-// };
 
 export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
     const { updateDiaryEntry } = useDiaryEntriesStore.getState();
