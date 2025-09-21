@@ -7,6 +7,12 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
 
+// 1️⃣ The flow intended
+// User selects an image in the modal → useAddEditWithImage.handleImageSelection creates a blob URL (URL.createObjectURL)
+//  → stored in previewUrl.
+// User submits the form while offline → handleSubmit creates a queued optimistic entry
+//  → should contain the blob URL so DiaryEntryCard can display it immediately.
+
   const handleImageSelection = async (file: File): Promise<string> => {
     const compressedBlob = await imageCompression(file, {
       maxSizeMB: 1,
@@ -32,16 +38,20 @@ export function useAddEditWithImage<T extends ImageEntity>(collection: Collectio
   const handleSubmit = async (formValues: T, queueType: QueueType, nestedId: string = "") => {
     // Include the image file in the queued payload
     //const queuePayload: T = { ...formValues, imageFile, hasImage: !!imageFile };
-    const baseImageUrl = formValues.imageUrl?.split('?')[0];
-    const imageUrlWithCacheBuster = `${baseImageUrl}?${crypto.randomUUID()}`;
-
+    //const baseImageUrl = formValues.imageUrl?.split('?')[0];
+    //const imageUrlWithCacheBuster = `${baseImageUrl}?${crypto.randomUUID()}`;
+    console.log("Thank you for submitting image: ", previewUrl);
     const queuePayload: T = {
       ...formValues,
       imageFile,
       hasImage: !!imageFile,
-      imageUrl: imageUrlWithCacheBuster, // leave this to be updated by backend
-      previewBlobUrl: previewUrl
+      imageUrl: formValues.imageUrl ?? undefined, //previewUrl,//imageUrlWithCacheBuster, // leave this to be updated by backend
+      previewBlobUrl: previewUrl,
+      isPendingUpload: true
     };
+
+    console.log("addOptimisticAndQueue for payload: ", queuePayload);
+
 
     // Queue it optimistically
     const tempId = await addOptimisticAndQueue(collection, queuePayload, queueType, nestedId);
