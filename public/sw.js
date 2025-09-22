@@ -9,9 +9,17 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then(
-      (response) => response || fetch(event.request)
-    )
-  );
+  const url = new URL(event.request.url);
+
+  if (url.pathname.startsWith("/api/")) {
+    // Dynamic content: fetch from network first
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+  } else {
+    // Static assets: cache first
+    event.respondWith(
+      caches.match(event.request).then((res) => res || fetch(event.request))
+    );
+  }
 });
