@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from "react";
 
-
-
 export function isSpinnerVisible(entity: {
     isPendingUpload?: boolean;
     imageFile?: File;
@@ -43,7 +41,6 @@ export function useImageBlobSrc(
         console.log("⚪ [useImageBlobSrc] No image found, using placeholder");
         return "/placeholder.png";
     }, [entity]);
-    // }, [entity.imageFile, entity.previewBlobUrl, entity.imageUrl, entity.isPendingUpload]);
 
     // Cleanup ephemeral blobs generated from File
     useEffect(() => {

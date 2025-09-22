@@ -59,9 +59,6 @@ function Navbar() {
           </NavLink>
         </div>
 
-
-
-
         {/* Center: All visible links */}
         <div className="hidden sm:flex gap-4">
           {baseLinks.map((link) => (

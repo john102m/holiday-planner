@@ -152,18 +152,15 @@ export const handleUpdateActivity = async (action: QueuedAction) => {
       await uploadToAzureBlob(act.imageFile, sasUrl);
       console.log("✅ [Upload] Image upload complete");
 
-      const finalImageUrl = backendImageUrl
-        ? `${backendImageUrl}?${crypto.randomUUID()}`
-        : "/images/placeholder.webp";
-
       updateActivity(act.destinationId, {
         ...act,
         imageFile: undefined,
-        hasImage: !!backendImageUrl,
-        imageUrl: finalImageUrl,
+        hasImage: true,
+        previewBlobUrl: undefined,
+        imageUrl: backendImageUrl,
       });
 
-      console.log("🔄 [Store] Activity image updated to:", finalImageUrl);
+      console.log("🔄 [Store] Activity image updated to:", backendImageUrl);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }

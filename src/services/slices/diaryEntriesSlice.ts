@@ -130,7 +130,7 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
             imageFile: entry.imageFile,
             previewBlobUrl: entry.previewBlobUrl,
             isPendingUpload: !!entry.imageFile,
-            imageUrl: entry.imageUrl, // don't overwrite yet
+            imageUrl: "",//entry.imageUrl, // don't overwrite yet
 
         });
 
@@ -145,20 +145,17 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
             await uploadToAzureBlob(entry.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
 
-            // Finalize image swap using backend image URL or fallback
-            const finalImageUrl = backendImageUrl;
-
             updateDiaryEntry({
                 ...entry,
                 imageFile: undefined,
-                //previewBlobUrl: undefined,
+                previewBlobUrl: undefined,
                 isPendingUpload: false,
-                hasImage: !!backendImageUrl,
+                hasImage: true,
                 imageUrl: backendImageUrl,
-                previewBlobUrl: entry.previewBlobUrl,
+                //previewBlobUrl: entry.previewBlobUrl,
             });
 
-            console.log("🔄 [Store] Diary entry image updated to:", finalImageUrl);
+            console.log("🔄 [Store] Diary entry image updated to:", backendImageUrl);
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
