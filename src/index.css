@@ -24,7 +24,7 @@
 }
 /* Card container */
 .card {
-  @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 max-w-xs;
+  @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200;
 }
 
 

@@ -40,7 +40,7 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) =>
   // console.log("Activities for this destination: ", destActivities);
 
   return (
-    <div className="card border rounded shadow-sm p-4">
+    <div className="card border rounded shadow-sm p-2">
       <img
         src={itinerary.imageUrl}
         alt={itinerary.name}
@@ -54,8 +54,6 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) =>
             : itinerary.description
           : "No description available."}
       </p>
-
-
 
       {itinerary.tags && (
         <div className="flex gap-2 mb-2">

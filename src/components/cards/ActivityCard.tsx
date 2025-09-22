@@ -62,7 +62,8 @@ const ActivityCard: React.FC<Props> = ({
     <>
       {/* Card */}
       <div
-        className="card w-full max-w-[300px] mx-auto bg-white rounded shadow-md flex flex-col cursor-pointer relative"
+        className="card w-full mx-auto bg-white rounded-xl shadow-md flex flex-col cursor-pointer relative"
+
         onClick={() => setIsModalOpen(true)}
       >
         {showSpinner && (

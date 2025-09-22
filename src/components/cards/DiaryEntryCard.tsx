@@ -32,7 +32,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
 
     return (
         <div
-            className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full max-w-xs mx-auto"
+            className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full  mx-auto"
             onClick={onClick}
         >
             {showSpinner && (

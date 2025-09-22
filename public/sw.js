@@ -28,7 +28,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   // 1️⃣ Dynamic API content → network-first
-  if (url.pathname.startsWith("/api/")) {
+  if (url.pathname.startsWith("/api/")  && event.request.method === "GET") {
     event.respondWith(
       fetch(event.request)
         .then((res) => {
