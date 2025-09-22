@@ -12,10 +12,13 @@ const Spinner: React.FC<SpinnerProps> = ({
   className = "",
 }) => {
   return (
-    <div
-      className={`border-2 border-t-transparent rounded-full animate-spin ${color} ${className}`}
-      style={{ width: size, height: size }}
-    />
+    <div className="absolute inset-0 flex items-center justify-center bg-transparent z-10">
+      <div
+        className={`border-2 border-t-transparent rounded-full animate-spin ${color} ${className}`}
+        style={{ width: size, height: size }}
+      />
+    </div>
+
   );
 };
 

@@ -36,9 +36,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
             onClick={onClick}
         >
             {showSpinner && (
-                <div className="absolute inset-0 flex items-center justify-center bg-transparent z-10">
                     <Spinner />
-                </div>
             )}
 
             <img

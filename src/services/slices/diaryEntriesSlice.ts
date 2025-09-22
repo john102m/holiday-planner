@@ -130,7 +130,7 @@ export const handleUpdateDiaryEntry = async (action: QueuedAction) => {
             imageFile: entry.imageFile,
             previewBlobUrl: entry.previewBlobUrl,
             isPendingUpload: !!entry.imageFile,
-            imageUrl: "",//entry.imageUrl, // don't overwrite yet
+            imageUrl: entry.imageFile ? "" : entry.imageUrl,//entry.imageUrl, // don't overwrite yet
 
         });
 

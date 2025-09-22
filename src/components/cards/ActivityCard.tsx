@@ -66,9 +66,7 @@ const ActivityCard: React.FC<Props> = ({
         onClick={() => setIsModalOpen(true)}
       >
         {showSpinner && (
-          <div className="absolute inset-0 flex items-center justify-center z-10">
             <Spinner />
-          </div>
         )}
 
         <img
