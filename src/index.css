@@ -40,25 +40,25 @@
   }
 }
 
-/* Card body */
+/* Card body
 .card-body {
   @apply p-4;
 }
 
 /* Card title */
-.card-title {
+/* .card-title {
   @apply text-lg font-semibold mb-1;
-}
+} */
 
 /* Card text / description */
-.card-text {
+/* .card-text {
   @apply text-sm text-gray-600 mb-2;
-}
+} */
 
 /* Card footer */
-.card-footer {
+/* .card-footer {
   @apply flex justify-between items-center text-xs text-gray-500;
-}
+} */ 
 
 a {
   font-weight: 500;
