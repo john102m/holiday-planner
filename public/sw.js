@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "holiday-planner-v1";
+const CACHE_NAME = "itinera-v1";
 const APP_SHELL = ["/", "/index.html", "/src/main.tsx"]; // Add other static JS/CSS files if needed
 const STATIC_ASSETS = ["/icons/android-chrome-192x192.png", "/icons/android-chrome-512x512.png"]; // Add more static assets here
 
