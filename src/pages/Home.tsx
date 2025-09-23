@@ -4,16 +4,56 @@ import { initApp } from "../services/initApp";
 import DestinationCard from "../components/destination/DestinationCard";
 import Hero from "../components/Hero";
 import ScrollToTopButton from "../components/ScrollToTop";
-import {inspectRoles} from "../services/auth"
+import { inspectRoles } from "../services/auth"
+import PwaInstallModal from "../components/common/PwaInstallModal";
+
+
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: "accepted" | "dismissed";
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+// localStorage.removeItem("itinera-installed");
+// localStorage.removeItem("itinera-hide-install");
+
+const isInstalled = (): boolean => {
+  const nav = window.navigator as NavigatorStandalone;
+  const standalone = nav.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+  const localFlag = localStorage.getItem("itinera-installed") === "true";
+
+  return standalone || localFlag;
+};
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [showInstallModal, setShowInstallModal] = useState(true); // default to true for testing
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const destinations = useDestinationsStore((state) => state.destinations);
+
+  useEffect(() => {
+    window.addEventListener("appinstalled", () => {
+      console.log("🎉 Itinera was installed!");
+      localStorage.setItem("itinera-installed", "true");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isInstalled()) {
+      setShowInstallModal(false); // Hide the modal if already installed
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await initApp(); // handles login + fetching + storing in Zustand
+        await initApp();
       } catch (err) {
         console.error("Failed to initialize app", err);
       } finally {
@@ -22,10 +62,21 @@ const Home: React.FC = () => {
     };
 
     fetchData();
+
+    // 👇 This is the event listener I was referring to
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent); // Save the event for later
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
   }, []);
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-
+  if (loading) return <div className="text-center mt-20">Loading...</div>;
   inspectRoles();
 
   return (
@@ -39,6 +90,27 @@ const Home: React.FC = () => {
         </div>
         <ScrollToTopButton />
       </div>
+      <PwaInstallModal
+        show={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+        onInstall={() => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === "accepted") {
+                console.log("User accepted the install prompt");
+              } else {
+                console.log("User dismissed the install prompt");
+              }
+              setDeferredPrompt(null);
+              setShowInstallModal(false);
+            });
+          } else {
+            alert("Install prompt not available yet.");
+          }
+        }}
+      />
+
     </>
   );
 };

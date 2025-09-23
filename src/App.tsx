@@ -26,20 +26,10 @@ import { ScrollToTop } from "./components/NavigateTop"
 // Once hydrated, all pages, including the dashboard, will have the itineraries, packages, activities, and queued actions available—whether online or offline.
 
 
+
 const App: React.FC = () => {
   const [hydrated, setHydrated] = useState(false);
   const hydrateStore = useStore((state) => state.hydrate);
-
-  // useEffect(() => {
-  //   if ('serviceWorker' in navigator) {
-  //     navigator.serviceWorker.register('/sw.js').then(() => {
-  //       console.log("Service worker registered");
-  //     }).catch((error) => {
-  //       console.error("Service worker registration failed:", error);
-  //     });
-  //   }
-  // }, []);
-
 
   useEffect(() => {
     const init = async () => {
@@ -50,7 +40,7 @@ const App: React.FC = () => {
     init();
   }, [hydrateStore]);
 
-  if (!hydrated) return <div className="text-center mt-10">Loading app...</div>;
+  if (!hydrated) return <div className="text-center mt-20">Loading app...</div>;
 
   return (
     <>

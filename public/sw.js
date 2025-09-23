@@ -39,8 +39,9 @@ self.addEventListener("fetch", (event) => {
       (async () => {
         try {
           const res = await fetch(event.request);
+          const resClone = res.clone(); // ✅ clone before using
           const cache = await caches.open(CACHE_NAME);
-          await cache.put(event.request, res.clone());
+          await cache.put(event.request, resClone);
           return res;
         } catch {
           return caches.match(event.request);
@@ -58,8 +59,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         const fetchPromise = fetch(event.request).then((networkRes) => {
+          const resClone = networkRes.clone(); // ✅ clone before caching
           caches.open(CACHE_NAME).then((cache) =>
-            cache.put(event.request, networkRes.clone())
+            cache.put(event.request, resClone)
           );
           return networkRes;
         });

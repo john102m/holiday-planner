@@ -63,7 +63,8 @@ const ActivityCard: React.FC<Props> = ({
   return (
     <>
       <div
-        className="flex flex-row items-stretch w-full h-[130px] border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
+        className="flex flex-row items-stretch w-full h-[130px] border 
+        rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
@@ -91,9 +92,9 @@ const ActivityCard: React.FC<Props> = ({
         </div>
 
         {/* Text Section */}
-        <div className="w-2/3 p-3 flex flex-col justify-between h-full">
+        <div className="w-2/3 p-2 flex flex-col justify-between h-full">
           <div className="flex flex-col gap-1 overflow-hidden">
-            <h3 className="font-semibold text-md truncate">{activity.name} {activity.focalPointX} {activity.focalPointY}</h3>
+            <h3 className="font-semibold text-md truncate">{activity.name}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{truncatedDetails}</p>
             {activity.votes !== undefined && (
               <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
@@ -101,7 +102,6 @@ const ActivityCard: React.FC<Props> = ({
           </div>
         </div>
       </div>
-
 
       {/* Modal */}
       {isModalOpen && (
@@ -123,9 +123,6 @@ const ActivityCard: React.FC<Props> = ({
                   >
                     Edit
                   </button>
-
-
-
                   <button
                     onClick={handleDelete}
                     className="underline text-red-500 hover:text-red-700"
