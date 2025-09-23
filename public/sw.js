@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "itinera-v1";
+const CACHE_NAME = "itinera-v2";
 const APP_SHELL = ["/", "/index.html"];
 
 const STATIC_ASSETS = [
