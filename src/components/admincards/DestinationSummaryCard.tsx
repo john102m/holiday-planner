@@ -29,11 +29,11 @@ const DestinationSummaryCard: React.FC<Props> = ({ destination, showActions = tr
 
   return (
     <div
-      className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer flex flex-col sm:flex-row gap-3 p-2 min-w-[300px]"
+      className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer flex flex-row gap-3 p-2 min-w-[300px]"
       onClick={navigateToAddEdit}
     >
       {/* Left: Image */}
-      <div className="sm:w-1/3 w-full flex-shrink-0">
+      <div className="w-1/3 flex-shrink-0">
         <img
           src={destination.imageUrl || "/placeholder.png"}
           alt={destination.name}
@@ -50,7 +50,7 @@ const DestinationSummaryCard: React.FC<Props> = ({ destination, showActions = tr
             <p className="text-xs text-gray-500">{destination.area}</p>
           )}
           {destination.description && (
-            <p className="text-sm text-gray-600 line-clamp-3 mt-1">{destination.description}</p>
+            <p className="text-sm text-gray-600 line-clamp-1 mt-1">{destination.description}</p>
           )}
         </div>
 

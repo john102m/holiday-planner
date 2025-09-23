@@ -39,7 +39,7 @@ export const deleteActivity = async (
   await api.post(`/itinerary/deleteactivity/${activityId}`);
 };
 
-// Create activity and get SAS token if needed
+//Create activity and get SAS token if needed
 export const createActivityWithSas = async (
   activity: Omit<Activity, "id" | "createdAt" | "createdBy">
 ): Promise<{ activity: Activity; sasUrl?: string; imageUrl?: string }> => {
@@ -50,11 +50,12 @@ export const createActivityWithSas = async (
   return res.data;
 };
 
-// Update activity and get SAS token if needed
+// // Update activity and get SAS token if needed
 export const editActivityForSas = async (
   id: string,
   activity: Omit<Activity, "createdAt" | "createdBy">
 ): Promise<{ sasUrl?: string; imageUrl?: string }> => {
+  console.log("Sending this to backend: ", activity)
   const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
     `/itinerary/updateforsas/${id}`,
     activity

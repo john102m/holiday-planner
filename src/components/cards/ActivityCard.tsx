@@ -18,23 +18,25 @@ const ActivityCard: React.FC<Props> = ({
   activity,
   destinationId,
   tripId,
-  showActions = true,
+  showActions = false,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
+  //showActions = false;
   // --- Spinner/Image logic from safer POC ---
   const imgSrc = useImageBlobSrc(activity);
   const showSpinner = isSpinnerVisible(activity);
 
   // --- Keep truncated details logic ---
-  const truncatedDetails = (() => {
-    if (!activity.details) return "";
-    if (activity.details.length <= 120) return activity.details;
-    const slice = activity.details.slice(0, 120);
+  const truncateText = (text: string, maxLength = 120) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    const slice = text.slice(0, maxLength);
     const lastSpace = slice.lastIndexOf(" ");
     return slice.slice(0, lastSpace) + "...";
-  })();
+  };
+
+  const truncatedDetails = truncateText(activity.details ?? "");
 
   const handleDelete = async () => {
     if (
@@ -60,60 +62,82 @@ const ActivityCard: React.FC<Props> = ({
 
   return (
     <>
-      {/* Card */}
       <div
-        className="card w-full mx-auto bg-white rounded-xl shadow-md flex flex-col cursor-pointer relative"
-
+        className="flex flex-row items-stretch w-full h-[130px] border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
         onClick={() => setIsModalOpen(true)}
       >
-        {showSpinner && (
-            <Spinner />
-        )}
+        {/* Image Section */}
+        <div className="w-1/3 h-full relative flex-shrink-0">
+          <div className="aspect-[4/3] w-full h-full overflow-hidden rounded-l">
+            <img
+              src={imgSrc || "/placeholder.png"}
+              alt={activity.name}
+              className={`w-full p-0.5 rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+              style={{
+                objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
+              }}
 
-        <img
-          src={imgSrc}
-          alt={activity.name}
-          className={`card-img w-full h-48 object-cover ${showSpinner ? "opacity-50" : "opacity-100"
-            }`}
-        />
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.png";
+              }}
+            />
 
-        <div className="card-body p-2 flex flex-col justify-between gap-1">
-          <h3 className="card-title font-semibold">{activity.name}</h3>
-          <p className="card-text line-clamp-1">{truncatedDetails}</p>
+            {showSpinner && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+                <Spinner />
+              </div>
+            )}
+          </div>
+        </div>
 
-          {showActions && (
-            <div className="mt-2 flex gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const params = new URLSearchParams();
-                  params.set("activityId", activity.id ?? "");
-                  if (tripId) params.set("tripId", tripId);
-                  navigate(
-                    `/destinations/${destinationId}/activities/edit?${params.toString()}`
-                  );
-                }}
-                className="px-3 py-1 bg-gray-200 rounded text-sm"
-              >
-                Edit
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                className="px-3 py-1 bg-red-500 text-white rounded text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          )}
+        {/* Text Section */}
+        <div className="w-2/3 p-3 flex flex-col justify-between h-full">
+          <div className="flex flex-col gap-1 overflow-hidden">
+            <h3 className="font-semibold text-md truncate">{activity.name}</h3>
+            <p className="text-sm text-gray-600 line-clamp-2">{truncatedDetails}</p>
+            {activity.votes !== undefined && (
+              <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
+            )}
+          </div>
         </div>
       </div>
 
+
       {/* Modal */}
       {isModalOpen && (
-        <GenericModal onClose={() => setIsModalOpen(false)} title={activity.name}>
+        <GenericModal
+          onClose={() => setIsModalOpen(false)}
+          title={activity.name}
+          footer={
+            <>
+              {showActions && (
+                <>
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      params.set("activityId", activity.id ?? "");
+                      if (tripId) params.set("tripId", tripId);
+                      navigate(`/destinations/${destinationId}/activities/edit?${params.toString()}`);
+                    }}
+                    className="underline hover:text-gray-700"
+                  >
+                    Edit
+                  </button>
+
+
+
+                  <button
+                    onClick={handleDelete}
+                    className="underline text-red-500 hover:text-red-700"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </>
+          }
+        >
+
           <div className="space-y-4 text-sm">
             {imgSrc && (
               <img
@@ -122,7 +146,7 @@ const ActivityCard: React.FC<Props> = ({
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.png";
                 }}
-                className="w-full object-cover"
+                className="w-full object-cover rounded"
               />
             )}
 
@@ -145,9 +169,11 @@ const ActivityCard: React.FC<Props> = ({
               )}
             </div>
           </div>
-        </GenericModal>
+        </GenericModal >
       )}
+
     </>
+
   );
 };
 

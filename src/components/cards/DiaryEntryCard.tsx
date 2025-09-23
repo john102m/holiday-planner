@@ -28,7 +28,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
     // console.log("  isPendingUpload:", entry.isPendingUpload);
     // console.log("  Computed imgSrc:", imgSrc);
     // console.log("  Online status:", navigator.onLine);
-
+    console.log("Focal:", entry.focalPointX, entry.focalPointY);
 
     return (
         <div
@@ -36,7 +36,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
             onClick={onClick}
         >
             {showSpinner && (
-                    <Spinner />
+                <Spinner />
             )}
 
             <img
@@ -44,6 +44,9 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
                 src={imgSrc}
                 alt={entry.title ?? "Diary Entry"}
                 className="w-24 h-24 object-cover flex-shrink-0"
+                style={{
+                    objectPosition: `${(entry.focalPointX ?? 0.5) * 100}% ${(entry.focalPointY ?? 0.5) * 100}%`
+                }}
             />
 
             <div className="p-2 flex-1 flex flex-col justify-between gap-1">

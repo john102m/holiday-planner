@@ -29,11 +29,11 @@ const PackageSummaryCard: React.FC<Props> = ({ pkg, showActions = true }) => {
 
 return (
   <div
-    className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer flex flex-col sm:flex-row gap-3 p-2 min-w-[300px]"
+    className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer flex flex-row gap-3 p-2 min-w-[300px]"
     onClick={navigateToAddEdit}
   >
     {/* Left: Image */}
-    <div className="sm:w-1/3 w-full flex-shrink-0">
+    <div className="w-1/3 flex-shrink-0">
       <img
         src={pkg.imageUrl || "/placeholder.png"}
         alt={pkg.name}

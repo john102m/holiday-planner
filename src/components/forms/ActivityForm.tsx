@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import type { Activity } from "../../services/types";
 import ImageUploadWidget from "../common/ImageUploadWidget";
 import { Tooltip } from "../Tooltip";
+import FocalPointSelector from "../common/FocalPointSelector";
+import { toFocalPoint, fromFocalPoint } from "../common/focalPointUtils"; // adjust path as needed
 
 interface Props {
   initialValues?: Activity;
@@ -25,9 +27,15 @@ const ActivityForm: React.FC<Props> = ({
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
   const [linkUrl, setLinkUrl] = useState(initialValues?.linkUrl || "");
 
+  const [focalPoint, setFocalPoint] = useState<{ x: number; y: number } | undefined>(
+    toFocalPoint(initialValues?.focalPointX, initialValues?.focalPointY)
+  );
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
+
+    const payload: Activity = {
       ...initialValues,
       name,
       details,
@@ -35,9 +43,13 @@ const ActivityForm: React.FC<Props> = ({
       votes,
       destinationId,
       isPrivate,
-      linkUrl
-    } as Activity);
+      linkUrl,
+      ...fromFocalPoint(focalPoint)
+    };
+
+    onSubmit(payload);
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -82,8 +94,15 @@ const ActivityForm: React.FC<Props> = ({
             return previewUrl;
           }}
         />
-
         {imageUrl && (
+          <FocalPointSelector
+            imageUrl={imageUrl}
+            focalPoint={focalPoint}
+            onChange={setFocalPoint}
+          />
+        )}
+
+        {/* {imageUrl && (
           <div className="mt-2">
             <img
               src={imageUrl}
@@ -92,7 +111,7 @@ const ActivityForm: React.FC<Props> = ({
               onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
             />
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="flex items-center gap-6">
@@ -117,7 +136,7 @@ const ActivityForm: React.FC<Props> = ({
             />
             Private
           </label>
-          <Tooltip maxWidth= "200px" content="Private activities belong only to this trip. Uncheck to move to another trip.">
+          <Tooltip maxWidth="200px" content="Private activities belong only to this trip. Uncheck to move to another trip.">
             <span className="text-gray-400 ml-2 cursor-help">ℹ️</span>
           </Tooltip>
         </div>

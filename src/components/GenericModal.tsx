@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 interface GenericModalProps {
     onClose: () => void;
     children: ReactNode;
+    footer?: ReactNode;
     title?: string;
 }
 
-export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, title }) => {
+export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, footer, title }) => {
     const modalRef = useRef<HTMLDivElement>(null);
 
     // Lock body scroll
@@ -71,8 +72,18 @@ export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, t
                 {title && <h2 className="text-lg font-bold mb-4">{title}</h2>}
 
                 <div>{children}</div>
-                {/* close button at bottom right */}
-                <div className="mt-auto flex justify-end">
+
+                {/* Divider above footer */}
+                <hr className="mt-6 border-t border-gray-200" />
+
+                {/* Footer row */}
+                <div className="mt-4 flex justify-between items-center">
+                    {/* Left-aligned action buttons */}
+                    <div className="flex gap-3">
+                        {footer}
+                    </div>
+
+                    {/* Right-aligned close button */}
                     <button
                         onClick={onClose}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-400"
@@ -81,7 +92,6 @@ export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, t
                         ×
                     </button>
                 </div>
-
             </div>
         </div>
     );

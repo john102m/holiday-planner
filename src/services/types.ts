@@ -81,19 +81,9 @@ export interface ImageAttachable {
   hasImage?: boolean;
   previewBlobUrl? :string;
   isPendingUpload?: boolean;
+  focalPointX?: number;
+  focalPointY?: number;
 }
-
-export interface Destination extends ImageAttachable {
-  id?: string;
-  name: string;
-  area?: string;
-  country?: string;
-  description: string;
-  imageUrl?: string;
-  createdBy?: string;
-  createdAt?: string;
-}
-
 
 export interface Activity extends ImageAttachable {
   id?: string;               // Guid → string
@@ -108,6 +98,18 @@ export interface Activity extends ImageAttachable {
   imageUrl?: string;         // nullable → optional
   isPrivate?: boolean;
 }
+
+export interface Destination extends ImageAttachable {
+  id?: string;
+  name: string;
+  area?: string;
+  country?: string;
+  description: string;
+  imageUrl?: string;
+  createdBy?: string;
+  createdAt?: string;
+}
+
 
 export interface DiaryEntry extends ImageAttachable {  //replacing ActivityComment
   id?: string;

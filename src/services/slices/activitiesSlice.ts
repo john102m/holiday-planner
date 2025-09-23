@@ -89,10 +89,10 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
 export const handleCreateActivity = async (action: QueuedAction) => {
   const { addActivity, replaceActivity, updateActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
-
   console.log("📦 [Queue] Processing CREATE_ACTIVITY for:", act.name);
 
   try {
+
     const { activity: saved, sasUrl } = await createActivityWithSas(act);
     console.log("✅ [API] Activity created:", saved);
     console.log("🔗 [API] Received SAS URL:", sasUrl);

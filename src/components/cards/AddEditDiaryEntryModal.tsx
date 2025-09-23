@@ -6,7 +6,8 @@ import { CollectionTypes, QueueTypes } from "../../services/types";
 import type { DiaryEntry } from "../../services/types";
 import ImageUploadWidget from "../common/ImageUploadWidget";
 import { useDiaryEntriesStore } from "../../services/slices/diaryEntriesSlice";
-
+import FocalPointSelector from "../common/FocalPointSelector";
+import { toFocalPoint, fromFocalPoint } from "../common/focalPointUtils"; // adjust path as needed
 
 // 🧱 Component Purpose
 // AddEditDiaryEntryModal is a modal-based form that allows users 
@@ -31,10 +32,14 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
     // It’s generic and reusable across all entities that extend ImageAttachable.
     const isEditMode = !!initialValues?.id;
     console.log(isEditMode ? `You are in edit mode` : `You are in create mode`);
-
+    const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
     const { handleImageSelection, handleSubmit } = useAddEditWithImage<DiaryEntry>(
         CollectionTypes.DiaryEntries
     );
+    const [focalPoint, setFocalPoint] = useState<{ x: number; y: number } | undefined>(
+        toFocalPoint(initialValues?.focalPointX, initialValues?.focalPointY)
+    );
+
 
     // Wrap the image selection to also update the store
     const handleImageSelectionAndUpdate = async (file: File) => {
@@ -47,6 +52,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                 imageFile: file,
                 previewBlobUrl,
                 isPendingUpload: true,
+                ...fromFocalPoint(focalPoint)
             });
         }
         return previewBlobUrl;
@@ -94,6 +100,7 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
             ...(isEditMode && {
                 id: initialValues.id,
                 imageUrl: initialValues.imageUrl,
+                ...fromFocalPoint(focalPoint)
             }),
         };
         console.log("Submitting diary entry:", formValues);
@@ -174,11 +181,26 @@ const AddEditDiaryEntryModal: React.FC<Props> = ({ isOpen, onClose, initialValue
                     </div>
                 </details>
 
-                <ImageUploadWidget
+                {/* <ImageUploadWidget
                     onSelect={handleImageSelectionAndUpdate}
                     initialUrl={initialValues?.imageUrl}
+                /> */}
+                <ImageUploadWidget
+                    initialUrl={imageUrl}
+                    onSelect={async (file: File) => {
+                        const previewUrl = await handleImageSelectionAndUpdate(file);
+                        setImageUrl(previewUrl);
+                        return previewUrl;
+                    }}
                 />
 
+                {imageUrl && (
+                    <FocalPointSelector
+                        imageUrl={imageUrl}
+                        focalPoint={focalPoint}
+                        onChange={setFocalPoint}
+                    />
+                )}
                 <div className="flex justify-end space-x-2">
                     <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
                         Cancel
