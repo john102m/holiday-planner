@@ -1,6 +1,7 @@
 // sw.js
 const CACHE_NAME = "itinera-v1";
-const APP_SHELL = ["/", "/index.html", "/src/main.tsx"];
+const APP_SHELL = ["/", "/index.html"];
+
 const STATIC_ASSETS = [
   "/icons/android-chrome-192x192.png",
   "/icons/android-chrome-512x512.png"
