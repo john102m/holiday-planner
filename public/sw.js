@@ -1,71 +1,75 @@
 // sw.js
 const CACHE_NAME = "itinera-v1";
-const APP_SHELL = ["/", "/index.html", "/src/main.tsx"]; // Add other static JS/CSS files if needed
-const STATIC_ASSETS = ["/icons/android-chrome-192x192.png", "/icons/android-chrome-512x512.png"]; // Add more static assets here
+const APP_SHELL = ["/", "/index.html", "/src/main.tsx"];
+const STATIC_ASSETS = [
+  "/icons/android-chrome-192x192.png",
+  "/icons/android-chrome-512x512.png"
+];
 
-// Install event - cache app shell + static assets
+// Install event – cache app shell + static assets
 self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_SHELL, ...STATIC_ASSETS]))
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll([...APP_SHELL, ...STATIC_ASSETS]);
+    })
+  );
 });
 
-// Activate event - optional: clean old caches
+// Activate event – clean up old caches
 self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(
-                keys
-                    .filter((key) => key !== CACHE_NAME)
-                    .map((key) => caches.delete(key))
-            )
-        )
-    );
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
+      )
+    )
+  );
 });
 
-// Fetch event
+// Fetch event – unified strategy
 self.addEventListener("fetch", (event) => {
-    const url = new URL(event.request.url);
+  const url = new URL(event.request.url);
 
-    if (url.pathname.startsWith("/api/") && event.request.method === "GET") {
-        event.respondWith(
-            (async () => {
-                try {
-                    const res = await fetch(event.request);
-                    const cache = await caches.open(CACHE_NAME);
-                    await cache.put(event.request, res.clone()); // clone before returning
-                    return res;
-                } catch {
-                    return caches.match(event.request);
-                }
-            })()
-        );
-        return;
-    }
+  // 1️⃣ API requests → network-first
+  if (url.pathname.startsWith("/api/") && event.request.method === "GET") {
+    event.respondWith(
+      (async () => {
+        try {
+          const res = await fetch(event.request);
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(event.request, res.clone());
+          return res;
+        } catch {
+          return caches.match(event.request);
+        }
+      })()
+    );
+    return;
+  }
 
-    // ... other fetch strategies unchanged
-});
-
-
-// 2️⃣ Static assets / images → stale-while-revalidate
-if (
+  // 2️⃣ Static assets → stale-while-revalidate
+  if (
     url.pathname.startsWith("/icons/") ||
     url.pathname.match(/\.(png|jpg|jpeg|gif|svg)$/)
-) {
+  ) {
     event.respondWith(
-        caches.match(event.request).then((cached) => {
-            const fetchPromise = fetch(event.request).then((networkRes) => {
-                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkRes.clone()));
-                return networkRes;
-            });
-            return cached || fetchPromise;
-        })
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request).then((networkRes) => {
+          caches.open(CACHE_NAME).then((cache) =>
+            cache.put(event.request, networkRes.clone())
+          );
+          return networkRes;
+        });
+        return cached || fetchPromise;
+      })
     );
-    
-}
+    return;
+  }
 
-// 3️⃣ App shell / other static files → cache-first
-event.respondWith(
+  // 3️⃣ App shell & other static files → cache-first
+  event.respondWith(
     caches.match(event.request).then((res) => res || fetch(event.request))
-);
-
+  );
+});
