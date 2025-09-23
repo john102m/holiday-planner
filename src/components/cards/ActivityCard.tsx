@@ -93,7 +93,7 @@ const ActivityCard: React.FC<Props> = ({
         {/* Text Section */}
         <div className="w-2/3 p-3 flex flex-col justify-between h-full">
           <div className="flex flex-col gap-1 overflow-hidden">
-            <h3 className="font-semibold text-md truncate">{activity.name}</h3>
+            <h3 className="font-semibold text-md truncate">{activity.name} {activity.focalPointX} {activity.focalPointY}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{truncatedDetails}</p>
             {activity.votes !== undefined && (
               <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
