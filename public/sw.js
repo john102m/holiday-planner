@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
 
 // Install event – cache app shell + static assets
 self.addEventListener("install", (event) => {
+  self.skipWaiting(); // 🚀 Activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([...APP_SHELL, ...STATIC_ASSETS]);
@@ -16,18 +17,17 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activate event – clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       )
     )
   );
+  self.clients.claim(); // 👑 Take control of all tabs
 });
+
 
 // Fetch event – unified strategy
 self.addEventListener("fetch", (event) => {
