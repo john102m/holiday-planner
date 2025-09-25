@@ -1,5 +1,4 @@
-// sw.js
-const CACHE_NAME = "itinera-v3.1";
+const CACHE_NAME = "itinera-v3.2";
 const APP_SHELL = ["/", "/index.html"];
 
 const STATIC_ASSETS = [
@@ -17,7 +16,6 @@ self.addEventListener("install", (event) => {
   );
 });
 
-
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -29,10 +27,17 @@ self.addEventListener("activate", (event) => {
   self.clients.claim(); // 👑 Take control of all tabs
 });
 
-
 // Fetch event – unified strategy
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // 🧭 Navigation requests (deep links) → network-first with fallback
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match("/index.html"))
+    );
+    return;
+  }
 
   // 1️⃣ API requests → network-first
   if (url.pathname.startsWith("/api/") && event.request.method === "GET") {
@@ -40,7 +45,7 @@ self.addEventListener("fetch", (event) => {
       (async () => {
         try {
           const res = await fetch(event.request);
-          const resClone = res.clone(); // ✅ clone before using
+          const resClone = res.clone();
           const cache = await caches.open(CACHE_NAME);
           await cache.put(event.request, resClone);
           return res;
@@ -60,7 +65,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         const fetchPromise = fetch(event.request).then((networkRes) => {
-          const resClone = networkRes.clone(); // ✅ clone before caching
+          const resClone = networkRes.clone();
           caches.open(CACHE_NAME).then((cache) =>
             cache.put(event.request, resClone)
           );
@@ -72,7 +77,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3️⃣ App shell & other static files → cache-first
+  // 3️⃣ Other static files → cache-first
   event.respondWith(
     caches.match(event.request).then((res) => res || fetch(event.request))
   );
