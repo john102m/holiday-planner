@@ -68,7 +68,7 @@ const ActivityCard: React.FC<Props> = ({
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
-        <div className="w-1/3 h-full relative flex-shrink-0">
+        <div className="w-5/12 h-full relative flex-shrink-0">
           <div className="aspect-[4/3] w-full h-full overflow-hidden rounded-l">
             <img
               src={imgSrc || "/placeholder.png"}
@@ -92,7 +92,7 @@ const ActivityCard: React.FC<Props> = ({
         </div>
 
         {/* Text Section */}
-        <div className="w-2/3 p-2 flex flex-col justify-between h-full">
+        <div className="w-7/12 p-2 flex flex-col justify-between h-full">
           <div className="flex flex-col gap-1 overflow-hidden">
             <h3 className="font-semibold text-md truncate">{activity.name}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{truncatedDetails}</p>
