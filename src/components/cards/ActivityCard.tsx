@@ -73,7 +73,7 @@ const ActivityCard: React.FC<Props> = ({
             <img
               src={imgSrc || "/placeholder.png"}
               alt={activity.name}
-              className={`w-full p-0.5 rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+              className={`w-full  rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
               style={{
                 objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
               }}
