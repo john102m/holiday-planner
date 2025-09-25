@@ -43,18 +43,18 @@ const ShareButton: React.FC<{ url: string }> = ({ url }) => {
   };
 
   return (
-<button
-  onClick={handleShare}
-  disabled={isSharing}
-  style={{
-    padding: "6px 10px",
-    fontSize: "14px",
-    lineHeight: "1",
-    height: "auto",
-  }}
->
-  Share
-</button>
+    <button
+      onClick={handleShare}
+      disabled={isSharing}
+      style={{
+        padding: "6px 10px",
+        fontSize: "14px",
+        lineHeight: "1",
+        height: "auto",
+      }}
+    >
+      Share
+    </button>
 
   );
 };
