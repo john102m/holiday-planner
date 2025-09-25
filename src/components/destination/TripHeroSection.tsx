@@ -1,6 +1,7 @@
 import React from "react";
 import type { Destination } from "../../services/types";
 import type { UserTrip } from "../../services/types";
+import { TripPage } from "../../components/common/ShareButton";
 
 interface Props {
   trip: UserTrip;
@@ -43,6 +44,10 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
           <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full">
             {trip.status}
           </span>
+          <span className="bg-white/20 text-white text-sm rounded-2xl">
+                 {TripPage()}
+          </span>
+
         </div>
         <p className="text-gray-200 mt-1">
           {startDate.toLocaleDateString()} - {endDate.toLocaleDateString()}
