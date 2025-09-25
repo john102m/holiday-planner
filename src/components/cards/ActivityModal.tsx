@@ -18,8 +18,9 @@ const ActivityModal: React.FC<Props> = ({ activityId, destinationId, onClose }) 
   if (!activity) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded shadow-lg w-11/12 max-w-2xl p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-lg sm:backdrop-blur-md p-4">
+    {/* <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"> */}
+      <div className="bg-white/90 rounded shadow-lg w-11/12 max-w-2xl p-6 relative">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-gray-600 font-bold"

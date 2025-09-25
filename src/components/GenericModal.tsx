@@ -60,10 +60,8 @@ export const GenericModal: React.FC<GenericModalProps> = ({ onClose, children, f
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Overlay with semi-transparent black + blur */}
-            <div className="absolute inset-0 bg-black/30 sm:backdrop-blur-md"></div>
 
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-lg sm:backdrop-blur-md p-4">
             {/* Modal content */}
             <div
                 ref={modalRef}
