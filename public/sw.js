@@ -1,53 +1,64 @@
-const CACHE_NAME = "itinera-v3.3";
-const APP_SHELL = ["/", "/index.html"];
+const CACHE_NAME = "itinera-v3.5";
 
+// App shell: essential files for first load
+const APP_SHELL = [
+  "/",              // main entry
+  "/index.html",
+  "/manifest.json"
+];
+
+// Static assets (rarely change, icons, CSS, JS bundles)
 const STATIC_ASSETS = [
   "/icons/android-chrome-192x192.png",
   "/icons/android-chrome-512x512.png"
 ];
 
-// Install event – cache app shell + static assets
+// Install → cache app shell + static assets
 self.addEventListener("install", (event) => {
-  self.skipWaiting(); // 🚀 Activate immediately
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([...APP_SHELL, ...STATIC_ASSETS]);
-    })
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll([...APP_SHELL, ...STATIC_ASSETS])
+    )
   );
 });
 
+// Activate → clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key))
       )
     )
   );
-  self.clients.claim(); // 👑 Take control of all tabs
+  self.clients.claim();
 });
 
-// Fetch event – unified strategy
+// Fetch → unified strategy
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // 🧭 Navigation requests (deep links) → network-first with fallback
+  // 1️⃣ Navigation requests → network-first with fallback
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("/index.html"))
+      fetch(event.request)
+        .then(res => res)
+        .catch(() => caches.match("/index.html"))
     );
     return;
   }
 
-  // 1️⃣ API requests → network-first
+  // 2️⃣ API requests → network-first with cache fallback
   if (url.pathname.startsWith("/api/") && event.request.method === "GET") {
     event.respondWith(
       (async () => {
         try {
           const res = await fetch(event.request);
-          const resClone = res.clone();
+          const clone = res.clone();
           const cache = await caches.open(CACHE_NAME);
-          await cache.put(event.request, resClone);
+          await cache.put(event.request, clone);
           return res;
         } catch {
           return caches.match(event.request);
@@ -57,18 +68,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2️⃣ Static assets → stale-while-revalidate
-  if (
-    url.pathname.startsWith("/icons/") ||
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg)$/)
-  ) {
+  // 3️⃣ Dynamic images (user uploads) → network-first, cache-update
+  if (url.pathname.startsWith("/uploads/") ||
+      url.pathname.match(/\.(png|jpg|jpeg|gif)$/)) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         const fetchPromise = fetch(event.request).then((networkRes) => {
-          const resClone = networkRes.clone();
-          caches.open(CACHE_NAME).then((cache) =>
-            cache.put(event.request, resClone)
-          );
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return networkRes;
+        }).catch(() => cached); // fallback if network fails
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // 4️⃣ Static assets (icons, JS/CSS bundles) → stale-while-revalidate
+  if (url.pathname.startsWith("/icons/") ||
+      url.pathname.match(/\.(js|css)$/)) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request).then((networkRes) => {
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return networkRes;
         });
         return cached || fetchPromise;
@@ -77,8 +100,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3️⃣ Other static files → cache-first
+  // 5️⃣ All other requests → cache-first, fallback network
   event.respondWith(
-    caches.match(event.request).then((res) => res || fetch(event.request))
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
+
+// ✅ Key Points:
+// /uploads/ is the folder for dynamic user images. Adjust if your backend stores them elsewhere.
+// JS/CSS bundles are cached stale-while-revalidate → fast but still updated in the background.
+// API calls are network-first, so users get fresh data whenever online.
+// Offline users see cached content gracefully.
