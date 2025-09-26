@@ -1,6 +1,6 @@
 This favicon was generated using the following font:
 
-- Font Title: Leckerli One
+- Font Title: Bigshot One
 - Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/leckerlione/v21/V8mCoQH8VCsNttEnxnGQ-1itLZxcBtItFw.ttf
+- Font Source: https://fonts.gstatic.com/s/bigshotone/v30/u-470qukhRkkO6BD_7cM_gxuUQJBXv_-.ttf
 - Font License: undefined)
