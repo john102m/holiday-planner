@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v3.2";
+const CACHE_NAME = "itinera-v3.3";
 const APP_SHELL = ["/", "/index.html"];
 
 const STATIC_ASSETS = [
