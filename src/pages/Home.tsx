@@ -76,7 +76,16 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  if (loading) return <div className="text-center mt-20">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
+        <p className="text-gray-600 font-medium">Getting your trips ready…</p>
+      </div>
+    );
+  }
+
+
   inspectRoles();
 
   return (
