@@ -19,7 +19,7 @@ import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
 import { getAllDiaryEntries } from "./apis/diaryEntryApi";
 
-import type { Activity, Package, Destination, Itinerary, ItineraryActivity, UserTrip } from "./types";
+import type { Activity, Package, Itinerary, ItineraryActivity } from "./types";
 import { useStore, processQueue } from "./store";
 import { useActivitiesStore, } from "./slices/activitiesSlice";
 import { usePackageStore, } from "./slices/packagesSlice";
@@ -56,12 +56,33 @@ export const initApp = async () => {
   // Hydrate store from localForage first
   await useStore.getState().hydrate();
 
+// Kick off all fetches in parallel
+const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9";
+const [
+  destinations,
+  packages,
+  itineraries,
+  activities,
+  itineraryActivities,
+  trips,
+  diaryEntries
+] = await Promise.all([
+  getDestinations(),          // Destination[]
+  getPackages(),              // Package[]
+  getItineraries(),           // Itinerary[]
+  getActivities(),            // Activity[]
+  getItineraryActivities(),   // ItineraryActivity[]
+  getUserTrips(userId),       // UserTrip[]
+  getAllDiaryEntries()        // DiaryEntry[]
+]);
+
+
   // Fetch and store destinations
-  const destinations: Destination[] = await getDestinations();
+  //const destinations: Destination[] = await getDestinations();
   useDestinationsStore.getState().setDestinations(destinations);
 
   // Fetch and store packages
-  const packages: Package[] = await getPackages();
+  //const packages: Package[] = await getPackages();
   console.log("Packages fetched: ",packages);
   const packagesByDest: Record<string, Package[]> = {};
   packages.forEach((p) => {
@@ -74,7 +95,7 @@ export const initApp = async () => {
   );
 
   // Fetch and store itineraries
-  const itineraries: Itinerary[] = await getItineraries();
+  //const itineraries: Itinerary[] = await getItineraries();
   const itinerariesByDest: Record<string, Itinerary[]> = {};
   itineraries.forEach((it) => {
     if (!it.destinationId) return;
@@ -86,7 +107,7 @@ export const initApp = async () => {
   );
 
   // Fetch and store activities
-  const activities: Activity[] = await getActivities();
+  //const activities: Activity[] = await getActivities();
   const activitiesByDest: Record<string, Activity[]> = {};
   activities
     .filter((a): a is Activity & { destinationId: string } => !!a.destinationId)
@@ -100,7 +121,7 @@ export const initApp = async () => {
 
 
   // Fetch and store itinerary-activity relationships
-  const itineraryActivities: ItineraryActivity[] = await getItineraryActivities();
+  //const itineraryActivities: ItineraryActivity[] = await getItineraryActivities();
   console.log("fetched itinerary-activity relationships", itineraryActivities);
   const joinsByItinerary: Record<string, ItineraryActivity[]> = {};
   itineraryActivities.forEach((join) => {
@@ -118,12 +139,12 @@ export const initApp = async () => {
   console.log("joined itinerary-activity relationships", joinsByItinerary);
 
   // Fetch and store userTrips
-  const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9"; // replace with actual logged-in user id
-  const trips: UserTrip[] = await getUserTrips(userId);
+ // replace with actual logged-in user id
+  //const trips: UserTrip[] = await getUserTrips(userId);
   useStore.getState().setUserTrips(trips);
 
   // Fetch and store diary entries 
-  const diaryEntries = await getAllDiaryEntries();
+  //const diaryEntries = await getAllDiaryEntries();
   //const diaryEntries = await getDiaryEntriesByUser(userId);
   console.log("diaryEntries", diaryEntries)
   useDiaryEntriesStore.getState().setDiaryEntries(diaryEntries);

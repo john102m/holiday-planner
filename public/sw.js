@@ -1,10 +1,11 @@
-const CACHE_NAME = "itinera-v4.0";
+const CACHE_NAME = "itinera-v4.1";
 
 // App shell: essential files
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/manifest.json"
+  "/manifest.json",
+  "/placeholder.png" // good idea to always cache your fallback
 ];
 
 // Static assets
@@ -43,7 +44,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(req).then(cached => {
         const fetchPromise = fetch(req).then(networkRes => {
-          caches.open(CACHE_NAME).then(cache => cache.put(req, networkRes.clone()));
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
           return networkRes;
         }).catch(() => cached || caches.match("/index.html"));
         return cached || fetchPromise;
@@ -70,12 +72,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // 3️⃣ Azure Blob images → cache-first with background update (opaque-safe)
   if (url.hostname.endsWith("blob.core.windows.net")) {
     event.respondWith(
       caches.match(req).then((cached) => {
         const fetchPromise = fetch(req).then((res) => {
-          // Even if opaque, cache it
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, res.clone()));
+          const clone = res.clone(); // clone immediately
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
           return res;
         }).catch(() => cached);
         return cached || fetchPromise;
@@ -84,29 +87,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-
-  // // 3️⃣ Azure Blob images → cache-first with background update
-  // if (url.hostname.endsWith("blob.core.windows.net")) {
-  //   event.respondWith(
-  //     caches.match(req).then((cached) => {
-  //       const fetchPromise = fetch(req, { mode: "cors" }).then((res) => {
-  //         if (res.ok) {
-  //           caches.open(CACHE_NAME).then((cache) => cache.put(req, res.clone()));
-  //         }
-  //         return res;
-  //       }).catch(() => cached);
-  //       return cached || fetchPromise;
-  //     })
-  //   );
-  //   return;
-  // }
-
   // 4️⃣ Dynamic images (uploads folder or local assets) → cache-first
   if (url.pathname.startsWith("/uploads/") || url.pathname.match(/\.(png|jpg|jpeg|gif)$/)) {
     event.respondWith(
       caches.match(req).then((cached) => {
         const fetchPromise = fetch(req).then((networkRes) => {
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, networkRes.clone()));
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
           return networkRes;
         }).catch(() => cached);
         return cached || fetchPromise;
@@ -115,21 +102,22 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets (JS, CSS, icons) → stale-while-revalidate
+  // 5️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
   if (url.pathname.startsWith("/icons/") || url.pathname.match(/\.(js|css)$/)) {
     event.respondWith(
       caches.match(req).then(cached => {
         const fetchPromise = fetch(req).then(networkRes => {
-          caches.open(CACHE_NAME).then(cache => cache.put(req, networkRes.clone()));
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
           return networkRes;
-        });
+        }).catch(() => cached);
         return cached || fetchPromise;
       })
     );
     return;
   }
 
-  //  Default → cache-first fallback network
+  // 6️⃣ Default → cache-first fallback network
   event.respondWith(
     caches.match(req).then(cached => cached || fetch(req))
   );
