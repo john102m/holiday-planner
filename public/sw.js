@@ -70,12 +70,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3️⃣ Dynamic images → cache-first with background update
+  // 3️⃣ Azure Blob images → cache-first with background update
+  if (url.hostname.endsWith("blob.core.windows.net")) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const fetchPromise = fetch(req, { mode: "cors" }).then((res) => {
+          if (res.ok) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, res.clone()));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // 4️⃣ Dynamic images (uploads folder or local assets) → cache-first
   if (url.pathname.startsWith("/uploads/") || url.pathname.match(/\.(png|jpg|jpeg|gif)$/)) {
     event.respondWith(
-      caches.match(req).then(cached => {
-        const fetchPromise = fetch(req).then(networkRes => {
-          caches.open(CACHE_NAME).then(cache => cache.put(req, networkRes.clone()));
+      caches.match(req).then((cached) => {
+        const fetchPromise = fetch(req).then((networkRes) => {
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, networkRes.clone()));
           return networkRes;
         }).catch(() => cached);
         return cached || fetchPromise;
@@ -84,7 +100,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 4️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
+  // Static assets (JS, CSS, icons) → stale-while-revalidate
   if (url.pathname.startsWith("/icons/") || url.pathname.match(/\.(js|css)$/)) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -98,7 +114,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 5️⃣ Default → cache-first fallback network
+  //  Default → cache-first fallback network
   event.respondWith(
     caches.match(req).then(cached => cached || fetch(req))
   );
