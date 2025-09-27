@@ -37,8 +37,7 @@ export function resetAllStores() {
   localStorage.removeItem("diary-entries-store");
   localStorage.removeItem("destinations-store");
   window.location.reload();
-}
-export const initApp = async () => {
+}export const initApp = async () => {
   if (initialized) return;
   initialized = true;
 
@@ -47,12 +46,12 @@ export const initApp = async () => {
   const RESET_STORE = false;
   if (RESET_STORE) resetAllStores();
 
-  // Hydrate persisted state first
+  // Hydrate root store manually (slices auto-hydrate via persist)
   await useStore.getState().hydrate();
 
-  const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9"; // replace with real user id
+  const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9";
 
-  // Kick off all fetches in parallel
+  // Fetch everything fresh in parallel
   const [
     destinationsResult,
     packagesResult,
@@ -75,19 +74,13 @@ export const initApp = async () => {
   const unwrap = <T>(res: PromiseSettledResult<T>, fallback: T): T =>
     res.status === "fulfilled" ? res.value : fallback;
 
-  // Unwrap results with correct types
-  const destinations = unwrap(destinationsResult, [] as Destination[]);
+  // Destinations
+  useDestinationsStore.getState().setDestinations(
+    unwrap(destinationsResult, [] as Destination[])
+  );
+
+  // Packages
   const packages = unwrap(packagesResult, [] as Package[]);
-  const itineraries = unwrap(itinerariesResult, [] as Itinerary[]);
-  const activities = unwrap(activitiesResult, [] as Activity[]);
-  const itineraryActivities = unwrap(itineraryActivitiesResult, [] as ItineraryActivity[]);
-  const trips = unwrap(tripsResult, [] as UserTrip[]);
-  const diaryEntries = unwrap(diaryEntriesResult, [] as DiaryEntry[]);
-
-  // Store destinations
-  useDestinationsStore.getState().setDestinations(destinations);
-
-  // Store packages grouped by destination
   const packagesByDest: Record<string, Package[]> = {};
   packages.forEach((p) => {
     if (!p.destinationId) return;
@@ -97,7 +90,8 @@ export const initApp = async () => {
     usePackageStore.getState().setPackages(destId, pkgs)
   );
 
-  // Store itineraries grouped by destination
+  // Itineraries
+  const itineraries = unwrap(itinerariesResult, [] as Itinerary[]);
   const itinerariesByDest: Record<string, Itinerary[]> = {};
   itineraries.forEach((it) => {
     if (!it.destinationId) return;
@@ -107,7 +101,8 @@ export const initApp = async () => {
     useItinerariesStore.getState().setItineraries(destId, its)
   );
 
-  // Store activities grouped by destination
+  // Activities
+  const activities = unwrap(activitiesResult, [] as Activity[]);
   const activitiesByDest: Record<string, Activity[]> = {};
   activities
     .filter((a): a is Activity & { destinationId: string } => !!a.destinationId)
@@ -118,7 +113,8 @@ export const initApp = async () => {
     useActivitiesStore.getState().setActivities(destId, acts)
   );
 
-  // Store itinerary-activity joins
+  // Itinerary-activity joins
+  const itineraryActivities = unwrap(itineraryActivitiesResult, [] as ItineraryActivity[]);
   const joinsByItinerary: Record<string, ItineraryActivity[]> = {};
   itineraryActivities.forEach((join) => {
     if (!join.itineraryId) return;
@@ -126,16 +122,21 @@ export const initApp = async () => {
   });
   useItinerariesStore.setState({ itineraryActivities: {} });
   Object.entries(joinsByItinerary).forEach(([itinId, joins]) => {
-    const sortedJoins = joins.slice().sort((a, b) => a.sortOrder! - b.sortOrder!);
-    useItinerariesStore.getState().setItineraryActivities(itinId, sortedJoins);
+    const sorted = joins.slice().sort((a, b) => a.sortOrder! - b.sortOrder!);
+    useItinerariesStore.getState().setItineraryActivities(itinId, sorted);
   });
 
-  // Store trips
-  useStore.getState().setUserTrips(trips);
+  // Trips
+  useStore.getState().setUserTrips(
+    unwrap(tripsResult, [] as UserTrip[])
+  );
 
-  // Store diary entries
-  useDiaryEntriesStore.getState().setDiaryEntries(diaryEntries);
+  // Diary entries
+  useDiaryEntriesStore.getState().setDiaryEntries(
+    unwrap(diaryEntriesResult, [] as DiaryEntry[])
+  );
 
-  // Finally, process any queued offline actions
+  // Process offline queue
   await processQueue();
 };
+

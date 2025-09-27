@@ -131,7 +131,7 @@ interface AppState {
   // Queue
   addQueuedAction: (action: QueuedAction) => void;
   removeQueuedAction: (id: string) => void;
-
+  // doing this manually because this slice is not wrapped in Persist
   hydrate: () => Promise<void>;
 }
 
