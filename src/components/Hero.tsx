@@ -14,13 +14,11 @@ export default function Hero() {
           Itinera
         </h1>
         <p className="mt-4 text-white/80 text-lg sm:text-xl font-light drop-shadow">
-          The name Itinera is Latin. It’s the plural of iter, meaning journey, route, or path.
-          Roman generals, poets, and philosophers used it to describe strategic movements and personal voyages.
-          Cicero and Caesar wrote of itinera as more than travel—they were transformations.
+          🌍 Discover. Plan. Go.
         </p>
         <NavLink
           to="/dashboard"
-          className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+          className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-800 to-indigo-100 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
         >
           Dashboard
         </NavLink>
