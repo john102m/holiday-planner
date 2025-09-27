@@ -19,7 +19,7 @@ import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
 import { getAllDiaryEntries } from "./apis/diaryEntryApi";
 
-import type { Activity, Package, Itinerary, ItineraryActivity } from "./types";
+import type { Activity, Package, Itinerary, ItineraryActivity, Destination, UserTrip, DiaryEntry } from "./types";
 import { useStore, processQueue } from "./store";
 import { useActivitiesStore, } from "./slices/activitiesSlice";
 import { usePackageStore, } from "./slices/packagesSlice";
@@ -38,117 +38,104 @@ export function resetAllStores() {
   localStorage.removeItem("destinations-store");
   window.location.reload();
 }
-
 export const initApp = async () => {
   if (initialized) return;
   initialized = true;
 
-  // login (idempotent)
   await login();
 
-  // Uncomment this during testing to wipe persisted store
   const RESET_STORE = false;
+  if (RESET_STORE) resetAllStores();
 
-  if (RESET_STORE) {
-    resetAllStores();
-  }
-
-  // Hydrate store from localForage first
+  // Hydrate persisted state first
   await useStore.getState().hydrate();
 
-// Kick off all fetches in parallel
-const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9";
-const [
-  destinations,
-  packages,
-  itineraries,
-  activities,
-  itineraryActivities,
-  trips,
-  diaryEntries
-] = await Promise.all([
-  getDestinations(),          // Destination[]
-  getPackages(),              // Package[]
-  getItineraries(),           // Itinerary[]
-  getActivities(),            // Activity[]
-  getItineraryActivities(),   // ItineraryActivity[]
-  getUserTrips(userId),       // UserTrip[]
-  getAllDiaryEntries()        // DiaryEntry[]
-]);
+  const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9"; // replace with real user id
 
+  // Kick off all fetches in parallel
+  const [
+    destinationsResult,
+    packagesResult,
+    itinerariesResult,
+    activitiesResult,
+    itineraryActivitiesResult,
+    tripsResult,
+    diaryEntriesResult
+  ] = await Promise.allSettled([
+    getDestinations(),
+    getPackages(),
+    getItineraries(),
+    getActivities(),
+    getItineraryActivities(),
+    getUserTrips(userId),
+    getAllDiaryEntries()
+  ]);
 
-  // Fetch and store destinations
-  //const destinations: Destination[] = await getDestinations();
+  // Helper to unwrap safely
+  const unwrap = <T>(res: PromiseSettledResult<T>, fallback: T): T =>
+    res.status === "fulfilled" ? res.value : fallback;
+
+  // Unwrap results with correct types
+  const destinations = unwrap(destinationsResult, [] as Destination[]);
+  const packages = unwrap(packagesResult, [] as Package[]);
+  const itineraries = unwrap(itinerariesResult, [] as Itinerary[]);
+  const activities = unwrap(activitiesResult, [] as Activity[]);
+  const itineraryActivities = unwrap(itineraryActivitiesResult, [] as ItineraryActivity[]);
+  const trips = unwrap(tripsResult, [] as UserTrip[]);
+  const diaryEntries = unwrap(diaryEntriesResult, [] as DiaryEntry[]);
+
+  // Store destinations
   useDestinationsStore.getState().setDestinations(destinations);
 
-  // Fetch and store packages
-  //const packages: Package[] = await getPackages();
-  console.log("Packages fetched: ",packages);
+  // Store packages grouped by destination
   const packagesByDest: Record<string, Package[]> = {};
   packages.forEach((p) => {
     if (!p.destinationId) return;
-    if (!packagesByDest[p.destinationId]) packagesByDest[p.destinationId] = [];
-    packagesByDest[p.destinationId].push(p);
+    (packagesByDest[p.destinationId] ||= []).push(p);
   });
   Object.entries(packagesByDest).forEach(([destId, pkgs]) =>
     usePackageStore.getState().setPackages(destId, pkgs)
   );
 
-  // Fetch and store itineraries
-  //const itineraries: Itinerary[] = await getItineraries();
+  // Store itineraries grouped by destination
   const itinerariesByDest: Record<string, Itinerary[]> = {};
   itineraries.forEach((it) => {
     if (!it.destinationId) return;
-    if (!itinerariesByDest[it.destinationId]) itinerariesByDest[it.destinationId] = [];
-    itinerariesByDest[it.destinationId].push(it);
+    (itinerariesByDest[it.destinationId] ||= []).push(it);
   });
   Object.entries(itinerariesByDest).forEach(([destId, its]) =>
     useItinerariesStore.getState().setItineraries(destId, its)
   );
 
-  // Fetch and store activities
-  //const activities: Activity[] = await getActivities();
+  // Store activities grouped by destination
   const activitiesByDest: Record<string, Activity[]> = {};
   activities
     .filter((a): a is Activity & { destinationId: string } => !!a.destinationId)
     .forEach((a) => {
-      if (!activitiesByDest[a.destinationId]) activitiesByDest[a.destinationId] = [];
-      activitiesByDest[a.destinationId].push(a);
+      (activitiesByDest[a.destinationId] ||= []).push(a);
     });
   Object.entries(activitiesByDest).forEach(([destId, acts]) =>
     useActivitiesStore.getState().setActivities(destId, acts)
   );
 
-
-  // Fetch and store itinerary-activity relationships
-  //const itineraryActivities: ItineraryActivity[] = await getItineraryActivities();
-  console.log("fetched itinerary-activity relationships", itineraryActivities);
+  // Store itinerary-activity joins
   const joinsByItinerary: Record<string, ItineraryActivity[]> = {};
   itineraryActivities.forEach((join) => {
     if (!join.itineraryId) return;
-    if (!joinsByItinerary[join.itineraryId]) joinsByItinerary[join.itineraryId] = [];
-    joinsByItinerary[join.itineraryId].push(join);
+    (joinsByItinerary[join.itineraryId] ||= []).push(join);
   });
   useItinerariesStore.setState({ itineraryActivities: {} });
-
   Object.entries(joinsByItinerary).forEach(([itinId, joins]) => {
     const sortedJoins = joins.slice().sort((a, b) => a.sortOrder! - b.sortOrder!);
     useItinerariesStore.getState().setItineraryActivities(itinId, sortedJoins);
   });
 
-  console.log("joined itinerary-activity relationships", joinsByItinerary);
-
-  // Fetch and store userTrips
- // replace with actual logged-in user id
-  //const trips: UserTrip[] = await getUserTrips(userId);
+  // Store trips
   useStore.getState().setUserTrips(trips);
 
-  // Fetch and store diary entries 
-  //const diaryEntries = await getAllDiaryEntries();
-  //const diaryEntries = await getDiaryEntriesByUser(userId);
-  console.log("diaryEntries", diaryEntries)
+  // Store diary entries
   useDiaryEntriesStore.getState().setDiaryEntries(diaryEntries);
 
-  // Process any queued actions from previous offline sessions
+  // Finally, process any queued offline actions
   await processQueue();
 };
