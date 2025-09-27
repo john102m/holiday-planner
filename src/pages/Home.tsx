@@ -6,6 +6,7 @@ import Hero from "../components/Hero";
 import ScrollToTopButton from "../components/ScrollToTop";
 import { inspectRoles } from "../services/auth"
 import PwaInstallModal from "../components/common/PwaInstallModal";
+import LoadingScreen from "./LoadingScreen";
 
 
 interface NavigatorStandalone extends Navigator {
@@ -76,16 +77,8 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen space-y-4">
-        <div className="animate-bounce text-4xl">✈️</div>
-        <p className="text-gray-600 font-medium">Packing your itineraries…</p>
-      </div>
-    );
-  }
 
-
+  if (loading) return <LoadingScreen />;
 
   inspectRoles();
 
