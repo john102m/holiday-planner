@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { updateItineraryActivitiesBatch } from "./apis/itinerariesApi"
 import { uploadToAzureBlob } from "./storeUtils";
-
+import type { BaseSliceState } from "../components/common/useErrorHandler";
+import { handleQueueError } from "../components/common/useErrorHandler";
 import {
   createUserTrip, editUserTrip, deleteUserTrip
 } from "./apis/api";
@@ -115,7 +116,7 @@ export const addOptimisticAndQueue = async (
   return tempId;
 };
 
-interface AppState {
+interface AppState extends BaseSliceState  {
   //destinations: Destination[];
 
   userTrips: UserTrip[];
@@ -193,6 +194,10 @@ export const useStore = create<AppState>()(
       addQueuedAction: (action) => set((state) => ({ queue: [...state.queue, action] })),
       removeQueuedAction: (id) => set((state) => ({ queue: state.queue.filter((a) => a.id !== id) })),
 
+      // error handling
+      errorMessage: null,
+      setError: (msg) => set({ errorMessage: msg }),
+
       //util to manually trigger rehydration if needed
       hydrate: async () => {
         // Zustand persist hydrates automatically
@@ -205,6 +210,7 @@ export const useStore = create<AppState>()(
         // }
         return Promise.resolve();
       }
+
     }),
     {
       name: "holiday-planner-store",
@@ -230,37 +236,62 @@ window.addEventListener("offline", () => {
 });
 
 export const handleCreateUserTrip = async (action: QueuedAction) => {
-  const { addUserTrip, replaceUserTrip } = useStore.getState();
+  const { addUserTrip, replaceUserTrip, updateUserTrip } = useStore.getState();
   const trip = action.payload as UserTrip;
 
   console.log("📦 [Queue] Processing CREATE_USER_TRIP for:", trip.name);
 
   try {
+    // Step 1: create trip on server
     const { trip: saved, sasUrl } = await createUserTrip(trip);
     console.log("✅ [API] Trip created:", saved);
     console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-    // Replace optimistic trip if tempId exists, otherwise just add
+    // Step 2: merge optimistic fields (preview + pending state)
+    const merged: UserTrip = {
+      ...saved,
+      previewBlobUrl: trip.previewBlobUrl,   // keep local preview visible
+      isPendingUpload: !!trip.imageFile,     // spinner if uploading
+      imageFile: trip.imageFile,             // file to upload
+      imageUrl: trip.imageUrl,               // may be undefined initially
+    };
+
+    // Step 3: replace optimistic trip or add new one
     if (action.tempId) {
       console.log("🔄 [Store] Replacing optimistic trip with saved one");
-      replaceUserTrip(action.tempId, saved);
+      replaceUserTrip(action.tempId, merged);
     } else {
       console.log("➕ [Store] Adding new trip to store");
-      addUserTrip(saved);
+      addUserTrip(merged);
     }
 
-    // Upload image if present
-    if (sasUrl && "imageFile" in trip && trip.imageFile instanceof File) {
+    // Step 4: upload image if present
+    if (sasUrl && trip.imageFile instanceof File) {
       console.log("📤 [Upload] Uploading trip image to Azure Blob...");
       await uploadToAzureBlob(trip.imageFile, sasUrl);
       console.log("✅ [Upload] Trip image upload complete");
+
+      // Step 5: finalize trip after upload
+      const finalized: UserTrip = {
+        ...saved,
+        imageUrl: `${saved.imageUrl}?t=${Date.now()}`, // cache-bust to force refresh
+        previewBlobUrl: undefined,   // clear temporary blob
+        imageFile: undefined,        // clear file
+        isPendingUpload: false,      // 🔑 spinner hidden
+        hasImage: true,              // mark as having an image
+      };
+
+      // Important: use the *saved.id* (server id), not the optimistic one
+      updateUserTrip(saved.id!, finalized);
+      console.log("🔄 [Store] Trip image updated to:", finalized.imageUrl);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
-  } catch (error) {
-    console.error("❌ [Queue] Failed to process CREATE_USER_TRIP:", error);
+  } catch (error: unknown) {
+    handleQueueError(useStore.getState(), error);
   }
 };
+
 
 export const handleUpdateUserTrip = async (action: QueuedAction) => {
   const { updateUserTrip } = useStore.getState();
@@ -269,43 +300,39 @@ export const handleUpdateUserTrip = async (action: QueuedAction) => {
   console.log("📦 [Queue] Processing UPDATE_USER_TRIP for:", trip.name);
 
   try {
-    const { sasUrl, imageUrl } = await editUserTrip(trip.id!, trip);
-
-    // Optimistic update first
+    // Optimistic update with preview + pending state
     updateUserTrip(trip.id!, {
       ...trip,
-      imageUrl: imageUrl ?? trip.imageUrl,
+      previewBlobUrl: trip.previewBlobUrl,
+      isPendingUpload: !!trip.imageFile,
+      imageUrl: trip.imageFile ? "" : trip.imageUrl,
     });
+
+    const { sasUrl, imageUrl: backendImageUrl } = await editUserTrip(trip.id!, trip);
+    console.log("✅ [API] Trip updated");
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
 
     if (sasUrl && trip.imageFile instanceof File) {
       console.log("📤 [Upload] Uploading trip image to Azure Blob...");
       await uploadToAzureBlob(trip.imageFile, sasUrl);
       console.log("✅ [Upload] Trip image upload complete");
 
-      if (imageUrl) {
-        const cacheBustedUrl = `${imageUrl}?t=${Date.now()}`;
-        updateUserTrip(trip.id!, {
-          imageFile: undefined,
-          hasImage: true,
-          imageUrl: cacheBustedUrl,
-        });
-        console.log("🔄 [Store] Trip image updated to:", cacheBustedUrl);
-      }
+      updateUserTrip(trip.id!, {
+        ...trip,
+        imageFile: undefined,
+        previewBlobUrl: undefined,
+        isPendingUpload: false,
+        hasImage: true,
+        imageUrl: `${backendImageUrl}?t=${Date.now()}`, // cache-busted
+      });
+      console.log("🔄 [Store] Trip image updated to:", backendImageUrl);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
-  } catch (error) {
-    console.error("❌ [Queue] Failed to process UPDATE_USER_TRIP:", error);
+  } catch (error: unknown) {
+    handleQueueError(useStore.getState(), error);
   }
 };
-// const handleUpdateUserTrip = async (action: QueuedAction) => {
-//   const { updateUserTrip } = useStore.getState();
-//   const trip = action.payload as UserTrip;
-//   if (!trip.id) throw new Error("Cannot update UserTrip: missing ID");
-
-//   await editUserTrip(trip.id, trip);
-//   updateUserTrip(trip.id, trip);
-// };
 
 const handleDeleteUserTrip = async (action: QueuedAction) => {
   const { removeUserTrip } = useStore.getState();

@@ -36,7 +36,7 @@ const TripDetailPage: React.FC = () => {
         "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
 
     const navigateToAddEdit = () => {
-        console.log("HELLO");
+        console.log("Trip detail");
         const params = new URLSearchParams();
         if (tripId) params.set("tripId", tripId);
         console.log("Sending trip id: ", tripId);

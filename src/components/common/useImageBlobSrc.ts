@@ -15,32 +15,17 @@ export function useImageBlobSrc(
         isPendingUpload?: boolean;
     }
 ): string {
+    const { imageFile, previewBlobUrl, imageUrl, isPendingUpload } = entity;
     const imgSrc = useMemo(() => {
-        console.log("💡 [useImageBlobSrc] Computing imgSrc for entity:", entity);
-
-        // ✅ Online upload in progress: generate a fresh blob from File
-        if (entity.isPendingUpload && entity.imageFile) {
-            const blobUrl = URL.createObjectURL(entity.imageFile);
-            console.log("📤 [useImageBlobSrc] Using fresh blob from imageFile:", blobUrl);
-            return blobUrl;
+        if (isPendingUpload && imageFile) {
+            return URL.createObjectURL(imageFile);
         }
-
-        // ✅ Offline optimistic blob preview
-        if (entity.previewBlobUrl) {
-            console.log("🟡 [useImageBlobSrc] Using previewBlobUrl:", entity.previewBlobUrl);
-            return entity.previewBlobUrl;
+        if (previewBlobUrl) return previewBlobUrl;
+        if (imageUrl && imageUrl.trim() !== "" && !imageUrl.includes("undefined")) {
+            return imageUrl;
         }
-
-        // ✅ Uploaded / final image URL
-        if (entity.imageUrl && !entity.imageUrl.includes("undefined") && entity.imageUrl.trim() !== "") {
-            console.log("🟢 [useImageBlobSrc] Using final imageUrl:", entity.imageUrl);
-            return entity.imageUrl;
-        }
-
-        // ✅ Fallback placeholder
-        console.log("⚪ [useImageBlobSrc] No image found, using placeholder");
         return "/placeholder.png";
-    }, [entity]);
+    }, [imageFile, previewBlobUrl, imageUrl, isPendingUpload]);
 
 
     // 🧠 What Is a Side Effect?

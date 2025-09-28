@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { UserTrip, Destination } from "../../services/types";
-
+import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
+import Spinner from "../common/Spinner";
 interface Props {
   trip: UserTrip;
   destination: Destination;
@@ -11,15 +12,24 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
   const navigate = useNavigate();
   const start = trip.startDate ? new Date(trip.startDate) : null;
   const daysToGo = start ? Math.ceil((start.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
-
+  const imgSrc = useImageBlobSrc(trip);
+  const showSpinner = isSpinnerVisible(trip);
   return (
     <div className="w-full border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col cursor-pointer">
       {/* Card Image */}
-      <img
-        src={trip.imageUrl || destination.imageUrl}
-        alt={trip.name || destination.name}
-        className="w-full h-48 object-cover"
-      />
+      <div className="relative w-full h-48">
+        <img
+          src={imgSrc}
+          alt={trip.name || destination.name}
+          className={`w-full h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+        />
+        {showSpinner && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+            <Spinner />
+          </div>
+        )}
+      </div>
 
       {/* Card Content */}
       <div className="p-4 flex-1 flex flex-col">

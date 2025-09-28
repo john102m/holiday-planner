@@ -22,7 +22,7 @@ const ActivityCard: React.FC<Props> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  //showActions = false;
+  
   // --- Spinner/Image logic from safer POC ---
   const imgSrc = useImageBlobSrc(activity);
   const showSpinner = isSpinnerVisible(activity);
