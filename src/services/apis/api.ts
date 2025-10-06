@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { User, UserTrip } from "../types";
-
+import { stripSasToken } from "../../components/utilities";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -189,6 +189,7 @@ function sanitizeDate(input: unknown): string | undefined {
 export const createUserTrip = async (
   trip: Omit<UserTrip, "id" | "createdAt">
 ): Promise<{ trip: UserTrip; sasUrl?: string }> => {
+    trip.imageUrl = stripSasToken(trip.imageUrl ?? "");
   const res = await api.post<{ userTrip: UserTrip; sasUrl?: string }>(
     `/users/createtrip`,
     trip
@@ -219,7 +220,7 @@ export const editUserTrip = async (
   };
 
   console.log("📤 Posting trip update:", dateSafeUpdates);
-
+   tripUpdates.imageUrl = stripSasToken(tripUpdates.imageUrl ?? "");
   const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
     `/users/updatetrip/${tripId}`,
     dateSafeUpdates

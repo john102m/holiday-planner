@@ -1,5 +1,6 @@
 import type { Activity } from "../types";
 import { api } from "../apis/api"
+import { stripSasToken } from "../../components/utilities";
 
 // Fetch activities
 export const getActivities = async (): Promise<Activity[]> => {
@@ -40,9 +41,12 @@ export const deleteActivity = async (
 };
 
 //Create activity and get SAS token if needed
+
 export const createActivityWithSas = async (
   activity: Omit<Activity, "id" | "createdAt" | "createdBy">
 ): Promise<{ activity: Activity; sasUrl?: string; imageUrl?: string }> => {
+
+  activity.imageUrl = stripSasToken(activity.imageUrl ?? "");
   const res = await api.post<{ activity: Activity; sasUrl?: string; imageUrl?: string }>(
     `/itinerary/createforsas`,
     activity
@@ -56,6 +60,7 @@ export const editActivityForSas = async (
   activity: Omit<Activity, "createdAt" | "createdBy">
 ): Promise<{ sasUrl?: string; imageUrl?: string }> => {
   console.log("Sending this to backend: ", activity)
+  activity.imageUrl = stripSasToken(activity.imageUrl ?? "");
   const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
     `/itinerary/updateforsas/${id}`,
     activity

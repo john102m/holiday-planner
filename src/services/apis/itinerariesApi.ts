@@ -4,6 +4,7 @@ import type {
   ItineraryActivitiesBatch
 } from "../types";
 import { api } from "../apis/api"
+import { stripSasToken } from "../../components/utilities";
 
 export const getItineraryById = async (id: string): Promise<Itinerary> => {
   const res = await api.get<Itinerary>(`/Itinerary/${id}`);
@@ -24,6 +25,7 @@ export const createItinerary_old = async (
 export const createItinerary = async (
   itinerary: Omit<Itinerary, "id" | "createdAt" | "createdBy">
 ): Promise<{ itinerary: Itinerary; sasUrl?: string; imageUrl?: string }> => {
+   itinerary.imageUrl = stripSasToken(itinerary.imageUrl ?? "");
   const res = await api.post<{ itinerary: Itinerary; sasUrl?: string; imageUrl?: string }>(
     `/itinerary/create`,
     itinerary
@@ -40,6 +42,7 @@ export const editItinerary = async (
   id: string,
   itinerary: Omit<Itinerary, "createdAt" | "createdBy">
 ): Promise<{ sasUrl?: string; imageUrl?: string }> => {
+   itinerary.imageUrl = stripSasToken(itinerary.imageUrl ?? "");
   const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
     `/itinerary/update/${id}`,
     itinerary

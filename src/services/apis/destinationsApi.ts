@@ -2,6 +2,7 @@ import type {
  Destination
 } from "../types";
 import {api } from "../apis/api"
+import { stripSasToken } from "../../components/utilities";
 
 
 // Create: omit id, createdBy, createdAt
@@ -16,6 +17,7 @@ export const createDestination = async (
 export const createDestinationWithSas = async (
   destination: Omit<Destination, "id" | "createdBy" | "createdAt">
 ): Promise<{ destination: Destination; sasUrl?: string }> => {
+  destination.imageUrl = stripSasToken(destination.imageUrl ?? "");
   const res = await api.post("/destinations/createforsas", destination);
   return res.data;
 };
@@ -34,6 +36,7 @@ export const editDestinationForSas = async (
   id: string,
   destination: Omit<Destination, "createdBy" | "createdAt">
 ): Promise<{ sasUrl?: string, imageUrl?: string }> => {
+   destination.imageUrl = stripSasToken(destination.imageUrl ?? "");
   const res = await api.post<{ sasUrl?: string;  imageUrl?: string}>(
     `/destinations/updateforsas/${id}`,
     destination

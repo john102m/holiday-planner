@@ -35,6 +35,11 @@ export const finalizeImageUpload = (entity: ImageEntity, finalImageUrl: string):
   };
 };
 
+export const stripSasToken = (url: string) => {
+  const [baseUrl] = url.split('?');
+  return baseUrl;
+};
+
 
 
 

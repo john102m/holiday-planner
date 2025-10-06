@@ -1,11 +1,13 @@
 import { api } from "../apis/api";
 import type { DiaryEntry } from "../types";
+import { stripSasToken } from "../../components/utilities";
 
 // Create a diary entry
 export const createDiaryEntry = async (
   entry: Omit<DiaryEntry, "id" | "createdAt" | "createdBy">
 ): Promise<{ entry: DiaryEntry; sasUrl?: string }> => {
   console.log("📤 [API] Creating diary entry:", entry.title);
+  entry.imageUrl = stripSasToken(entry.imageUrl ?? "");
   const res = await api.post<{ entry: DiaryEntry; sasUrl?: string }>(
     `/DiaryEntry/create`,
     entry
@@ -20,6 +22,7 @@ export const editDiaryEntry = async (
   entry: Omit<DiaryEntry, "createdAt" | "createdBy">
 ): Promise<{ imageUrl?: string; sasUrl?: string }> => {
   console.log("✏️ [API] Updating diary entry:", id);
+  entry.imageUrl = stripSasToken(entry.imageUrl ?? "");
   const res = await api.post<{ imageUrl?: string; sasUrl?: string }>(
     `/DiaryEntry/update/${id}`,
     entry

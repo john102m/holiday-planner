@@ -1,6 +1,7 @@
 
 import type { Package } from "../types";
 import { api } from "../apis/api"
+import { stripSasToken } from "../../components/utilities";
 
 // Fetch all packages
 export const getPackages = async (): Promise<Package[]> => {
@@ -34,6 +35,7 @@ export const getPackagesByDestination = async (destId: string): Promise<Package[
 export const createPackage = async (
     pkg: Omit<Package, "id" | "createdAt" | "createdBy">
 ): Promise<{ package: Package; sasUrl?: string; imageUrl?: string }> => {
+    pkg.imageUrl = stripSasToken(pkg.imageUrl ?? "");
     const res = await api.post<{ package: Package; sasUrl?: string; imageUrl?: string }>(
         `/packages/create`,
         pkg
@@ -46,6 +48,7 @@ export const editPackage = async (
     id: string,
     pkg: Omit<Package, "createdAt" | "createdBy">
 ): Promise<{ sasUrl?: string; imageUrl?: string }> => {
+      pkg.imageUrl = stripSasToken(pkg.imageUrl ?? "");
     const res = await api.post<{ sasUrl?: string; imageUrl?: string }>(
         `/packages/update/${id}`,
         pkg
