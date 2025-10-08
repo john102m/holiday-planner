@@ -63,7 +63,7 @@ const ActivityCard: React.FC<Props> = ({
   return (
     <>
       <div
-        className="flex flex-row items-stretch w-full h-[130px] border 
+        className="flex flex-row items-stretch w-full h-[130px] border bg-white
         rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
         onClick={() => setIsModalOpen(true)}
       >

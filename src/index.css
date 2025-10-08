@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(20, 6, 6, 0.87);
-  background-color: #fefefe;
+  background-color: #f3efef;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -48,11 +48,9 @@
   animation: fadeIn 0.4s ease-out forwards;
 }
 
-
-/* Card body
-.card-body {
-  @apply p-4;
-}
+/* .card-body {
+  @apply background-color: #ffffff p-4;
+} */
 
 /* Card title */
 /* .card-title {

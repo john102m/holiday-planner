@@ -11,7 +11,19 @@ import ItinerariesGrid from "../components/destination/ItinerariesGrid";
 import DiaryGrid from "../components/destination/DiaryGrid";
 import AddEditDiaryEntryModal from "../components/cards/AddEditDiaryEntryModal";
 
-type TabType = "Activities" | "Itineraries" | "Diary";
+// 📌 Pushpin (To-Do)	U+1F4CC	&#128204;
+// 🗺️ World Map (Itinerary)	U+1F5FA U+FE0F	&#128506;&#65039;
+// 📝 Memo (Diary/Notes)	U+1F4DD	&#128221;
+
+// 🧳	Luggage	Represents travel essentials — great all-rounder
+// 📋	Clipboard	Suggests organized info, checklists, bookings
+// 🗂️	File folder	Implies stored details — flights, hotels, etc.
+// 🛫	Plane taking off	Good if flight info dominates the tab
+// 🏨	Hotel	Clear if the tab leans heavily toward accommodation
+// 📦	Package	Abstract but works for “trip components” or logistics
+
+
+type TabType = "📌" | "🗺️" | "📝";
 const TripDetailPage: React.FC = () => {
     const navigate = useNavigate();
 
@@ -20,7 +32,7 @@ const TripDetailPage: React.FC = () => {
     const userTrip = useStore((state) => state.userTrips.find((t) => t.id === tripId));
 
     const [isAddModalOpen, setAddModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<TabType>("Activities");
+    const [activeTab, setActiveTab] = useState<TabType>("📌");
 
     const currentDest: Destination | undefined = destinations.find(
         (d) => d.id === userTrip?.destinationId
@@ -30,7 +42,7 @@ const TripDetailPage: React.FC = () => {
     if (!currentDest) return <div>Loading destination...</div>;
     if (!userTrip) return <div>User trip not found...</div>;
 
-    const tabs: TabType[] = ["Activities", "Itineraries", "Diary"];
+    const tabs: TabType[] = ["📌", "🗺️", "📝"];
 
     const fabBase =
         "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
@@ -66,7 +78,7 @@ const TripDetailPage: React.FC = () => {
 
             {/* Tab Content */}
             <div className="tab-content mt-4">
-                {activeTab === "Activities" && (
+                {activeTab === "📌" && (
                     <div>
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
@@ -92,7 +104,7 @@ const TripDetailPage: React.FC = () => {
                     </div>
                 )}
 
-                {activeTab === "Itineraries" && (
+                {activeTab === "🗺️" && (
                     <div>
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
@@ -121,7 +133,7 @@ const TripDetailPage: React.FC = () => {
                     </div>
                 )}
 
-                {activeTab === "Diary" && (
+                {activeTab === "📝" && (
                     <div>
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
