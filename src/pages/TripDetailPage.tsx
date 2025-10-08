@@ -67,7 +67,7 @@ const TripDetailPage: React.FC = () => {
                         key={tab}
                         className={`flex-1 py-2 rounded-full font-semibold text-sm sm:text-base text-center transition ${activeTab === tab
                             ? "bg-blue-500 text-white shadow"
-                            : "border border-gray-300 text-gray-800 hover:bg-gray-100"
+                            : "border border-gray-300 bg-blue-100 mx-1 shadow text-gray-800 hover:bg-gray-100"
                             }`}
                         onClick={() => setActiveTab(tab)}
                     >
