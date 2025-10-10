@@ -12,7 +12,7 @@ import type {
   Itinerary, UserTrip,
   QueueType, CollectionType, QueuedAction,
   ItineraryActivity, ItineraryActivitiesBatch,
-  DiaryEntry
+  DiaryEntry, TripInfo
 } from "./types";
 import { CollectionTypes, QueueTypes } from "./types";
 
@@ -20,6 +20,7 @@ import { useActivitiesStore, handleCreateActivity, handleUpdateActivity, handleD
 import { usePackageStore, handleCreatePackage, handleUpdatePackage, handleDeletePackage } from "./slices/packagesSlice";
 import { useDestinationsStore, handleCreateDestination, handleDeleteDestination, handleUpdateDestination } from "./slices/destinationsSlice";
 import { useDiaryEntriesStore, handleCreateDiaryEntry, handleUpdateDiaryEntry, handleDeleteDiaryEntry } from "./slices/diaryEntriesSlice";
+import { useTripInfoStore, handleCreateTripInfo, handleUpdateTripInfo, handleDeleteTripInfo } from "./slices/tripInfoSlice";
 import {
   useItinerariesStore, handleCreateItinerary, handleUpdateItinerary,
   handleDeleteItinerary, handleCreateItineraryActivity, handleUpdateItineraryActivity, handleDeleteItineraryActivity
@@ -46,6 +47,7 @@ export const addOptimisticAndQueue = async (
   const itinerariesStore = useItinerariesStore.getState();
   const destinationStore = useDestinationsStore.getState();
   const diaryEntriesStore = useDiaryEntriesStore.getState();
+  const tripInfoStore = useTripInfoStore.getState();
   const store = useStore.getState();
 
   // 🔁 Recap of the Flow
@@ -69,6 +71,8 @@ export const addOptimisticAndQueue = async (
         diaryEntriesStore.updateDiaryEntry(diaryEntry); // treat as confirmed update
       }
     },
+    [CollectionTypes.TripInfo]: (_, entity) =>
+      tripInfoStore.addTripInfo(entity as TripInfo),
 
     [CollectionTypes.Packages]: (id, entity) =>
       packageStore.addPackage(id!, entity as Package),
@@ -365,6 +369,10 @@ const queueHandlers: Record<QueueType, (action: QueuedAction) => Promise<void>> 
   [QueueTypes.CREATE_DIARY_ENTRY]: handleCreateDiaryEntry,
   [QueueTypes.UPDATE_DIARY_ENTRY]: handleUpdateDiaryEntry,
   [QueueTypes.DELETE_DIARY_ENTRY]: handleDeleteDiaryEntry,
+
+  [QueueTypes.CREATE_TRIP_INFO]: handleCreateTripInfo,
+  [QueueTypes.UPDATE_TRIP_INFO]: handleUpdateTripInfo,
+  [QueueTypes.DELETE_TRIP_INFO]: handleDeleteTripInfo,
 
   // // Itineraries
   [QueueTypes.CREATE_ITINERARY]: handleCreateItinerary,

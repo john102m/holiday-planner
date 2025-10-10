@@ -18,14 +18,16 @@ import { getActivities } from "./apis/activitiesApi";
 import { getPackages } from "./apis/packagesApi";
 import { getItineraries, getItineraryActivities, } from "./apis/itinerariesApi";
 import { getAllDiaryEntries } from "./apis/diaryEntryApi";
+import { getAllTripInfo } from "./apis/tripInfoApi";
 
-import type { Activity, Package, Itinerary, ItineraryActivity, Destination, UserTrip, DiaryEntry } from "./types";
+import type { Activity, Package, Itinerary, ItineraryActivity, Destination, UserTrip, DiaryEntry, TripInfo } from "./types";
 import { useStore, processQueue } from "./store";
 import { useActivitiesStore, } from "./slices/activitiesSlice";
 import { usePackageStore, } from "./slices/packagesSlice";
 import { useItinerariesStore, } from "./slices/itinerariesSlice";
 import { useDestinationsStore, } from "./slices/destinationsSlice";
 import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
+import { useTripInfoStore } from "./slices/tripInfoSlice";
 
 let initialized = false;
 
@@ -36,8 +38,11 @@ export function resetAllStores() {
   localStorage.removeItem("itineraries-store");
   localStorage.removeItem("diary-entries-store");
   localStorage.removeItem("destinations-store");
+  localStorage.removeItem("trip-info-store");
   window.location.reload();
-}export const initApp = async () => {
+} 
+
+export const initApp = async () => {
   if (initialized) return;
   initialized = true;
 
@@ -50,7 +55,7 @@ export function resetAllStores() {
   await useStore.getState().hydrate();
 
   const userId = "1AA26F2F-C41C-4F82-B07A-380E2992BFD9";
-
+  console.log("Initializing App");
   // Fetch everything fresh in parallel
   const [
     destinationsResult,
@@ -59,7 +64,8 @@ export function resetAllStores() {
     activitiesResult,
     itineraryActivitiesResult,
     tripsResult,
-    diaryEntriesResult
+    diaryEntriesResult,
+    tripInfoResult
   ] = await Promise.allSettled([
     getDestinations(),
     getPackages(),
@@ -67,7 +73,9 @@ export function resetAllStores() {
     getActivities(),
     getItineraryActivities(),
     getUserTrips(userId),
-    getAllDiaryEntries()
+    getAllDiaryEntries(),
+    getAllTripInfo()
+
   ]);
 
   // Helper to unwrap safely
@@ -134,6 +142,10 @@ export function resetAllStores() {
   // Diary entries
   useDiaryEntriesStore.getState().setDiaryEntries(
     unwrap(diaryEntriesResult, [] as DiaryEntry[])
+  );
+ 
+  useTripInfoStore.getState().setTripInfoList(
+    unwrap(tripInfoResult, [] as TripInfo[])
   );
 
   // Process offline queue

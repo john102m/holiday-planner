@@ -22,7 +22,7 @@ export interface DiaryEntriesSliceState extends BaseSliceState {
     setError: (msg: string | null) => void;
 }
 
-
+console.log("🔥 diaryEntriesSlice.ts loaded — check new import resolution");
 export const useDiaryEntriesStore = create<DiaryEntriesSliceState>()(
     persist(
         (set) => ({

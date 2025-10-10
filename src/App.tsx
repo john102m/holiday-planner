@@ -16,6 +16,7 @@ import AddEditItineraryPage from "./pages/AddEditItineraryPage";
 import ItineraryEditPage from "./pages/ItineraryEditPage";
 import AddEditTripPage from "./pages/AddEditTripPage";
 import AddEditDestinationPage from "./pages/AddEditDestinationPage";
+import AddEditTripInfoPage from "./pages/AddEditTripInfoPage";
 import UserEditPage from "./components/admindashboard/UserEditPage";
 import { ScrollToTop } from "./components/NavigateTop"
 
@@ -66,6 +67,10 @@ const App: React.FC = () => {
         <Route
           path="/destinations/:destinationId/activities/edit"
           element={<AddEditActivityPage />}
+        />
+         <Route
+          path="/tripinfo/edit"
+          element={<AddEditTripInfoPage />}
         />
         <Route
           path="/itineraries/view"

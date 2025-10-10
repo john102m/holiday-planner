@@ -102,16 +102,6 @@ const ActivityForm: React.FC<Props> = ({
           />
         )}
 
-        {/* {imageUrl && (
-          <div className="mt-2">
-            <img
-              src={imageUrl}
-              alt="Preview"
-              className="w-full max-w-xs rounded shadow"
-              onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
-            />
-          </div>
-        )} */}
       </div>
 
       <div className="flex items-center gap-6">

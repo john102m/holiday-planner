@@ -4,6 +4,7 @@ import { useItinerariesStore} from "../services/slices/itinerariesSlice"
 import { useDestinationsStore} from "../services/slices/destinationsSlice"
 import { useDiaryEntriesStore } from "./slices/diaryEntriesSlice";
 import { usePackageStore } from "./slices/packagesSlice";
+import { useTripInfoStore } from "./slices/tripInfoSlice";
 import { useStore } from "../services/store";
 
 // Rough size in bytes via JSON
@@ -20,6 +21,7 @@ export const logMemory = () => {
     const itinerariesState = useItinerariesStore.getState();
     const destinationsState = useDestinationsStore.getState();
     const diaryEntriesState = useDiaryEntriesStore.getState();
+    const tripInfoStore = useTripInfoStore.getState();
 
     const packagesState = usePackageStore.getState();
     const state = useStore.getState();
@@ -29,6 +31,8 @@ export const logMemory = () => {
     console.log("📦 Store snapshot:");
     console.log("  Destinations:", destinationsState.destinations.length);
     console.log("  DiaryEntries:", diaryEntriesState.diaryEntries.length);
+    console.log("  TripInfo:", tripInfoStore.tripInfoList.length);
+
 
     console.log("  UserTrips:", state.userTrips.length);
     console.log(

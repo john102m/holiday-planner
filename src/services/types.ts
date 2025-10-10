@@ -6,7 +6,8 @@ export const CollectionTypes = {
   ItineraryActivities: "itineraryActivities",
   DiaryEntries: "diaryEntries",
   ItineraryActivitiesBatch: "itineraryActivitiesBatch",
-  UserTrips: "userTrips"
+  UserTrips: "userTrips",
+  TripInfo: "tripInfo"
 
 } as const;
 export type CollectionType = typeof CollectionTypes[keyof typeof CollectionTypes];
@@ -41,6 +42,10 @@ export const QueueTypes = {
   UPDATE_DIARY_ENTRY: "UPDATE_DIARY_ENTRY",
   DELETE_DIARY_ENTRY: "DELETE_DIARY_ENTRY",
 
+  CREATE_TRIP_INFO: "CREATE_TRIP_INFO",
+  UPDATE_TRIP_INFO: "UPDATE_TRIP_INFO",
+  DELETE_TRIP_INFO: "DELETE_TRIP_INFO",
+
   VOTE: "VOTE"
 
   // Add more as needed
@@ -50,11 +55,11 @@ export type QueueType = typeof QueueTypes[keyof typeof QueueTypes];
 
 export type Entity =
   Activity | Package | Destination |
-  Itinerary | DiaryEntry | UserTrip |
+  Itinerary | DiaryEntry | UserTrip | TripInfo |
   ItineraryActivity | ItineraryActivitiesBatch;
 
 // Only the entities that support images
-export type ImageEntity = Destination | Activity | DiaryEntry | Package ;  //to be added Activity | Package | 
+export type ImageEntity = Destination | Activity | DiaryEntry | Package | TripInfo;  //to be added Activity | Package | 
 
 export interface QueuedAction {
   id: string;
@@ -108,6 +113,20 @@ export interface Destination extends ImageAttachable {
   imageUrl?: string;
   createdBy?: string;
   createdAt?: string;
+}
+
+export interface TripInfo extends ImageAttachable {
+  id?: string;
+  tripId: string;
+  type: string;//"Accommodation" | "Logistics" | "Activity" | "Misc";
+  title: string;
+  description: string;
+  location?: string;
+  imageUrl?: string;
+  startDate?: string;   // ISO string
+  endDate?: string;     // ISO string
+  createdBy?: string;
+  createdAt?: string;   // ISO string
 }
 
 

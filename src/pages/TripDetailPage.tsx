@@ -1,6 +1,6 @@
 // DestinationPage.tsx
-import React, { useState} from "react";
-import { useParams, useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "../services/store";
 import { useDestinationsStore } from "../services/slices/destinationsSlice";
 import type { Destination } from "../services/types";
@@ -8,6 +8,7 @@ import ScrollToTopButton from "../components/ScrollToTop";
 import TripHeroSection from "../components/destination/TripHeroSection";
 import ActivitiesGrid from "../components/destination/ActivitiesGrid";
 import ItinerariesGrid from "../components/destination/ItinerariesGrid";
+import TripInfoGrid from "../components/destination/TripInfoGrid";
 import DiaryGrid from "../components/destination/DiaryGrid";
 import AddEditDiaryEntryModal from "../components/cards/AddEditDiaryEntryModal";
 
@@ -23,7 +24,7 @@ import AddEditDiaryEntryModal from "../components/cards/AddEditDiaryEntryModal";
 // 📦	Package	Abstract but works for “trip components” or logistics
 
 
-type TabType = "📌" | "🗺️" | "📝";
+type TabType = "📌" | "🗺️" | "📝" | "🏨";
 const TripDetailPage: React.FC = () => {
     const navigate = useNavigate();
 
@@ -42,7 +43,7 @@ const TripDetailPage: React.FC = () => {
     if (!currentDest) return <div>Loading destination...</div>;
     if (!userTrip) return <div>User trip not found...</div>;
 
-    const tabs: TabType[] = ["📌", "🗺️", "📝"];
+    const tabs: TabType[] = ["📌", "🗺️", "📝", "🏨"];
 
     const fabBase =
         "fixed right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors w-12 h-12 text-2xl md:hidden";
@@ -59,9 +60,9 @@ const TripDetailPage: React.FC = () => {
     return (
         <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-4 pb-4">
             <TripHeroSection destination={currentDest} trip={userTrip} />
-   
+
             {/* Tabs */}
-            <div className="flex mb-4 mt-1 w-full">
+            <div className="flex mb-1 mt-1 w-full">
                 {tabs.map((tab) => (
                     <button
                         key={tab}
@@ -77,7 +78,7 @@ const TripDetailPage: React.FC = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="tab-content mt-4">
+            <div className="tab-content mt-2">
                 {activeTab === "📌" && (
                     <div>
                         {/* Desktop/tablet inline button */}
@@ -165,6 +166,30 @@ const TripDetailPage: React.FC = () => {
                         />
                     </div>
                 )}
+
+                {activeTab === "🏨" && (
+                    <div>
+                        <div className="hidden sm:flex justify-start mb-2 ml-14">
+                            <button
+                                onClick={() => navigate(`/tripinfo/edit?tripId=${userTrip.id}`)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded text-sm sm:text-base"
+                            >
+                                + Add Trip Info
+                            </button>
+                        </div>
+
+                        <TripInfoGrid tripId={userTrip.id ?? ""} />
+
+                        <button
+                            onClick={() => navigate(`/tripinfo/edit?tripId=${userTrip.id}`)}
+                            className={`${fabBase} bottom-4`}
+                            aria-label="Add Trip Info"
+                        >
+                            ＋
+                        </button>
+                    </div>
+                )}
+
             </div>
 
             <ScrollToTopButton />
