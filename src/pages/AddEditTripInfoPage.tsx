@@ -6,39 +6,40 @@ import { CollectionTypes, QueueTypes } from "../services/types";
 import type { TripInfo } from "../services/types";
 
 const AddEditTripInfoPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const tripInfoId = searchParams.get("tripInfoId") ?? undefined;
-  const tripId = searchParams.get("tripId") ?? "";
-  const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const tripInfoId = searchParams.get("tripInfoId") ?? undefined;
+    const tripId = searchParams.get("tripId") ?? "";
+    const navigate = useNavigate();
 
-  const tripInfos = useTripInfoStore((state) => state.tripInfoList ?? []);
-  const currentInfo = tripInfos.find(info => info.id === tripInfoId);
+    const tripInfos = useTripInfoStore((state) => state.tripInfo[tripId] ?? []);
+    const currentInfo = tripInfos.find(info => info.id === tripInfoId);
 
-  const { handleImageSelection, handleSubmit } = useAddEditWithImage(CollectionTypes.TripInfo);
 
-  const onSubmit = async (formValues: TripInfo) => {
-    const queueType = tripInfoId ? QueueTypes.UPDATE_TRIP_INFO : QueueTypes.CREATE_TRIP_INFO;
-    const payload = { ...formValues, tripId };
+    const { handleImageSelection, handleSubmit } = useAddEditWithImage(CollectionTypes.TripInfo);
 
-    const tempId = await handleSubmit(payload, queueType, tripId);
-    console.log("✅ TripInfo queued with temp ID:", tempId);
-    navigate(`/trips/${tripId}`);
-  };
+    const onSubmit = async (formValues: TripInfo) => {
+        const queueType = tripInfoId ? QueueTypes.UPDATE_TRIP_INFO : QueueTypes.CREATE_TRIP_INFO;
+        const payload = { ...formValues, tripId };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        {currentInfo ? "Edit Trip Info" : "Add Trip Info"}
-      </h2>
-      <TripInfoForm
-        initialValues={currentInfo}
-        tripId={tripId}
-        onSubmit={onSubmit}
-        onCancel={() => navigate(`/trips/${tripId}`)}
-        onImageSelect={handleImageSelection}
-      />
-    </div>
-  );
+        const tempId = await handleSubmit(payload, queueType, tripId);
+        console.log("✅ TripInfo queued with temp ID:", tempId);
+        navigate(`/trips/${tripId}`);
+    };
+
+    return (
+        <div className="container mx-auto p-4">
+            <h2 className="text-2xl font-bold mb-4">
+                {currentInfo ? "Edit Trip Info" : "Add Trip Info"}
+            </h2>
+            <TripInfoForm
+                initialValues={currentInfo}
+                tripId={tripId}
+                onSubmit={onSubmit}
+                onCancel={() => navigate(`/trips/${tripId}`)}
+                onImageSelect={handleImageSelection}
+            />
+        </div>
+    );
 };
 
 export default AddEditTripInfoPage;

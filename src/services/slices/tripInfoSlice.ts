@@ -8,47 +8,70 @@ import type { BaseSliceState } from "../../components/common/useErrorHandler";
 import { finalizeImageUpload } from "../../components/utilities"
 
 export interface TripInfoSliceState extends BaseSliceState {
-    tripInfoList: TripInfo[];
+    tripInfo: Record<string, TripInfo[]>;
 
-    setTripInfoList: (entries: TripInfo[]) => void;
-    addTripInfo: (entry: TripInfo) => void;
+    setTripInfo: (tripId: string, entries: TripInfo[]) => void;
+    addTripInfo: (tripId: string, entry: TripInfo) => void;
     replaceTripInfo: (tempId: string, saved: TripInfo) => void;
-    updateTripInfoEntry: (updated: TripInfo) => void;
-    removeTripInfo: (id: string) => void;
+    updateTripInfoEntry: (tripId: string, updated: TripInfo) => void;
+    removeTripInfo: (tripId: string, id: string) => void;
 
     errorMessage: string | null;
     setError: (msg: string | null) => void;
 }
+
 console.log("🔥 tripInfoSlice.ts loaded — check new import resolution");
 export const useTripInfoStore = create<TripInfoSliceState>()(
     persist(
         (set) => ({
-            tripInfoList: [],
+            tripInfo: {},
 
-            setTripInfoList: (entries) => set({ tripInfoList: entries }),
-
-            addTripInfo: (entry) =>
+            setTripInfo: (tripId, entries) =>
                 set((state) => ({
-                    tripInfoList: [...state.tripInfoList, entry],
+                    tripInfo: {
+                        ...state.tripInfo,
+                        [tripId]: entries,
+                    },
+                })),
+
+            addTripInfo: (tripId, entry) =>
+                set((state) => ({
+                    tripInfo: {
+                        ...state.tripInfo,
+                        [tripId]: [...(state.tripInfo[tripId] ?? []), entry],
+                    },
                 })),
 
             replaceTripInfo: (tempId, saved) =>
-                set((state) => ({
-                    tripInfoList: state.tripInfoList.map((e) =>
+                set((state) => {
+                    const tripId = saved.tripId;
+                    const updatedList = (state.tripInfo[tripId] ?? []).map((e) =>
                         e.id === tempId ? saved : e
-                    ),
+                    );
+                    return {
+                        tripInfo: {
+                            ...state.tripInfo,
+                            [tripId]: updatedList,
+                        },
+                    };
+                }),
+
+            updateTripInfoEntry: (tripId, updated) =>
+                set((state) => ({
+                    tripInfo: {
+                        ...state.tripInfo,
+                        [tripId]: (state.tripInfo[tripId] ?? []).map((e) =>
+                            e.id === updated.id ? { ...e, ...updated } : e
+                        ),
+                    },
                 })),
 
-            updateTripInfoEntry: (updated) =>
+            removeTripInfo: (tripId, id) =>
                 set((state) => ({
-                    tripInfoList: state.tripInfoList.map((e) =>
-                        e.id === updated.id ? { ...e, ...updated } : e
-                    ),
-                })),
-
-            removeTripInfo: (id) =>
-                set((state) => ({
-                    tripInfoList: state.tripInfoList.filter((e) => e.id !== id),
+                    tripInfo: {
+                        ...state.tripInfo,
+                        [tripId]: (state.tripInfo[tripId] ?? []).filter((e) => e.id !== id),
+                    },
                 })),
 
             errorMessage: null,
@@ -62,6 +85,8 @@ export const useTripInfoStore = create<TripInfoSliceState>()(
 );
 
 
+// See the detailed explanation of these handlers in Itinera Unit Testing.docx
+
 export const handleCreateTripInfo = async (action: QueuedAction) => {
     const { addTripInfo, replaceTripInfo, updateTripInfoEntry } = useTripInfoStore.getState();
     const info = action.payload as TripInfo;
@@ -70,7 +95,8 @@ export const handleCreateTripInfo = async (action: QueuedAction) => {
 
     try {
         // Step 1: create the entry on the server
-        const { entry: saved, sasUrl } = await createTripInfo(info);
+        const { tripInfo: saved, sasUrl } = await createTripInfo(info);
+
         console.log("✅ [API] TripInfo created:", saved);
         console.log("🔗 [API] Received SAS URL:", sasUrl);
 
@@ -89,7 +115,8 @@ export const handleCreateTripInfo = async (action: QueuedAction) => {
             replaceTripInfo(action.tempId, merged);
         } else {
             console.log("➕ [Store] Adding new TripInfo to store");
-            addTripInfo(merged);
+            addTripInfo(merged.tripId, merged);
+
         }
 
         // Step 4: upload image if present
@@ -98,16 +125,9 @@ export const handleCreateTripInfo = async (action: QueuedAction) => {
             await uploadToAzureBlob(info.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
 
-            // Step 5: finalize image upload
-            // const finalized: TripInfo = {
-            //     ...saved,
-            //     imageUrl: saved.imageUrl!,       // replace blob with final URL
-            //     previewBlobUrl: undefined,
-            //     imageFile: undefined,
-            //     isPendingUpload: false,
-            // };
-            const finalized = finalizeImageUpload(saved, sasUrl);
-            updateTripInfoEntry(finalized as TripInfo);
+            const finalized = finalizeImageUpload(saved, sasUrl) as TripInfo;
+            updateTripInfoEntry(finalized.tripId, finalized);
+
             console.log("🔄 [Store] TripInfo image updated to:", finalized.imageUrl);
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
@@ -116,8 +136,6 @@ export const handleCreateTripInfo = async (action: QueuedAction) => {
         handleQueueError(useTripInfoStore.getState(), error);
     }
 };
-
-
 export const handleUpdateTripInfo = async (action: QueuedAction) => {
     const { updateTripInfoEntry } = useTripInfoStore.getState();
     const entry = action.payload as TripInfo;
@@ -125,35 +143,35 @@ export const handleUpdateTripInfo = async (action: QueuedAction) => {
     console.log("📘 [Queue] Processing UPDATE_TRIP_INFO for:", entry.title);
 
     try {
-        // Optimistic update
-        updateTripInfoEntry({
-            ...entry,
-            imageFile: entry.imageFile,
-            previewBlobUrl: entry.previewBlobUrl,
-            isPendingUpload: !!entry.imageFile,
-            imageUrl: entry.imageFile ? "" : entry.imageUrl,
-        });
-
-        // Request SAS URL and final image URL
+        // Step 1: Request SAS URL and final image URL from backend
         const { sasUrl, imageUrl: backendImageUrl } = await updateTripInfo(entry.id!, entry);
         console.log("✅ [API] TripInfo updated");
         console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-        // Upload image if needed
+        // Step 2: Optimistic update with preview blob
+        updateTripInfoEntry(entry.tripId, {
+            ...entry,
+            imageUrl: entry.previewBlobUrl ?? backendImageUrl ?? entry.imageUrl,
+            isPendingUpload: !!entry.imageFile,
+        });
+
+        // Step 3: Upload image if needed
         if (sasUrl && entry.imageFile instanceof File) {
             console.log("📤 [Upload] Uploading image to Azure Blob...");
             await uploadToAzureBlob(entry.imageFile, sasUrl);
             console.log("✅ [Upload] Image upload complete");
 
-            updateTripInfoEntry({
+            // Step 4: Final update with backend image URL
+            updateTripInfoEntry(entry.tripId, {
                 ...entry,
                 imageFile: undefined,
                 previewBlobUrl: undefined,
                 isPendingUpload: false,
+                hasImage: true,
                 imageUrl: backendImageUrl,
             });
 
-            console.log("🔄 [Store] TripInfo image updated to:", backendImageUrl);
+            console.log("🔄 [Store] TripInfo image finalized:", backendImageUrl);
         } else {
             console.log("⚠️ [Upload] No image file found or SAS URL missing");
         }
@@ -161,6 +179,8 @@ export const handleUpdateTripInfo = async (action: QueuedAction) => {
         handleQueueError(useTripInfoStore.getState(), error);
     }
 };
+
+
 export const handleDeleteTripInfo = async (action: QueuedAction) => {
     const { removeTripInfo } = useTripInfoStore.getState();
     const entry = action.payload as TripInfo;
@@ -169,7 +189,8 @@ export const handleDeleteTripInfo = async (action: QueuedAction) => {
 
     try {
         await deleteTripInfo(entry.id!);
-        removeTripInfo(entry.id!);
+        removeTripInfo(entry.tripId, entry.id!);
+
         console.log("✅ [Store] TripInfo removed:", entry.id);
     } catch (error: unknown) {
         handleQueueError(useTripInfoStore.getState(), error);

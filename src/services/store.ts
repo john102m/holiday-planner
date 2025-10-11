@@ -29,7 +29,6 @@ import {
 
 console.log("🔥 store.ts loaded — check new import resolution");
 
-
 export const addOptimisticAndQueue = async (
   collection: CollectionType,
   entity: Entity,
@@ -71,8 +70,15 @@ export const addOptimisticAndQueue = async (
         diaryEntriesStore.updateDiaryEntry(diaryEntry); // treat as confirmed update
       }
     },
-    [CollectionTypes.TripInfo]: (_, entity) =>
-      tripInfoStore.addTripInfo(entity as TripInfo),
+    [CollectionTypes.TripInfo]: (_, entity) => {
+      const tripInfo = entity as TripInfo;
+      if (!tripInfo.tripId) {
+        console.warn("⚠️ TripInfo is missing tripId:", tripInfo);
+        return;
+      }
+      tripInfoStore.addTripInfo(tripInfo.tripId, tripInfo);
+    },
+
 
     [CollectionTypes.Packages]: (id, entity) =>
       packageStore.addPackage(id!, entity as Package),
@@ -120,7 +126,7 @@ export const addOptimisticAndQueue = async (
   return tempId;
 };
 
-interface AppState extends BaseSliceState  {
+interface AppState extends BaseSliceState {
   //destinations: Destination[];
 
   userTrips: UserTrip[];

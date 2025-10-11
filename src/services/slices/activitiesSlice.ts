@@ -11,7 +11,6 @@ import type { BaseSliceState } from "../../components/common/useErrorHandler";
 interface ActivitiesSliceState extends BaseSliceState {
   activities: Record<string, Activity[]>;
 
-
   // Activities
   setActivities: (destId: string, acts: Activity[]) => void;
   addActivity: (destId: string, act: Activity) => void;

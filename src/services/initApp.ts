@@ -144,9 +144,18 @@ export const initApp = async () => {
     unwrap(diaryEntriesResult, [] as DiaryEntry[])
   );
  
-  useTripInfoStore.getState().setTripInfoList(
-    unwrap(tripInfoResult, [] as TripInfo[])
-  );
+const flatList = unwrap(tripInfoResult, [] as TripInfo[]);
+const tripInfoByTrip: Record<string, TripInfo[]> = {};
+
+flatList.forEach((info) => {
+  if (!info.tripId) return;
+  (tripInfoByTrip[info.tripId] ||= []).push(info);
+});
+
+Object.entries(tripInfoByTrip).forEach(([tripId, infos]) =>
+  useTripInfoStore.getState().setTripInfo(tripId, infos)
+);
+
 
   // Process offline queue
   await processQueue();
