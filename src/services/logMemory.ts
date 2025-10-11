@@ -21,8 +21,7 @@ export const logMemory = () => {
     const itinerariesState = useItinerariesStore.getState();
     const destinationsState = useDestinationsStore.getState();
     const diaryEntriesState = useDiaryEntriesStore.getState();
-    const tripInfoStore = useTripInfoStore.getState();
-
+    const tripInfoState = useTripInfoStore.getState();
     const packagesState = usePackageStore.getState();
     const state = useStore.getState();
 
@@ -31,8 +30,10 @@ export const logMemory = () => {
     console.log("📦 Store snapshot:");
     console.log("  Destinations:", destinationsState.destinations.length);
     console.log("  DiaryEntries:", diaryEntriesState.diaryEntries.length);
-    console.log("  TripInfo:", tripInfoStore.tripInfoList.length);
-
+    console.log(
+        "  Trip Infos (total):",
+        Object.values(tripInfoState.tripInfo).flat().length
+    );
 
     console.log("  UserTrips:", state.userTrips.length);
     console.log(
