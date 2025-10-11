@@ -424,6 +424,11 @@ export const processQueue = async () => {
     }
   }
 };
+// TODO
+// Retry logic with exponential backoff
+// Persistent queue across sessions
+// Telemetry for queue throughput and failure rates
+
 
 // Note: In a real app, you’d want to add more error handling, logging, and possibly retry logic.
 // 🚀 What You Could Add Next

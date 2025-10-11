@@ -45,8 +45,8 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
   return (
     <>
       <div
-        className="flex flex-row items-stretch w-full h-[130px] border bg-white
-        rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
+        className={`flex flex-row items-stretch w-full h-[130px] border-l-4 ${info.type === "Accommodation" ? "border-blue-400" : "border-yellow-400"
+          } bg-lime-50 rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]`}
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
@@ -60,6 +60,10 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
                 e.currentTarget.src = "/placeholder.png";
               }}
             />
+            {/* Icon Badge */}
+            <div className="absolute top-2 left-2 bg-lime-50 rounded-full p-1 shadow">
+              <span className="text-xs">{info.type === "Accommodation" ? "🏨" : "🚐"}</span>
+            </div>
             {showSpinner && (
               <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
                 <Spinner />
@@ -71,9 +75,14 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
         {/* Text Section */}
         <div className="w-7/12 p-2 flex flex-col justify-between h-full">
           <div className="flex flex-col gap-1 overflow-hidden">
-            <h3 className="font-semibold text-md truncate">{info.title}</h3>
+            <h3 className="font-bold text-md truncate">{info.title}</h3>
+            <p className="text-xs text-gray-500 italic">
+              {info.startDate?.slice(0, 10)} → {info.endDate?.slice(0, 10)}
+            </p>
             <p className="text-sm text-gray-600 line-clamp-2">{truncatedDescription}</p>
-            <div className="text-xs text-gray-500">{info.type} • {info.location}</div>
+            <div className="text-xs text-gray-500 italic">
+              {info.type} • {info.location}
+            </div>
           </div>
         </div>
       </div>
@@ -127,6 +136,7 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
         </GenericModal>
       )}
     </>
+
   );
 };
 
