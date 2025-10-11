@@ -8,9 +8,9 @@ interface Props {
 }
 
 const TripInfoGrid: React.FC<Props> = ({ tripId }) => {
-  const { errorMessage, setError } = useTripInfoStore();
+const { errorMessage, setError, tripInfo } = useTripInfoStore();
+const tripInfoList = tripInfo[tripId] ?? [];
 
-  const tripInfoList = useTripInfoStore((state) => state.tripInfo[tripId] ?? []);
 
   if (tripInfoList.length === 0) return <div>No trip info added yet.</div>;
 

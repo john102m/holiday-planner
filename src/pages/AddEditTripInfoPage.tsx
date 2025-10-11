@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTripInfoStore } from "../services/slices/tripInfoSlice";
 import { useAddEditWithImage } from "../components/common/useAddEditWithImage";
@@ -11,9 +12,12 @@ const AddEditTripInfoPage: React.FC = () => {
     const tripId = searchParams.get("tripId") ?? "";
     const navigate = useNavigate();
 
-    const tripInfos = useTripInfoStore((state) => state.tripInfo[tripId] ?? []);
-    const currentInfo = tripInfos.find(info => info.id === tripInfoId);
+    const { tripInfo } = useTripInfoStore();
+    const tripInfos = useMemo(() => tripInfo[tripId] ?? [], [tripInfo, tripId]);
 
+    const currentInfo = useMemo(() => {
+        return tripInfos.find(info => info.id === tripInfoId);
+    }, [tripInfos, tripInfoId]);
 
     const { handleImageSelection, handleSubmit } = useAddEditWithImage(CollectionTypes.TripInfo);
 
@@ -25,6 +29,10 @@ const AddEditTripInfoPage: React.FC = () => {
         console.log("✅ TripInfo queued with temp ID:", tempId);
         navigate(`/trips/${tripId}`);
     };
+
+    if (!tripId || (tripInfoId && !currentInfo)) {
+        return <div>Loading trip info...</div>;
+    }
 
     return (
         <div className="container mx-auto p-4">
