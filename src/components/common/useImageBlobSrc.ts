@@ -7,6 +7,7 @@ export function isSpinnerVisible(entity: {
     return !!entity.isPendingUpload && !!entity.imageFile && navigator.onLine;
 }
 
+
 export function useImageBlobSrc(
     entity: {
         imageFile?: File;
