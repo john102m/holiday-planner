@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Activity, QueuedAction } from "../types";
-import { finalizeImageUpload } from "../../components/utilities"
+//import { finalizeImageUpload } from "../../components/utilities"
 import { uploadToAzureBlob } from "../storeUtils";
 import { createActivityWithSas, editActivityForSas, deleteActivity } from "../apis/activitiesApi";
 import { handleQueueError } from "../../components/common/useErrorHandler";
@@ -84,18 +84,19 @@ export const useActivitiesStore = create<ActivitiesSliceState>()(
   )
 );
 
-
 export const handleCreateActivity = async (action: QueuedAction) => {
   const { addActivity, replaceActivity, updateActivity } = useActivitiesStore.getState();
   const act = action.payload as Activity;
+
   console.log("📦 [Queue] Processing CREATE_ACTIVITY for:", act.name);
 
   try {
-
+    // Step 1: create the activity on the server
     const { activity: saved, sasUrl } = await createActivityWithSas(act);
     console.log("✅ [API] Activity created:", saved);
     console.log("🔗 [API] Received SAS URL:", sasUrl);
 
+    // Step 2: preserve blob & imageFile for optimistic display
     const merged: Activity = {
       ...saved,
       previewBlobUrl: act.previewBlobUrl,
@@ -104,6 +105,7 @@ export const handleCreateActivity = async (action: QueuedAction) => {
       imageUrl: act.imageUrl,
     };
 
+    // Step 3: add or replace optimistic activity in store
     if (action.tempId) {
       console.log("🔄 [Store] Replacing optimistic activity with saved one");
       replaceActivity(action.tempId, merged);
@@ -112,14 +114,22 @@ export const handleCreateActivity = async (action: QueuedAction) => {
       addActivity(saved.destinationId, merged);
     }
 
+    // Step 4: upload image if present
     if (sasUrl && act.imageFile instanceof File) {
       console.log("📤 [Upload] Uploading image to Azure Blob...");
       await uploadToAzureBlob(act.imageFile, sasUrl);
       console.log("✅ [Upload] Image upload complete");
 
-      const finalized = finalizeImageUpload(saved, sasUrl);
-      updateActivity(saved.destinationId, finalized as Activity);
-      console.log("🔄 [Store] Activity image finalized:", finalized.imageUrl);
+      // Step 5: finalize image upload
+      const finalized: Activity = {
+        ...saved,
+        imageUrl: saved.imageUrl!,
+        previewBlobUrl: undefined,
+        imageFile: undefined,
+        isPendingUpload: false,
+      };
+      updateActivity(saved.destinationId, finalized);
+      console.log("🔄 [Store] Activity image updated to:", finalized.imageUrl);
     } else {
       console.log("⚠️ [Upload] No image file found or SAS URL missing");
     }
