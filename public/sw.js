@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v6.7";
+const CACHE_NAME = "itinera-v6.8";
 
 // App shell: essential files
 const APP_SHELL = [
@@ -81,7 +81,7 @@ self.addEventListener("fetch", (event) => {
       caches.open(CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(req);
         try {
-          const res = await fetch(req, { mode: "cors" }); // Explicit CORS mode
+          const res = await fetch(req, { mode: "cors", credentials: "omit"  }); // Explicit CORS mode
           if (res.ok) {
             if (res.type === "opaque") {
               cache.put(req, res); // Don't clone opaque responses
