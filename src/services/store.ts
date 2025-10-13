@@ -5,7 +5,8 @@ import { uploadToAzureBlob } from "./storeUtils";
 import type { BaseSliceState } from "../components/common/useErrorHandler";
 import { handleQueueError } from "../components/common/useErrorHandler";
 import {
-  createUserTrip, editUserTrip, deleteUserTrip
+  createUserTrip, editUserTrip, deleteUserTrip,
+  getPing
 } from "./apis/api";
 import type {
   Entity, Destination, Activity, Package,
@@ -231,19 +232,58 @@ export const useStore = create<AppState>()(
 
 );
 
-// Update offline state and process queue automatically
-window.addEventListener("online", async () => {
-  useStore.setState({ ui: { offline: false } });
-  console.log("Offline status:", useStore.getState().ui.offline);
-  //Optional: debounce processQueue if many online events fire at once.
-  await processQueue(); // flush queued actions automatically
-});
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function fetchWithTimeout<T>(promise: Promise<T>, timeout = 3000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), timeout))
+  ]);
+}
+
+async function isActuallyOnline(): Promise<boolean> {
+  try {
+    const res = await fetchWithTimeout(getPing(), 3000);
+    return res === "pong";
+  } catch {
+    return false;
+  }
+}
+let isProcessingQueue = false;
+
+async function handleOnlineEvent() {
+  if (debounceTimer) clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(async () => {
+    const trulyOnline = await isActuallyOnline();
+
+    useStore.setState({ ui: { offline: !trulyOnline } });
+    console.log("Verified offline status:", useStore.getState().ui.offline);
+
+    if (trulyOnline && !isProcessingQueue) {
+      isProcessingQueue = true;
+      await processQueue();
+      isProcessingQueue = false;
+    }
+  }, 1000);
+}
+
+window.addEventListener("online", handleOnlineEvent);
 
 window.addEventListener("offline", () => {
   useStore.setState({ ui: { offline: true } });
   console.log("Offline status:", useStore.getState().ui.offline);
 
 });
+// 🔁 Periodic recheck every 30 seconds if offline
+setInterval(() => {
+  const isOffline = useStore.getState().ui.offline;
+  if (isOffline) {
+    console.log("Rechecking connectivity...");
+    handleOnlineEvent();
+  }
+}, 30000);
+
 
 export const handleCreateUserTrip = async (action: QueuedAction) => {
   const { addUserTrip, replaceUserTrip, updateUserTrip } = useStore.getState();

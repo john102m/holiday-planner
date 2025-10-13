@@ -229,6 +229,11 @@ export const editUserTrip = async (
   return res.data;
 };
 
+// ----------------- PING -----------------
+export const getPing = async (): Promise<string> => {
+  const res = await api.get<string>(`/destinations/ping`);
+  return res.data;
+};
 // ----------------- DELETE -----------------
 export const deleteUserTrip = async (tripId: string): Promise<void> => {
   await api.post<void>(`/users/deletetrip/${tripId}`);
