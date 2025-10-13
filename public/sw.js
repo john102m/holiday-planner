@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v6.5";
+const CACHE_NAME = "itinera-v6.6";
 
 // App shell: essential files
 const APP_SHELL = [
@@ -75,7 +75,7 @@ self.addEventListener("fetch", (event) => {
   // 3️⃣ Azure Blob images → cache-first with background update (opaque-safe)
   if (
     url.hostname.endsWith("blob.core.windows.net") ||
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg)$/)
+    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)
   ) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
