@@ -5,7 +5,7 @@ import { createTripInfo, updateTripInfo, deleteTripInfo } from "../apis/tripInfo
 import { uploadToAzureBlob } from "../storeUtils";
 import { handleQueueError } from "../../components/common/useErrorHandler";
 import type { BaseSliceState } from "../../components/common/useErrorHandler";
-import { finalizeImageUpload } from "../../components/utilities"
+//import { finalizeImageUpload } from "../../components/utilities"
 
 export interface TripInfoSliceState extends BaseSliceState {
     tripInfo: Record<string, TripInfo[]>;
@@ -86,56 +86,60 @@ export const useTripInfoStore = create<TripInfoSliceState>()(
 
 
 // See the detailed explanation of these handlers in Itinera Unit Testing.docx
-
 export const handleCreateTripInfo = async (action: QueuedAction) => {
-    const { addTripInfo, replaceTripInfo, updateTripInfoEntry } = useTripInfoStore.getState();
-    const info = action.payload as TripInfo;
+  const { addTripInfo, replaceTripInfo, updateTripInfoEntry } = useTripInfoStore.getState();
+  const info = action.payload as TripInfo;
 
-    console.log("📘 [Queue] Processing CREATE_TRIP_INFO for:", info.title);
+  console.log("📘 [Queue] Processing CREATE_TRIP_INFO for:", info.title);
 
-    try {
-        // Step 1: create the entry on the server
-        const { tripInfo: saved, sasUrl } = await createTripInfo(info);
+  try {
+    // Step 1: create the entry on the server
+    const { tripInfo: saved, sasUrl } = await createTripInfo(info);
+    console.log("✅ [API] TripInfo created:", saved);
+    console.log("🔗 [API] Received SAS URL:", sasUrl);
 
-        console.log("✅ [API] TripInfo created:", saved);
-        console.log("🔗 [API] Received SAS URL:", sasUrl);
+    // Step 2: preserve blob & imageFile for optimistic display
+    const merged: TripInfo = {
+      ...saved,
+      previewBlobUrl: info.previewBlobUrl,
+      isPendingUpload: !!info.imageFile,
+      imageFile: info.imageFile,
+      imageUrl: info.imageUrl,
+    };
 
-        // Step 2: preserve blob & imageFile for optimistic display
-        const merged: TripInfo = {
-            ...saved,
-            previewBlobUrl: info.previewBlobUrl,
-            isPendingUpload: !!info.imageFile,
-            imageFile: info.imageFile,
-            imageUrl: info.imageUrl,
-        };
-
-        // Step 3: add or replace optimistic entry in store
-        if (action.tempId) {
-            console.log("🔄 [Store] Replacing optimistic TripInfo with saved one");
-            replaceTripInfo(action.tempId, merged);
-        } else {
-            console.log("➕ [Store] Adding new TripInfo to store");
-            addTripInfo(merged.tripId, merged);
-
-        }
-
-        // Step 4: upload image if present
-        if (sasUrl && info.imageFile instanceof File) {
-            console.log("📤 [Upload] Uploading image to Azure Blob...");
-            await uploadToAzureBlob(info.imageFile, sasUrl);
-            console.log("✅ [Upload] Image upload complete");
-
-            const finalized = finalizeImageUpload(saved, sasUrl) as TripInfo;
-            updateTripInfoEntry(finalized.tripId, finalized);
-
-            console.log("🔄 [Store] TripInfo image updated to:", finalized.imageUrl);
-        } else {
-            console.log("⚠️ [Upload] No image file found or SAS URL missing");
-        }
-    } catch (error: unknown) {
-        handleQueueError(useTripInfoStore.getState(), error);
+    // Step 3: add or replace optimistic entry in store
+    if (action.tempId) {
+      console.log("🔄 [Store] Replacing optimistic TripInfo with saved one");
+      replaceTripInfo(action.tempId, merged);
+    } else {
+      console.log("➕ [Store] Adding new TripInfo to store");
+      addTripInfo(merged.tripId, merged);
     }
+
+    // Step 4: upload image if present
+    if (sasUrl && info.imageFile instanceof File) {
+      console.log("📤 [Upload] Uploading image to Azure Blob...");
+      await uploadToAzureBlob(info.imageFile, sasUrl);
+      console.log("✅ [Upload] Image upload complete");
+
+      // Step 5: finalize image upload
+      const finalized: TripInfo = {
+        ...saved,
+        imageUrl: saved.imageUrl!,
+        previewBlobUrl: undefined,
+        imageFile: undefined,
+        isPendingUpload: false,
+      };
+      updateTripInfoEntry(finalized.tripId, finalized);
+      console.log("🔄 [Store] TripInfo image updated to:", finalized.imageUrl);
+    } else {
+      console.log("⚠️ [Upload] No image file found or SAS URL missing");
+    }
+  } catch (error: unknown) {
+    handleQueueError(useTripInfoStore.getState(), error);
+  }
 };
+
 export const handleUpdateTripInfo = async (action: QueuedAction) => {
     const { updateTripInfoEntry } = useTripInfoStore.getState();
     const entry = action.payload as TripInfo;
