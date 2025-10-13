@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v6.9";
+const CACHE_NAME = "itinera-v7.0";
 
 // App shell: essential files
 const APP_SHELL = [
@@ -37,6 +37,10 @@ self.addEventListener("activate", (event) => {
 // Fetch → strategy-based
 self.addEventListener("fetch", (event) => {
   const req = event.request;
+
+  // 🚫 Skip non-GET requests (like POST, PUT, DELETE)
+  if (req.method !== "GET") return;
+
   const url = new URL(req.url);
 
   // 1️⃣ Navigation requests → stale-while-revalidate
@@ -82,7 +86,7 @@ self.addEventListener("fetch", (event) => {
         const cached = await cache.match(req);
         try {
           console.log("Intercepting image:", req.url);
-          const res = await fetch(req, { mode: "cors", credentials: "omit"  }); // Explicit CORS mode
+          const res = await fetch(req, { mode: "cors", credentials: "omit" });
           if (res.ok) {
             if (res.type === "opaque") {
               cache.put(req, res); // Don't clone opaque responses
@@ -98,7 +102,6 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-
 
   // 5️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
   if (url.pathname.startsWith("/icons/") || url.pathname.match(/\.(js|css)$/)) {
@@ -117,6 +120,11 @@ self.addEventListener("fetch", (event) => {
 
   // 6️⃣ Default → cache-first fallback network
   event.respondWith(
-    caches.match(req).then(cached => cached || fetch(req))
+    caches.match(req).then(cached =>
+      fetch(req).catch((err) => {
+        console.error("❌ [SW] Fetch failed:", err);
+        return cached || new Response("Network error", { status: 503 });
+      })
+    )
   );
 });
