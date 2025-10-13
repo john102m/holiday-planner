@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v6.4";
+const CACHE_NAME = "itinera-v6.5";
 
 // App shell: essential files
 const APP_SHELL = [
@@ -94,22 +94,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-
-
-  // 4️⃣ Dynamic images (uploads folder or local assets) → cache-first
-  if (url.pathname.startsWith("/uploads/") || url.pathname.match(/\.(png|jpg|jpeg|gif)$/)) {
-    event.respondWith(
-      caches.match(req).then((cached) => {
-        const fetchPromise = fetch(req).then((networkRes) => {
-          const clone = networkRes.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-          return networkRes;
-        }).catch(() => cached);
-        return cached || fetchPromise;
-      })
-    );
-    return;
-  }
 
   // 5️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
   if (url.pathname.startsWith("/icons/") || url.pathname.match(/\.(js|css)$/)) {
