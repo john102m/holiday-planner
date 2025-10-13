@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v7.3";
+const CACHE_NAME = "itinera-v7.4";
 
 // App shell: essential files
 const APP_SHELL = [
