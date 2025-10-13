@@ -6,7 +6,7 @@ import type { BaseSliceState } from "../components/common/useErrorHandler";
 import { handleQueueError } from "../components/common/useErrorHandler";
 import {
   createUserTrip, editUserTrip, deleteUserTrip,
-  getPing
+  //getPing
 } from "./apis/api";
 import type {
   Entity, Destination, Activity, Package,
@@ -234,21 +234,17 @@ export const useStore = create<AppState>()(
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-function fetchWithTimeout<T>(promise: Promise<T>, timeout = 3000): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), timeout))
-  ]);
-}
 
 async function isActuallyOnline(): Promise<boolean> {
+  if (!navigator.onLine) return false; // quick exit
   try {
-    const res = await fetchWithTimeout(getPing(), 3000);
-    return res === "pong";
+    const res = await fetch("/ping.txt", { cache: "no-store" });
+    return res.ok;
   } catch {
     return false;
   }
 }
+
 let isProcessingQueue = false;
 
 async function handleOnlineEvent() {

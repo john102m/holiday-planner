@@ -71,7 +71,7 @@ const ActivityCard: React.FC<Props> = ({
         <div className="w-5/12 h-full relative flex-shrink-0">
           <div className="aspect-[4/3] w-full h-full overflow-hidden rounded-l">
             <img
-              src={imgSrc || "/placeholder.png"}
+              src={imgSrc}
               alt={activity.name}
               className={`w-full  rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
               style={{
