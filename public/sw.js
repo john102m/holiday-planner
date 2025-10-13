@@ -1,11 +1,11 @@
-const CACHE_NAME = "itinera-v7.4";
+const CACHE_NAME = "itinera-v7.5";
 
 // App shell: essential files
 const APP_SHELL = [
   "/",
   "/index.html",
   "/manifest.json",
-  "/placeholder.png" // good idea to always cache your fallback
+   // good idea to always cache your fallback
 ];
 
 // Static assets
