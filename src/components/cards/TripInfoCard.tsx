@@ -41,7 +41,13 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
       console.log(`Queued deletion for TripInfo ${info.title}`);
     }
   };
-
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, "");
+    } catch {
+      return url;
+    }
+  };
   return (
     <>
       <div
@@ -132,6 +138,22 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
               {info.location} • {info.type} <br />
               {info.startDate?.slice(0, 10)} → {info.endDate?.slice(0, 10)}
             </div>
+            <div>
+              <h4 className="font-semibold mb-1">Related Link</h4>
+              {info.linkUrl ? (
+                <a
+                  href={info.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline break-words"
+                  title={info.linkUrl}
+                >
+                  {getDomain(info.linkUrl)}
+                </a>
+              ) : (
+                <p className="text-gray-500 italic">No link provided for this trip info.</p>
+              )}
+            </div>            
           </div>
         </GenericModal>
       )}

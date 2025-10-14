@@ -24,7 +24,7 @@ const TripInfoForm: React.FC<Props> = ({
     const [startDate, setStartDate] = useState(initialValues?.startDate?.slice(0, 10) || "");
     const [endDate, setEndDate] = useState(initialValues?.endDate?.slice(0, 10) || "");
     const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
-
+    const [linkUrl, setLinkUrl] = useState(initialValues?.linkUrl || ""); 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
@@ -37,6 +37,7 @@ const TripInfoForm: React.FC<Props> = ({
             startDate,
             endDate,
             imageUrl,
+            linkUrl
         });
     };
 
@@ -65,7 +66,16 @@ const TripInfoForm: React.FC<Props> = ({
                     className="border rounded p-2 w-full resize-none"
                 />
             </div>
-
+      <div>
+        <label className="block font-semibold">Link URL</label>
+        <input
+          type="url"
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          className="w-full border rounded p-2"
+          placeholder="https://example.com"
+        />
+      </div>
             {/* Location + Type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col">

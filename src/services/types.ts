@@ -123,6 +123,7 @@ export interface TripInfo extends ImageAttachable {
   description: string;
   location?: string;
   imageUrl?: string;
+  linkUrl?: string;
   startDate?: string;   // ISO string
   endDate?: string;     // ISO string
   createdBy?: string;
