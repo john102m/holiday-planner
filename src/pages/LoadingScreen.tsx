@@ -7,7 +7,7 @@ const LoadingScreen: React.FC = () => {
             <img
                 src="/logoscreen.png"
                 alt="App logo"
-                className="w-4/5 max-w-3xl animate-pulse"
+                className="w-1/2 max-w-2xl"
             />
 
         </div>

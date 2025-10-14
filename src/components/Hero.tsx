@@ -10,12 +10,11 @@ export default function Hero() {
       }}
     >
       <div className="bg-black/40 p-6 rounded-xl text-center max-w-xl mx-4">
-        <h1 className="text-[#F4EBD0] font-extrabold drop-shadow-xl">
+        <h1 className="text-[#f4d0e5] font-serif font-extralight drop-shadow-xl">
           Itinera
         </h1>
-        <p className="mt-4 text-white/80 text-lg sm:text-xl font-light drop-shadow">
-          🌍 Discover. Plan. Go.
-        </p>
+
+
         <NavLink
           to="/dashboard"
           className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-800 to-indigo-100 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
