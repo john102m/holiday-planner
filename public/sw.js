@@ -1,4 +1,4 @@
-const CACHE_NAME = "itinera-v7.6";
+const CACHE_NAME = "itinera-v7.7";
 
 // App shell: essential files
 const APP_SHELL = [
@@ -13,6 +13,15 @@ const STATIC_ASSETS = [
   "/icons/android-chrome-192x192.png",
   "/icons/android-chrome-512x512.png"
 ];
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then(granted => {
+    if (granted) {
+      console.log("Persistent storage granted");
+    } else {
+      console.log("Persistent storage denied");
+    }
+  });
+}
 
 // Install → pre-cache shell + static
 self.addEventListener("install", (event) => {
