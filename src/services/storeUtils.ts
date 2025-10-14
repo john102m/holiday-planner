@@ -16,3 +16,18 @@ export const uploadToAzureBlob = async (file: File, sasUrl: string): Promise<voi
     console.error("❌ Upload failed:", error);
   }
 };
+
+
+export async function requestPersistence(): Promise<void> {
+  if (navigator.storage && navigator.storage.persist) {
+    try {
+      const granted = await navigator.storage.persist();
+      console.log(granted ? "✅ Persistent storage granted" : "❌ Persistent storage denied");
+    } catch (error) {
+      console.error("Error requesting persistent storage:", error);
+    }
+  } else {
+    console.log("⚠️ StorageManager API not available");
+  }
+}
+

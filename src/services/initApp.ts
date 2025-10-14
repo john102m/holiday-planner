@@ -12,6 +12,11 @@
 // processQueue = sweeps through that to-do list when the network comes back.
 // Components = just read/write the store as if it’s the database — everything else happens behind the
 
+import { requestPersistence } from "../services/storeUtils"
+
+requestPersistence(); // ✅ This runs in the window context
+
+
 import { login, getUserTrips } from "./apis/api";
 import { getDestinations } from "./apis/destinationsApi";
 import { getActivities } from "./apis/activitiesApi";
