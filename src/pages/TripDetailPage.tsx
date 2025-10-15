@@ -82,19 +82,14 @@ const TripDetailPage: React.FC = () => {
                 {activeTab === "📌" && (
                     <div>
 
+                        {userTrip.hideGeneralActivities && (
+                            <div className="mb-3 px-3">
+                                <div className="flex items-center justify-center sm:justify-start gap-2 px-3 py-2 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded text-sm">
 
-                        {/* Status indicator */}
-                        <div className="mb-3 ml-14">
-                            {userTrip.hideGeneralActivities ? (
-                                <div className="px-3 py-2 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded text-sm">
-                                    General destination activities are hidden. Only private activities are shown.
+                                    <span>General destination activities hidden</span>
                                 </div>
-                            ) : (
-                                <div className="px-3 py-2 bg-green-100 border border-green-300 text-green-800 rounded text-sm">
-                                    Showing public destination activities alongside your trip activities.
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                         {/* Desktop/tablet inline button */}
                         <div className="hidden sm:flex justify-start mb-2 ml-14">
                             <button
