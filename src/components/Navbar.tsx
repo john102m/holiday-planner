@@ -53,10 +53,24 @@ function Navbar() {
         <div className="sm:hidden mt-3 px-4 pb-2 h-14 flex items-center">
           <NavLink
             to="/dashboard"
-            className="text-blue-900 bg-blue-300 rounded-2xl pt-1 pl-2 pr-2 pb-1 font-bold text-lg hover:text-blue-700"
+            className="
+              text-blue-900 
+              bg-blue-300 
+              rounded-2xl 
+              pt-1 pl-3 pr-3 pb-1 
+              font-bold 
+              text-lg 
+              hover:text-blue-700 
+              hover:bg-blue-200 
+              transition-colors 
+              shadow-sm
+              active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
+            "
           >
             Dashboard
           </NavLink>
+
         </div>
 
         {/* Center: All visible links */}
