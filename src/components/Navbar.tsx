@@ -50,10 +50,10 @@ function Navbar() {
           Itinera
         </NavLink>
         {/* Mobile Quick Dashboard Link */}
-        <div className="sm:hidden mt-2 px-4 pb-2 h-14 flex items-center">
+        <div className="sm:hidden mt-3 px-4 pb-2 h-14 flex items-center">
           <NavLink
             to="/dashboard"
-            className="text-blue-900 rounded p-0.5 border font-bold text-lg hover:text-blue-700"
+            className="text-blue-900 bg-blue-300 rounded-2xl pt-1 pl-2 pr-2 pb-1 font-bold text-lg hover:text-blue-700"
           >
             Dashboard
           </NavLink>
