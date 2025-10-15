@@ -40,18 +40,19 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
   return (
     <>
       <div className="w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 items-stretch">
+          {[...filteredActivities]
+            .sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime())
+            .map((act) => (
+              <ActivityCard
+                key={act.id}
+                activity={act}
+                destinationId={destinationId}
+                tripId={tripId}
+                showActions={!!tripId}
+              />
+            ))}
 
-          {filteredActivities.map((act) => (
-            <ActivityCard
-              key={act.id}
-              activity={act}
-              destinationId={destinationId}
-              tripId={tripId}
-              showActions={!!tripId} // only show edit/delete if viewing within a trip
-            />
-
-          ))}
         </div>
       </div>
 

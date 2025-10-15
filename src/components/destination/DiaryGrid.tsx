@@ -30,15 +30,16 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
         <>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {entries.map((entry) => (
-                    <DiaryEntryCard
-                        key={entry.id}
-                        entry={entry}
-                        onClick={() => setSelectedEntry(entry)}
-                        onEdit={(entry) => setEditEntry(entry)}
-                    />
-
-                ))}
+                {[...entries]
+                    .sort((a, b) => new Date(b.entryDate?? "").getTime() - new Date(a.entryDate ?? "").getTime())
+                    .map((entry) => (
+                        <DiaryEntryCard
+                            key={entry.id}
+                            entry={entry}
+                            onClick={() => setSelectedEntry(entry)}
+                            onEdit={(entry) => setEditEntry(entry)}
+                        />
+                    ))}
 
                 {selectedEntry && (
                     <DiaryEntryModal

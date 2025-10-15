@@ -75,6 +75,14 @@ export interface Day {
   activities: string[];
 }
 
+export type TripInfoType =
+  | "General"
+  | "Accommodation"
+  | "Logistics"
+  | "Activity"
+  | "Reminder";
+
+
 export interface ItineraryActivitiesBatch {
   id?: string,
   itineraryId: string;
@@ -118,7 +126,7 @@ export interface Destination extends ImageAttachable {
 export interface TripInfo extends ImageAttachable {
   id?: string;
   tripId: string;
-  type: string;//"Accommodation" | "Logistics" | "Activity" | "Misc";
+  type: TripInfoType;//"Accommodation" | "Logistics" | "Activity" | "Misc";
   title: string;
   description: string;
   location?: string;

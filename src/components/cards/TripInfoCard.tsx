@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { TripInfo } from "../../services/types";
+import type { TripInfo, TripInfoType } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import Spinner from "../common/Spinner";
@@ -12,6 +12,22 @@ interface Props {
   tripId: string;
   showActions?: boolean;
 }
+const typeIcons: Record<TripInfoType, string> = {
+  General: "📝",
+  Accommodation: "🏨",
+  Logistics: "🚌",
+  Activity: "🎟️",
+  Reminder: "⏰",
+};
+
+const typeColors: Record<TripInfoType, string> = {
+  General: "border-yellow-400",
+  Accommodation: "border-blue-400",
+  Logistics: "border-purple-400",
+  Activity: "border-green-400",
+  Reminder: "border-red-400",
+};
+
 
 const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,11 +64,20 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
       return url;
     }
   };
+  function formatDateRange(start?: string, end?: string): string {
+    if (!start && !end) return "";
+    const opts: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" };
+
+    const startStr = start ? new Date(start).toLocaleDateString("en-GB", opts) : "";
+    const endStr = end ? new Date(end).toLocaleDateString("en-GB", opts) : "";
+
+    return startStr && endStr ? `${startStr} → ${endStr}` : startStr || endStr;
+  }
+
   return (
     <>
       <div
-        className={`flex flex-row items-stretch w-full h-[130px] border-l-4 ${info.type === "Accommodation" ? "border-blue-400" : "border-yellow-400"
-          } bg-lime-50 rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]`}
+        className={`flex flex-row items-stretch w-full h-[130px] border-l-4 ${typeColors[info.type]} bg-lime-50 rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]`}
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
@@ -68,7 +93,8 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
             />
             {/* Icon Badge */}
             <div className="absolute top-2 left-2 bg-lime-50 rounded-full p-1 shadow">
-              <span className="text-xs">{info.type === "Accommodation" ? "🏨" : "🚐"}</span>
+              <span className="text-xs">{typeIcons[info.type]}</span>
+
             </div>
             {showSpinner && (
               <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
@@ -83,9 +109,10 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
           <div className="flex flex-col gap-1 overflow-hidden">
             <h3 className="font-bold text-md truncate">{info.title}</h3>
             <p className="text-xs text-gray-500 italic">
-              {info.startDate?.slice(0, 10)} → {info.endDate?.slice(0, 10)}
+              {formatDateRange(info.startDate, info.endDate)}
             </p>
-            <p className="text-sm text-gray-600 line-clamp-2">{truncatedDescription}</p>
+
+            <p className="text-sm text-gray-600 line-clamp-1">{truncatedDescription}</p>
             <div className="text-xs text-gray-500 italic">
               {info.type} • {info.location}
             </div>
@@ -136,7 +163,7 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
             <p className="text-gray-700 whitespace-pre-line">{info.description}</p>
             <div className="text-xs text-gray-500">
               {info.location} • {info.type} <br />
-              {info.startDate?.slice(0, 10)} → {info.endDate?.slice(0, 10)}
+              {formatDateRange(info.startDate, info.endDate)}
             </div>
             <div>
               <h4 className="font-semibold mb-1">Related Link</h4>
@@ -153,7 +180,7 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
               ) : (
                 <p className="text-gray-500 italic">No link provided for this trip info.</p>
               )}
-            </div>            
+            </div>
           </div>
         </GenericModal>
       )}
