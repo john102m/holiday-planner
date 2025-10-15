@@ -8,13 +8,14 @@ import ErrorToast from "../../components/common/ErrorToast";
 interface Props {
   destinationId: string;
   tripId?: string;
+  hideGeneralActivities?: boolean;
 }
 // Subscribe directly in grid → automatic re-render on updates.
 // All CRUD ops go through queue → consistent handling of optimistic UI and backend sync.
 // Parent page is simpler → just passes destinationId.
 // Eliminates props stale problem → no more “name doesn’t update after hard refresh”.
 const empty: Activity[] = [];
-const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
+const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralActivities }) => {
 
   const { errorMessage, setError } = useActivitiesStore();
   // ✅ Selector returns either the real array from the store
@@ -28,14 +29,25 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId }) => {
   console.log("Activties: ", activities);
   console.log("Trip Id: ", tripId);
 
-  // Filter activities based on public/private logic:
-  // - Trip page (tripId provided): include public activities (!tripId) + private activities for this trip (act.tripId === tripId)
-  // - Public page (tripId undefined): include only public activities (!tripId)
-  const filteredActivities = activities.filter((act) =>
-    tripId
-      ? !act.tripId || act.tripId === tripId
-      : !act.tripId
-  );
+  const filteredActivities = activities.filter((act) => {
+    if (tripId) {
+      // Trip page
+      if (act.tripId === tripId) {
+        return true; // always include trip-specific activities
+      }
+
+      if (!act.tripId) {
+        // General destination activities
+        return hideGeneralActivities ? act.isPrivate === true : act.isPrivate === false;
+      }
+
+      return false;
+    } else {
+      // Destination page (guest view)
+      return !act.tripId && act.isPrivate === false;
+    }
+  });
+
 
   return (
     <>

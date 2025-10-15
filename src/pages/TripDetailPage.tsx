@@ -91,7 +91,11 @@ const TripDetailPage: React.FC = () => {
                             </button>
                         </div>
 
-                        <ActivitiesGrid tripId={tripId} destinationId={currentDest.id ?? ""} />
+                        <ActivitiesGrid
+                            tripId={tripId}
+                            destinationId={currentDest.id ?? ""}
+                            hideGeneralActivities={userTrip.hideGeneralActivities}
+                        />
 
                         {/* FAB for mobile */}
                         <button

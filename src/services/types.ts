@@ -191,6 +191,7 @@ export interface UserTrip extends ImageAttachable {
   notes?: string;
   imageUrl?: string;
   collaborators?: string; // comma-separated emails
+  hideGeneralActivities: boolean;
 }
 
 export interface Itinerary extends ImageAttachable {

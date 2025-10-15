@@ -30,6 +30,9 @@ const TripForm: React.FC<Props> = ({
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
   const [notes, setNotes] = useState(initialValues?.notes || "");
   const [collaborators, setCollaborators] = useState(initialValues?.collaborators || "");
+  const [hideGeneralActivities, setHideGeneralActivities] = useState(
+    initialValues?.hideGeneralActivities ?? false
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,7 @@ const TripForm: React.FC<Props> = ({
       imageUrl,
       notes,
       collaborators: collaborators || undefined,
+      hideGeneralActivities
     };
 
     onSubmit(trip);
@@ -148,6 +152,18 @@ const TripForm: React.FC<Props> = ({
           onChange={e => setCollaborators(e.target.value)}
           className="w-full border rounded p-2"
         />
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          id="hideGeneralActivities"
+          type="checkbox"
+          checked={hideGeneralActivities}
+          onChange={e => setHideGeneralActivities(e.target.checked)}
+          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+        />
+        <label htmlFor="hideGeneralActivities" className="text-sm font-medium text-gray-700">
+          Hide general destination activities for this trip
+        </label>
       </div>
 
       <div className="flex gap-4 mt-4">
