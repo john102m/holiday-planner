@@ -126,11 +126,23 @@ const ActivityForm: React.FC<Props> = ({
             <input
               type="checkbox"
               checked={isPrivate}
-              onChange={(e) => setIsPrivate(e.target.checked)}
+              onChange={(e) => {
+                if (isAttachedToTrip && !e.target.checked) {
+                  if (
+                    !window.confirm(
+                      "⚠️ You are about to make this activity public. Continue?"
+                    )
+                  ) {
+                    return; // abort uncheck
+                  }
+                }
+                setIsPrivate(e.target.checked);
+              }}
               className="mr-2"
             />
             Private
           </label>
+
           <Tooltip maxWidth="200px" content="Private activities belong only to this trip. Uncheck to move to another trip.">
             <span className="text-gray-400 ml-2 cursor-help">ℹ️</span>
           </Tooltip>
