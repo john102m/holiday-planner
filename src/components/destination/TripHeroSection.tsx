@@ -1,8 +1,7 @@
 import React from "react";
-import type { Destination } from "../../services/types";
-import type { UserTrip } from "../../services/types";
-import { TripPage } from "../../components/common/ShareButton";
-import {formatDateRange} from "../../components/utilities";
+import type { Destination, UserTrip } from "../../services/types";
+import { ShareButton } from "../../components/common/ShareButton";
+import { formatDateRange } from "../../components/utilities";
 
 interface Props {
   trip: UserTrip;
@@ -11,29 +10,21 @@ interface Props {
 
 const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
   const startDate = new Date(trip.startDate ?? "");
-  
   const today = new Date();
   const daysToGo = Math.ceil(
     (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  // Reusable block for status + share
+  // Status + Share block
   const StatusAndShare = () => (
     <div className="flex items-center justify-between w-full">
-      {/* Status badge (non-clickable) */}
       <span className="bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
         {trip.status}
       </span>
 
-      {/* Share emoji button */}
-      <button
-        type="button"
-        onClick={TripPage}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 hover:bg-blue-600 text-white transition-colors"
-        aria-label="Share trip"
-      >
+      <ShareButton url={`https://holiday-planner-six.vercel.app/trips/${trip.id}`}>
         🔗
-      </button>
+      </ShareButton>
     </div>
   );
 
@@ -45,7 +36,7 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
         className="w-full h-40 sm:h-64 md:h-96 object-cover"
       />
 
-      {/* Desktop/tablet overlay */}
+      {/* Desktop / Tablet overlay */}
       <div className="hidden sm:block absolute inset-x-0 bottom-0 p-4 bg-black/30 backdrop-blur-sm">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl text-violet-50 font-bold flex flex-wrap items-baseline gap-2">

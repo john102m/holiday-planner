@@ -1,74 +1,45 @@
 import React, { useState } from "react";
+import type { ReactNode } from "react";
 
-const ShareButton: React.FC<{ url: string }> = ({ url }) => {
+interface ShareButtonProps {
+  url: string;
+  children?: ReactNode; // allow custom button content
+}
+
+export const ShareButton: React.FC<ShareButtonProps> = ({ url, children }) => {
   const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = async () => {
-    console.log("📤 Share button clicked");
-
-    const shareData = {
-      title: "Your Trip on Itinera",
-      text: "Check out this amazing journey I planned!",
-      url,
-    };
-
     if (!navigator.share) {
-      console.warn("🚫 Web Share API not supported");
       alert("Web Share API not supported on this device.");
       return;
     }
-
-    if (isSharing) {
-      console.warn("⏳ Share already in progress");
-      return;
-    }
+    if (isSharing) return;
 
     setIsSharing(true);
-    console.log("🔄 Starting share...");
 
     try {
-      await navigator.share(shareData);
-      console.log("✅ Shared successfully");
+      await navigator.share({
+        title: "Your Trip on Itinera",
+        text: "Check out this amazing journey I planned!",
+        url,
+      });
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        console.warn("🚫 Share aborted by user or system");
-      } else if (err instanceof Error) {
-        console.error("❌ Share failed:", err.name, err.message);
-      } else {
-        console.error("❌ Unknown share error:", err);
-      }
+      console.error("Share failed", err);
+    } finally {
+      setIsSharing(false);
     }
-
-
   };
 
   return (
     <button
       onClick={handleShare}
       disabled={isSharing}
-      style={{
-        padding: "6px 10px",
-        fontSize: "14px",
-        lineHeight: "1",
-        height: "auto",
-      }}
+      className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 hover:bg-blue-600 text-white transition-colors"
     >
-      Share
+      {children ?? "Share"}
     </button>
-
   );
 };
 
 export default ShareButton;
-
-
-//usage
-
-import { useLocation } from "react-router-dom";
-
-export const TripPage = () => {
-  const location = useLocation();
-  const currentUrl = `https://holiday-planner-six.vercel.app/${location.pathname}`;
-
-  return <ShareButton url={currentUrl} />;
-};
