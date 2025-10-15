@@ -2,21 +2,17 @@
 import { NavLink } from "react-router-dom";
 export default function Hero() {
   return (
-<header
-  className="w-full aspect-[4/1] bg-center bg-contain bg-no-repeat mt-20"
-  style={{
-    backgroundImage: "url('/logo.png')",
-  }}
->
+    <header
+      className="w-full aspect-[4/1] bg-center bg-contain bg-no-repeat mt-20"
+      style={{
+        backgroundImage: "url('/logo.png')",
+      }}
+    >
 
-  {/* Optional content here */}
-
-
-
-
-        <NavLink
-          to="/dashboard"
-          className="
+      {/* Optional content here */}
+      <NavLink
+        to="/dashboard"
+        className="
             hidden md:block
             text-blue-900 
             bg-blue-300 
@@ -31,9 +27,9 @@ export default function Hero() {
             active:scale-95
             focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
           "
-        >
-          Dashboard
-        </NavLink>
+      >
+        Dashboard
+      </NavLink>
 
 
     </header>
