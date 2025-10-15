@@ -8,6 +8,7 @@ import { toFocalPoint, fromFocalPoint } from "../common/focalPointUtils"; // adj
 interface Props {
   initialValues?: Activity;
   destinationId: string;
+  isAttachedToTrip: boolean;
   onSubmit: (act: Activity) => void;
   onCancel: () => void;
   onImageSelect: (file: File) => Promise<string>; // <-- new prop for image upload
@@ -16,13 +17,17 @@ interface Props {
 const ActivityForm: React.FC<Props> = ({
   initialValues,
   destinationId,
+  isAttachedToTrip,
   onSubmit,
   onCancel,
   onImageSelect,
 }) => {
   const [name, setName] = useState(initialValues?.name || "");
   const [details, setDetails] = useState(initialValues?.details || "");
-  const [isPrivate, setIsPrivate] = useState(initialValues?.isPrivate || false);
+  const [isPrivate, setIsPrivate] = useState(
+    initialValues?.isPrivate ?? isAttachedToTrip
+  );
+
   const [votes, setVotes] = useState(initialValues?.votes || 0);
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
   const [linkUrl, setLinkUrl] = useState(initialValues?.linkUrl || "");
@@ -49,7 +54,7 @@ const ActivityForm: React.FC<Props> = ({
 
     onSubmit(payload);
   };
-
+  console.log("TRIP ID: ", isAttachedToTrip);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,7 +70,7 @@ const ActivityForm: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className="block font-semibold">Details</label>
+        <label className="block font-semibold">Detail {initialValues?.tripId}</label>
         <textarea
           value={details}
           onChange={(e) => setDetails(e.target.value)}

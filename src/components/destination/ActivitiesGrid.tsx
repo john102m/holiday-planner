@@ -61,7 +61,7 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralAct
                 activity={act}
                 destinationId={destinationId}
                 tripId={tripId}
-                showActions={!!tripId}
+                showActions={!!tripId}           
               />
             ))}
 

@@ -109,6 +109,7 @@ const AddEditActivityPage: React.FC = () => {
         <ActivityForm
           initialValues={currentActivity}
           destinationId={destinationId}
+          isAttachedToTrip={currentTripId ? true : false}
           onSubmit={onSubmit}
           onCancel={() => {
             if (currentTripId) {
