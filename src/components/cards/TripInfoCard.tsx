@@ -6,7 +6,7 @@ import { CollectionTypes, QueueTypes } from "../../services/types";
 import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
-
+import { formatDateRange } from "../../components/utilities";
 interface Props {
   info: TripInfo;
   tripId: string;
@@ -64,15 +64,6 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
       return url;
     }
   };
-  function formatDateRange(start?: string, end?: string): string {
-    if (!start && !end) return "";
-    const opts: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" };
-
-    const startStr = start ? new Date(start).toLocaleDateString("en-GB", opts) : "";
-    const endStr = end ? new Date(end).toLocaleDateString("en-GB", opts) : "";
-
-    return startStr && endStr ? `${startStr} → ${endStr}` : startStr || endStr;
-  }
 
   return (
     <>

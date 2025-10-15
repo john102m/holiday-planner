@@ -39,6 +39,15 @@ export const stripSasToken = (url: string) => {
   const [baseUrl] = url.split('?');
   return baseUrl;
 };
+export function formatDateRange(start?: string, end?: string): string {
+  if (!start && !end) return "";
+  const opts: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" };
+
+  const startStr = start ? new Date(start).toLocaleDateString("en-GB", opts) : "";
+  const endStr = end ? new Date(end).toLocaleDateString("en-GB", opts) : "";
+
+  return startStr && endStr ? `${startStr} → ${endStr}` : startStr || endStr;
+}
 
 
 
