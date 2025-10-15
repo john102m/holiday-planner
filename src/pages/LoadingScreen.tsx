@@ -3,7 +3,7 @@ import React from "react";
 
 const LoadingScreen: React.FC = () => {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
             <img
                 src="/logoscreen.png"
                 alt="App logo"

@@ -1,17 +1,18 @@
-const CACHE_NAME = "itinera-v8.6";
+const CACHE_NAME = "itinera-v9.4";
 
 // App shell: essential files
 const APP_SHELL = [
   "/",
   "/index.html",
   "/manifest.json",
-   // good idea to always cache your fallback
 ];
 
 // Static assets
 const STATIC_ASSETS = [
   "/icons/android-chrome-192x192.png",
-  "/icons/android-chrome-512x512.png"
+  "/icons/android-chrome-512x512.png",
+  "/placeholder.png",        // ✅ pre-cache placeholder
+  // add any other key images you always want offline here
 ];
 
 // Install → pre-cache shell + static
@@ -38,7 +39,6 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // 🚫 Skip non-GET requests (like POST, PUT, DELETE)
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
@@ -47,11 +47,13 @@ self.addEventListener("fetch", (event) => {
   if (req.mode === "navigate") {
     event.respondWith(
       caches.match(req).then(cached => {
-        const fetchPromise = fetch(req).then(networkRes => {
-          const clone = networkRes.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          return networkRes;
-        }).catch(() => cached || caches.match("/index.html"));
+        const fetchPromise = fetch(req)
+          .then(networkRes => {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+            return networkRes;
+          })
+          .catch(() => cached || caches.match("/index.html"));
         return cached || fetchPromise;
       })
     );
@@ -59,7 +61,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // 2️⃣ API requests → network-first with cache fallback
-  if (url.pathname.startsWith("/api/") && req.method === "GET") {
+  if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       (async () => {
         try {
@@ -76,55 +78,50 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3️⃣ Azure Blob images → cache-first with background update (opaque-safe)
+  // 3️⃣ Image requests → cache-first with placeholder fallback
   if (
-    url.hostname.endsWith("blob.core.windows.net") ||
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)
+    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp)$/) ||
+    url.hostname.endsWith("blob.core.windows.net")
   ) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(req);
+        if (cached) return cached;
+
         try {
-          //console.log("Intercepting image:", req.url);
-          const res = await fetch(req, { mode: "cors", credentials: "omit" });
-          if (res.ok) {
-            if (res.type === "opaque") {
-              cache.put(req, res); // Don't clone opaque responses
-            } else {
-              cache.put(req, res.clone());
-            }
-          }
-          return res;
+          const networkRes = await fetch(req, { mode: "cors", credentials: "omit" });
+          if (networkRes.ok) cache.put(req, networkRes.type === "opaque" ? networkRes : networkRes.clone());
+          return networkRes;
         } catch {
-          return cached || caches.match("/placeholder.png");
+          const fallback = await cache.match("/placeholder.png");
+          return fallback || new Response("", { status: 404 });
         }
       })
     );
     return;
   }
 
-  // 5️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
+  // 4️⃣ Static assets (JS, CSS, icons) → stale-while-revalidate
   if (url.pathname.startsWith("/icons/") || url.pathname.match(/\.(js|css)$/)) {
     event.respondWith(
       caches.match(req).then(cached => {
-        const fetchPromise = fetch(req).then(networkRes => {
-          const clone = networkRes.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          return networkRes;
-        }).catch(() => cached);
+        const fetchPromise = fetch(req)
+          .then(networkRes => {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+            return networkRes;
+          })
+          .catch(() => cached);
         return cached || fetchPromise;
       })
     );
     return;
   }
 
-  // 6️⃣ Default → cache-first fallback network
+  // 5️⃣ Default → cache-first fallback network
   event.respondWith(
     caches.match(req).then(cached =>
-      fetch(req).catch((err) => {
-        console.error("❌ [SW] Fetch failed:", err);
-        return cached || new Response("Network error", { status: 503 });
-      })
+      fetch(req).catch(() => cached || new Response("Network error", { status: 503 }))
     )
   );
 });
