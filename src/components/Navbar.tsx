@@ -57,7 +57,7 @@ function Navbar() {
               text-blue-900 
               bg-blue-300 
               rounded-2xl 
-              pt-1 pl-3 pr-3 pb-1 
+              pt-0.5 pl-2 pr-2 pb-0.5 
               font-bold 
               text-lg 
               hover:text-blue-700 

@@ -15,12 +15,25 @@ export default function Hero() {
         </h1>
 
 
-        <NavLink
-          to="/dashboard"
-          className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-800 to-indigo-100 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
-        >
-          Dashboard
-        </NavLink>
+          <NavLink
+            to="/dashboard"
+            className="
+              text-blue-900 
+              bg-blue-300 
+              rounded-2xl 
+              pt-1 pl-3 pr-3 pb-1 
+              font-bold 
+              text-lg 
+              hover:text-blue-700 
+              hover:bg-blue-200 
+              transition-colors 
+              shadow-sm
+              active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
+            "
+          >
+            Dashboard
+          </NavLink>
 
       </div>
 
