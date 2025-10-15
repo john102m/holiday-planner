@@ -20,7 +20,10 @@ const TripInfoForm: React.FC<Props> = ({
     const [title, setTitle] = useState(initialValues?.title || "");
     const [description, setDescription] = useState(initialValues?.description || "");
     const [location, setLocation] = useState(initialValues?.location || "");
-    const [type, setType] = useState(initialValues?.type || "");
+    const [type, setType] = useState<TripInfoType>(
+        initialValues?.type ?? "General"
+    );
+
     const [startDate, setStartDate] = useState(initialValues?.startDate?.slice(0, 10) || "");
     const [endDate, setEndDate] = useState(initialValues?.endDate?.slice(0, 10) || "");
     const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || "");
