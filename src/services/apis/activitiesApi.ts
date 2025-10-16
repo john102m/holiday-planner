@@ -45,15 +45,29 @@ export const deleteActivity = async (
 export const createActivityWithSas = async (
   activity: Omit<Activity, "id" | "createdAt" | "createdBy">
 ): Promise<{ activity: Activity; sasUrl?: string; imageUrl?: string }> => {
- 
-  activity.imageUrl = stripSasToken(activity.imageUrl ?? "");
-  console.log("Creating an activity ", activity);
+
+  const payload = {
+    name: activity.name,
+    details: activity.details,
+    destinationId: activity.destinationId,
+    tripId: activity.tripId,
+    linkUrl: activity.linkUrl,
+    votes: activity.votes,
+    isPrivate: activity.isPrivate,
+    hasImage: activity.hasImage,
+    imageUrl: stripSasToken(activity.imageUrl ?? "")
+  };
+
+  console.log("Creating an activity (cleaned) ", payload);
+
   const res = await api.post<{ activity: Activity; sasUrl?: string; imageUrl?: string }>(
     `/itinerary/createforsas`,
-    activity
+    payload
   );
+
   return res.data;
 };
+
 
 // // Update activity and get SAS token if needed
 export const editActivityForSas = async (
