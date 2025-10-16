@@ -45,8 +45,9 @@ export const deleteActivity = async (
 export const createActivityWithSas = async (
   activity: Omit<Activity, "id" | "createdAt" | "createdBy">
 ): Promise<{ activity: Activity; sasUrl?: string; imageUrl?: string }> => {
-
+ 
   activity.imageUrl = stripSasToken(activity.imageUrl ?? "");
+  console.log("Creating an activity ", activity);
   const res = await api.post<{ activity: Activity; sasUrl?: string; imageUrl?: string }>(
     `/itinerary/createforsas`,
     activity
