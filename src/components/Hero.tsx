@@ -16,7 +16,7 @@ export default function Hero() {
         <NavLink
           to="/dashboard"
           className="
-            text-white 
+            text-white
             bg-blue-600 
             rounded-xl 
             px-6 py-2 
