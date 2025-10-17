@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { UserTrip, Destination } from "../../services/types";
 import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
+import placeholder from "/placeholder.png";
 import Spinner from "../common/Spinner";
 interface Props {
   trip: UserTrip;
@@ -22,7 +23,7 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
           src={imgSrc}
           alt={trip.name || destination.name}
           className={`w-full h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
-          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+          onError={(e) => { e.currentTarget.src = placeholder; }}
         />
         {showSpinner && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">

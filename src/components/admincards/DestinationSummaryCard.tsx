@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { Destination } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
-
+import placeholder from "/placeholder.png";
 interface Props {
   destination: Destination;
   showActions?: boolean;
@@ -38,7 +38,7 @@ const DestinationSummaryCard: React.FC<Props> = ({ destination, showActions = tr
           src={destination.imageUrl || "/placeholder.png"}
           alt={destination.name}
           className="w-full h-28 sm:h-full object-cover rounded"
-          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+          onError={(e) => { e.currentTarget.src = placeholder; }}
         />
       </div>
 

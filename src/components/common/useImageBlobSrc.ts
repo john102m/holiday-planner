@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import placeholder from "/placeholder.png";
 
 export function isSpinnerVisible(entity: {
     isPendingUpload?: boolean;
@@ -25,7 +26,7 @@ export function useImageBlobSrc(entity: {
     }
 
     // ✅ Offline-safe fallback
-    return navigator.onLine ? "/placeholder.png" : "";
+    return navigator.onLine ? placeholder : "";
   }, [imageFile, previewBlobUrl, imageUrl, isPendingUpload]);
 
   useEffect(() => {

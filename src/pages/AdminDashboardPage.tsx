@@ -15,7 +15,8 @@ function resetAllStores() {
     "packages-store",
     "itineraries-store",
     "diary-entries-store",
-    "destinations-store"
+    "destinations-store",
+    "trip-info-store"
   ];
 
   storeKeys.forEach((key) => localStorage.removeItem(key));

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import type { DiaryEntry } from "../../services/types";
-
+import placeholder from "/placeholder.png";
 interface Props {
   entry: DiaryEntry;
   onClose: () => void;
@@ -47,7 +47,7 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
   const imageSrc =
     entry.imageUrl?.trim() && entry.imageUrl !== ""
       ? entry.imageUrl
-      : "/placeholder.png";
+      : placeholder;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-lg sm:backdrop-blur-md p-4">
@@ -61,7 +61,7 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose }) => {
           alt="Diary Entry"
           className="w-full h-64 object-cover rounded mb-4"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
+            e.currentTarget.src = placeholder;
           }}
         />
 

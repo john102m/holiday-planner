@@ -1,6 +1,6 @@
 import React from "react";
 import type { DashboardItinerary, Itinerary } from "../services/types";
-
+import placeholder from "/placeholder.png";
 interface Props {
   itinerary: Partial<Itinerary> | DashboardItinerary;
   showRoleBadge?: boolean;
@@ -24,7 +24,7 @@ const ItineraryCard: React.FC<Props> = ({ itinerary }) => {
           alt={name}
           className="w-full h-32 object-cover"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
+            e.currentTarget.src = placeholder;
           }}
         />
       )}

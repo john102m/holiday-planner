@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserById, updateUser } from "../../services/apis/api"; // adjust path as needed
 import type { User } from "../../services/types";
 import { GenericModal } from "../GenericModal";
+import placeholder from "/placeholder.png";
 
 const UserEditPage: React.FC = () => {
     const { id } = useParams();
@@ -44,11 +45,11 @@ const UserEditPage: React.FC = () => {
         <>
             <div className="flex justify-center mb-6">
                 <img
-                    src={user.avatarUrl ?? "/placeholder.png"}
+                    src={user.avatarUrl ?? placeholder}
                     alt={user.name}
                     className="w-24 h-24 rounded-full object-cover border shadow"
                     onError={(e) => {
-                        e.currentTarget.src = "/placeholder.png";
+                        e.currentTarget.src = placeholder;
                     }}
                 />
             </div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Package } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
+import placeholder from "/placeholder.png";
 interface Props {
   pkg: Package;
   destinationId: string;
@@ -32,7 +33,7 @@ const PackageCard: React.FC<Props> = ({ pkg, destinationId, showActions }) => {
         alt={pkg.name}
         className="card-img"
         onError={(e) => {
-          e.currentTarget.src = "/placeholder.png";
+          e.currentTarget.src = placeholder;
         }}
       />}
       <div className="card-body">

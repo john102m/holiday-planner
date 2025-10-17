@@ -6,6 +6,7 @@ import { addOptimisticAndQueue } from "../../services/store";
 import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
+import placeholder from "/placeholder.png";
 
 interface Props {
   activity: Activity;
@@ -76,7 +77,7 @@ const ActivityCard: React.FC<Props> = ({
               objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
             }}
             onError={(e) => {
-              e.currentTarget.src = "/placeholder.png";
+              e.currentTarget.src = placeholder;
             }}
           />
           {showSpinner && (
@@ -140,7 +141,7 @@ const ActivityCard: React.FC<Props> = ({
                 src={imgSrc}
                 alt={activity.name}
                 onError={(e) => {
-                  e.currentTarget.src = "/placeholder.png";
+                  e.currentTarget.src = placeholder;
                 }}
                 className="w-full object-cover rounded"
               />

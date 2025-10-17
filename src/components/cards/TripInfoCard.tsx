@@ -7,6 +7,8 @@ import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
 import { formatDateRange } from "../../components/utilities";
+import placeholder from "/placeholder.png";
+
 interface Props {
   info: TripInfo;
   tripId: string;
@@ -75,11 +77,11 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
         <div className="w-5/12 h-full relative flex-shrink-0">
           <div className="aspect-[4/3] w-full h-full overflow-hidden rounded-l">
             <img
-              src={imgSrc || "/placeholder.png"}
+              src={imgSrc || placeholder}
               alt={info.title}
               className={`w-full rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
               onError={(e) => {
-                e.currentTarget.src = "/placeholder.png";
+                e.currentTarget.src = placeholder;
               }}
             />
             {/* Icon Badge */}
@@ -146,7 +148,7 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
                 src={imgSrc}
                 alt={info.title}
                 onError={(e) => {
-                  e.currentTarget.src = "/placeholder.png";
+                  e.currentTarget.src = placeholder;
                 }}
                 className="w-full object-cover rounded"
               />

@@ -37,37 +37,43 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
       />
 
       {/* Desktop / Tablet overlay */}
-      <div className="hidden sm:block absolute inset-x-0 bottom-0 p-4 bg-black/30 backdrop-blur-sm">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl text-violet-50 font-bold flex flex-wrap items-baseline gap-2">
-            <span>{trip.name}</span>
+      <div className="hidden md:block absolute inset-x-0 bottom-0 p-4 bg-black/30 backdrop-blur-sm">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <h2 className="text-2xl text-violet-50 font-bold">{trip.name}</h2>
             <span className="text-base text-gray-300">{destination.name}</span>
+          </div>
+         
+            <StatusAndShare />
+         
+        </div>
+
+        <p className="text-sm text-gray-200 mt-1">
+          {formatDateRange(trip.startDate, trip.endDate)}
+          {daysToGo > 0 && (
+            <span className="text-gray-300 text-xs ml-2">🗓 {daysToGo} days to go</span>
+          )}
+        </p>
+      </div>
+
+
+      {/* Mobile stacked card */}
+      <div className="md:hidden p-3 bg-white rounded-b-lg shadow-md space-y-1">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-base font-semibold text-gray-800">
+            {trip.name || `Your Trip to ${destination.name}`}
           </h2>
           <StatusAndShare />
         </div>
-        <p className="text-gray-200 mt-1">
+
+        <p className="text-sm text-gray-600">
           {formatDateRange(trip.startDate, trip.endDate)}
+          {daysToGo > 0 && (
+            <span className="text-gray-400 text-xs ml-2">🗓 {daysToGo} days to go</span>
+          )}
         </p>
-        {daysToGo > 0 && (
-          <p className="text-gray-300 text-sm mt-1">🗓 {daysToGo} days to go</p>
-        )}
       </div>
 
-      {/* Mobile stacked card */}
-      <div className="sm:hidden p-3 bg-white rounded-b-lg shadow-md">
-        <h2 className="text-lg font-bold text-gray-800">
-          {trip.name || `Your Trip to ${destination.name}`}
-        </h2>
-        <p className="text-gray-600 text-sm">
-          {formatDateRange(trip.startDate, trip.endDate)}
-        </p>
-        {daysToGo > 0 && (
-          <p className="text-gray-500 text-xs mt-1">🗓 {daysToGo} days to go</p>
-        )}
-        <div className="mt-2">
-          <StatusAndShare />
-        </div>
-      </div>
     </div>
   );
 };

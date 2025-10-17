@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
-
+import placeholder from "/placeholder.png";
 interface Props {
   activity: Activity;
   showActions?: boolean;
@@ -37,11 +37,11 @@ const ActivitySummaryCard: React.FC<Props> = ({ activity, showActions = true }) 
       {/* Left: Image */}
       <div className="w-1/3 flex-shrink-0">
         <img
-          src={activity.imageUrl || "/placeholder.png"}
+          src={activity.imageUrl || placeholder}
           alt={activity.name}
           className="w-full h-28 sm:h-full object-cover rounded"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
+            e.currentTarget.src = placeholder;
           }}
         />
       </div>

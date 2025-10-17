@@ -1,6 +1,6 @@
 import React from "react";
 import type { Package } from "../services/types";
-
+import placeholder from "/placeholder.png";
 interface Props {
   package: Package;
 }
@@ -14,7 +14,7 @@ const PackageCard: React.FC<Props> = ({ package: pkg }) => {
           alt={pkg.name}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
+            e.currentTarget.src = placeholder;
           }}
         />
       )}

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { Package } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
-
+import placeholder from "/placeholder.png";
 interface Props {
   pkg: Package;
   showActions?: boolean;
@@ -35,11 +35,11 @@ return (
     {/* Left: Image */}
     <div className="w-1/3 flex-shrink-0">
       <img
-        src={pkg.imageUrl || "/placeholder.png"}
+        src={pkg.imageUrl || placeholder}
         alt={pkg.name}
         className="w-full h-28 sm:h-full object-cover rounded"
         onError={(e) => {
-          e.currentTarget.src = "/placeholder.png";
+          e.currentTarget.src = placeholder;
         }}
       />
     </div>
