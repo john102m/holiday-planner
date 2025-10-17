@@ -52,26 +52,25 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralAct
   return (
     <>
       <div className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 items-stretch">
+        <div className="columns-2 sm:columns-2 md:columns-4 gap-4">
           {[...filteredActivities]
             .sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime())
             .map((act) => (
-              <ActivityCard
-                key={act.id}
-                activity={act}
-                destinationId={destinationId}
-                tripId={tripId}
-                showActions={!!tripId}           
-              />
+              <div key={act.id} className="mb-4 break-inside-avoid  w-full max-w-[320px] mx-auto">
+                <ActivityCard
+                  activity={act}
+                  destinationId={destinationId}
+                  tripId={tripId}
+                  showActions={!!tripId}
+                />
+              </div>
             ))}
-
         </div>
       </div>
 
-      {/* your grid content */}
       <ErrorToast errorMessage={errorMessage} onClose={() => setError(null)} />
-
     </>
+
   );
 };
 
