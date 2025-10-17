@@ -22,7 +22,7 @@ const ActivityCard: React.FC<Props> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   // --- Spinner/Image logic from safer POC ---
   const imgSrc = useImageBlobSrc(activity);
   const showSpinner = isSpinnerVisible(activity);
@@ -63,43 +63,36 @@ const ActivityCard: React.FC<Props> = ({
   return (
     <>
       <div
-        className="flex flex-row items-stretch w-full h-[130px] border bg-white
-        rounded-lg shadow-sm hover:shadow-md transition cursor-pointer max-w-[400px] mx-auto sm:min-h-[160px] sm:max-w-[400px]"
+        className="bg-white rounded-lg shadow-sm hover:shadow-md transition cursor-pointer overflow-hidden w-full"
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
-        <div className="w-5/12 h-full relative flex-shrink-0">
-          <div className="aspect-[4/3] w-full h-full overflow-hidden rounded-l">
-            <img
-              src={imgSrc}
-              alt={activity.name}
-              className={`w-full  rounded-lg h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
-              style={{
-                objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
-              }}
-
-              onError={(e) => {
-                e.currentTarget.src = "/placeholder.png";
-              }}
-            />
-
-            {showSpinner && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
-                <Spinner />
-              </div>
-            )}
-          </div>
+        <div className="aspect-[3/4] w-full relative">
+          <img
+            src={imgSrc}
+            alt={activity.name}
+            className={`w-full h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+            style={{
+              objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
+            }}
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.png";
+            }}
+          />
+          {showSpinner && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+              <Spinner />
+            </div>
+          )}
         </div>
 
         {/* Text Section */}
-        <div className="w-7/12 p-2 flex flex-col justify-between h-full">
-          <div className="flex flex-col gap-1 overflow-hidden">
-            <h3 className="font-semibold text-md truncate">{activity.name}</h3>
-            <p className="text-sm text-gray-600 line-clamp-2">{truncatedDetails}</p>
-            {activity.votes !== undefined && (
-              <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
-            )}
-          </div>
+        <div className="p-3 space-y-2">
+          <h3 className="font-semibold text-md">{activity.name}</h3>
+          <p className="text-sm text-gray-600">{truncatedDetails}</p>
+          {activity.votes !== undefined && (
+            <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
+          )}
         </div>
       </div>
 
@@ -134,7 +127,6 @@ const ActivityCard: React.FC<Props> = ({
             </>
           }
         >
-
           <div className="space-y-4 text-sm">
             {imgSrc && (
               <img
@@ -146,9 +138,7 @@ const ActivityCard: React.FC<Props> = ({
                 className="w-full object-cover rounded"
               />
             )}
-
             <p className="text-gray-700 whitespace-pre-line">{activity.details}</p>
-
             <div>
               <h4 className="font-semibold mb-1">Related Link</h4>
               {activity.linkUrl ? (
@@ -166,10 +156,10 @@ const ActivityCard: React.FC<Props> = ({
               )}
             </div>
           </div>
-        </GenericModal >
+        </GenericModal>
       )}
-
     </>
+
 
   );
 };
