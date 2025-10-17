@@ -28,7 +28,7 @@ const ActivityCard: React.FC<Props> = ({
   const showSpinner = isSpinnerVisible(activity);
 
   // --- Keep truncated details logic ---
-  const truncateText = (text: string, maxLength = 120) => {
+  const truncateText = (text: string, maxLength = 40) => {
     if (!text) return "";
     if (text.length <= maxLength) return text;
     const slice = text.slice(0, maxLength);
@@ -67,7 +67,7 @@ const ActivityCard: React.FC<Props> = ({
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
-        <div className="aspect-[3/4] w-full relative">
+        <div className="w-full object-cover rounded overflow-hidden">
           <img
             src={imgSrc}
             alt={activity.name}
@@ -89,11 +89,18 @@ const ActivityCard: React.FC<Props> = ({
         {/* Text Section */}
         <div className="p-3 space-y-2">
           <h3 className="font-semibold text-md">{activity.name}</h3>
-          <p className="text-sm text-gray-600">{truncatedDetails}</p>
-          {activity.votes !== undefined && (
-            <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
-          )}
+
+          {/* Only show details and votes on md+ screens */}
+          <div className="hidden md:block space-y-1">
+            <p className="text-sm text-gray-600">{truncatedDetails}</p>
+            {activity.votes !== undefined && (
+              <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
+            )}
+          </div>
         </div>
+
+
+
       </div>
 
       {/* Modal */}

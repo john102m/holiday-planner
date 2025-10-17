@@ -52,7 +52,7 @@ const TripInfoForm: React.FC<Props> = ({
                 <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Trip title"
+                    placeholder="Title"
                     required
                     className="border rounded p-2 w-full"
                 />
@@ -64,7 +64,7 @@ const TripInfoForm: React.FC<Props> = ({
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Details about this part of the trip"
+                    placeholder="Extra info for the trip"
                     rows={4}
                     className="border rounded p-2 w-full resize-none"
                 />
@@ -86,7 +86,7 @@ const TripInfoForm: React.FC<Props> = ({
                     <input
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        placeholder="e.g. London"
+                        placeholder="e.g. New York"
                         className="border rounded p-2 w-full"
                     />
                 </div>

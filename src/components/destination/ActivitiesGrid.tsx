@@ -52,7 +52,7 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralAct
   return (
     <>
       <div className="w-full">
-        <div className="columns-2 sm:columns-2 md:columns-4 gap-4">
+        <div className="columns-2 sm:columns-3 md:columns-4 gap-4">
           {[...filteredActivities]
             .sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime())
             .map((act) => (
