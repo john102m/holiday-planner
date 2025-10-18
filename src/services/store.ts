@@ -40,7 +40,13 @@ export const addOptimisticAndQueue = async (
   // Determine if this is a CREATE operation
   const isCreate = queueType.startsWith("CREATE");
   const tempId = isCreate ? `temp-${crypto.randomUUID()}` : entity.id!;
-  const optimisticEntity = { ...entity, id: tempId };
+  const optimisticEntity = {
+    ...entity,
+    id: tempId,
+    isOptimistic: isCreate,
+    hasError: false,
+  };
+
 
   const activitiesStore = useActivitiesStore.getState();
   const packageStore = usePackageStore.getState();

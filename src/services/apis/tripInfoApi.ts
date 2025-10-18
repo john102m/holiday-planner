@@ -4,15 +4,21 @@ import { stripSasToken } from "../../components/utilities";
 
 // Create a TripInfo entry
 export const createTripInfo = async (
-    entry: Omit<TripInfo, "id" | "createdAt" | "createdBy">
+    info: Omit<TripInfo, "id" | "createdAt" | "createdBy">
 ): Promise<{ tripInfo: TripInfo; sasUrl?: string }> => {
-    console.log("📤 [API] Creating TripInfo:", entry.title);
+    console.log("📤 [API] Creating TripInfo:", info.title);
 
-    entry.imageUrl = stripSasToken(entry.imageUrl ?? "");
+    info.imageUrl = stripSasToken(info.imageUrl ?? "");
+    // const sanitized: TripInfo = {
+    //     ...entry,
+    //     startDate: entry.startDate || undefined,
+    //     endDate: entry.endDate || undefined,
+    // };
+
 
     const res = await api.post<{ tripInfo: TripInfo; sasUrl?: string }>(
         `/TripInfo/create`,
-        entry
+        info
     );
 
     console.log("✅ [API] TripInfo created:", res.data.tripInfo?.id);

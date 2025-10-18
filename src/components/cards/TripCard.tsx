@@ -18,7 +18,7 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
   return (
     <div className="w-full border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col cursor-pointer">
       {/* Card Image */}
-      <div className="relative w-full h-48">
+      <div className="relative w-full">
         <img
           src={imgSrc}
           alt={trip.name || destination.name}

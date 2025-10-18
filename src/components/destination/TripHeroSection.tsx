@@ -33,7 +33,7 @@ const TripHeroSection: React.FC<Props> = ({ trip, destination }) => {
       <img
         src={trip.imageUrl ?? "/placeholder.png"}
         alt={trip.name}
-        className="w-full h-40 sm:h-64 md:h-96 object-cover"
+        className="w-full object-cover"
       />
 
       {/* Desktop / Tablet overlay */}

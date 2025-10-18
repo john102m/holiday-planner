@@ -88,19 +88,17 @@ const ActivityCard: React.FC<Props> = ({
         </div>
 
         {/* Text Section */}
-        <div className="p-3 space-y-2">
+        <div className="p-2 pb-0 space-y-2">
           <h3 className="font-semibold text-md">{activity.name}</h3>
 
           {/* Only show details and votes on md+ screens */}
           <div className="hidden md:block space-y-1">
-            <p className="text-sm text-gray-600">{truncatedDetails}</p>
+            <p className={`text-sm text-gray-600 ${activity.votes === undefined ? 'pb-2' : ''}`}>{truncatedDetails}</p>
             {activity.votes !== undefined && (
-              <div className="text-xs text-gray-500">Votes: {activity.votes}</div>
+              <div className="text-xs text-gray-500 pb-2">Votes: {activity.votes}</div>
             )}
           </div>
         </div>
-
-
 
       </div>
 

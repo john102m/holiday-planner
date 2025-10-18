@@ -96,6 +96,8 @@ export interface ImageAttachable {
   isPendingUpload?: boolean;
   focalPointX?: number;
   focalPointY?: number;
+  isOptimistic?: boolean;
+  hasError?:boolean;
 }
 
 export interface Activity extends ImageAttachable {
