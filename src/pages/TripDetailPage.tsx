@@ -56,7 +56,6 @@ const TripDetailPage: React.FC = () => {
         navigate(`/destinations/${currentDest.id}/activities/edit?${params.toString()}`);
     }
 
-
     return (
         <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-4 pb-4">
             <TripHeroSection destination={currentDest} trip={userTrip} />

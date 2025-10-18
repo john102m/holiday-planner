@@ -81,8 +81,12 @@ const AddEditTripPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <HeroSection destination={currentDestination} />
+      <HeroSection
+        imageUrl={currentDestination?.imageUrl ?? ""}
+        description={currentDestination?.description ?? ""}
+        name={currentDestination?.name ?? ""}
 
+      />
       <h2 className="text-2xl font-bold mb-4">{isEditMode ? "Trip Summary" : "Add Trip"}</h2>
 
       <TripForm

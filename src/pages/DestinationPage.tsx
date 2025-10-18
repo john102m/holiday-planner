@@ -31,7 +31,13 @@ const DestinationPage: React.FC = () => {
   return (
     <div className="destination-page container mx-auto p-4 sm:p-6 lg:p-8">
       {/* Hero Section */}
-      <HeroSection destination={currentDC} />
+
+      <HeroSection
+        imageUrl={currentDC?.imageUrl ?? ""}
+        description={currentDC?.description ?? ""}
+        name={currentDC?.name ?? ""}
+
+      />
 
       {/* Invite & Quick Actions (stacked on mobile, inline on tablet+) */}
       <div className="flex flex-col sm:flex-row justify-between items-start mt-4 mb-4 gap-2">

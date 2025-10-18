@@ -14,7 +14,8 @@ import type { ItineraryActivity, ItineraryActivitiesBatch } from "../services/ty
 import { addOptimisticAndQueue } from "../services/store";
 import { useItinerariesStore } from "../services/slices/itinerariesSlice";
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
-import {useDestinationsStore}from "../services/slices/destinationsSlice"
+import { useDestinationsStore } from "../services/slices/destinationsSlice"
+import { useStore } from "../services/store"
 
 // Resolver utility to hydrate itineraries with full activity objects
 import { getItinerariesWithActivities } from "../services/slices/itinerariesSlice";
@@ -40,9 +41,13 @@ const ItineraryEditPage: React.FC = () => {
 
     // Get all destinations from global store
     const destinations = useDestinationsStore(state => state.destinations);
+    const trips = useStore(state => state.userTrips);
 
     // Find the current destination based on route param
     const currentDestination = destinations.find(d => d.id === destinationId);
+    console.log("looking for trip", tripId, trips);
+    const currentTrip = trips.find(d => d.id === tripId);
+
 
     // Get itineraries scoped to this destination
     const itineraries = useItinerariesStore(state => state.itineraries[destinationId ?? ""] ?? []);
@@ -114,7 +119,12 @@ const ItineraryEditPage: React.FC = () => {
     if (!itinerary) {
         return (
             <div className="container mx-auto p-4">
-                <HeroSection destination={currentDestination} />
+                <HeroSection
+                    imageUrl={currentTrip?.imageUrl ?? ""}
+                    description={currentTrip?.notes ?? ""}
+                    name={currentTrip?.name ?? ""}
+
+                />
                 <div className="mt-4 max-w-2xl mx-auto text-center">
                     <h2 className="text-xl font-bold text-gray-700 mb-2">Itinerary not found</h2>
                     <p className="text-gray-500 mb-4">
@@ -135,7 +145,13 @@ const ItineraryEditPage: React.FC = () => {
     return (
         <div className="container mx-auto p-4">
             {/* Destination hero section */}
-            <HeroSection destination={currentDestination} />
+
+                <HeroSection
+                    imageUrl={currentTrip?.imageUrl ?? ""}
+                    description={currentTrip?.notes ?? ""}
+                    name={currentTrip?.name ?? ""}
+
+                />
 
             {/* Back link */}
             <div className="mb-4 mt-2">

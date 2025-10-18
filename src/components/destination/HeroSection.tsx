@@ -1,9 +1,10 @@
 // components/destination/HeroSection.tsx
 import React from "react";
-import type { Destination } from "../../services/types";
 
 interface Props {
-  destination: Destination;
+  imageUrl: string;
+  name: string;
+  description: string;
 }
 // HeroSection component displays a large banner image with the destination name and description overlaid.
 // The image is set as a background with a gradient overlay to ensure text readability.
@@ -15,12 +16,12 @@ interface Props {
 // rounded-t-lg → rounds the top corners of the overlay for a sleek look.
 // Text still at the bottom of the image for consistency.
 
-const HeroSection: React.FC<Props> = ({ destination }) => {
+const HeroSection: React.FC<Props> = ({ imageUrl, name, description }) => {
   return (
     <div className="hero relative rounded-lg overflow-hidden shadow-md">
       <img
-        src={destination.imageUrl}
-        alt={destination.name}
+        src={imageUrl}
+        alt={name}
         className="w-full h-64 object-cover sm:h-80 md:h-96"
       />
 
@@ -30,9 +31,9 @@ const HeroSection: React.FC<Props> = ({ destination }) => {
       {/* Blurred overlay behind text */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/20 backdrop-blur-sm rounded-t-lg">
         <h1 className="text-white text-2xl sm:text-3xl font-bold">
-          {destination.name}
+          {name}
         </h1>
-        <p className="text-gray-200 mt-1">{destination.description}</p>
+        <p className="text-gray-200 mt-1">{description}</p>
       </div>
     </div>
 

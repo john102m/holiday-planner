@@ -86,8 +86,12 @@ const AddEditPackagePage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <HeroSection destination={currentDestination} />
+      <HeroSection
+        imageUrl={currentDestination?.imageUrl ?? ""}
+        description={currentDestination?.description ?? ""}
+        name={currentDestination?.name ?? ""}
 
+      />
       <div className="mt-6">
         <h2 className="text-2xl font-bold mb-4">
           {currentPackage ? "Edit Package" : "Add Package"}
