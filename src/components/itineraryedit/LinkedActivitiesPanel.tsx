@@ -4,10 +4,9 @@ import { useActivitiesStore } from "../../services/slices/activitiesSlice";
 import { addOptimisticAndQueue } from "../../services/store";
 import { QueueTypes, CollectionTypes } from "../../services/types";
 import type { Activity } from "../../services/types";
-import LinkedActivityWidget from "./LinkedActivityWidget";
-import ActivityPreview from "./ActivityPreview"; // new preview component
-import { Tooltip } from "../Tooltip";
-
+import ActivitySelector from "./ActivitySelector";
+import LinkedActivityList from "./LinkedActivityList";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 interface Props {
     itineraryId: string;
 }
@@ -114,88 +113,39 @@ const LinkedActivitiesPanel: React.FC<Props> = ({ itineraryId }) => {
     if (!itineraryId) return <p>Loading itinerary...</p>;
 
     return (
-        <div className="flex flex-col md:flex-row gap-6">
-            {/* Dropdown + Add */}
-            <div className="order-1 md:order-none w-full md:w-1/3">
-                <div className="mb-4 flex gap-2 items-center">
-                    <select
-                        value={selectedActivityId}
-                        onChange={(e) => setSelectedActivityId(e.target.value)}
-                        className="text-sm px-2 py-1 border rounded w-full"
-                    >
-                        <option value="">Select an activity</option>
-                        {filteredActivities.map((act) => (
-                            <option key={act.id} value={act.id}>
-                                {act.name}
-                            </option>
-                        ))}
-                        {filteredActivities.length === 0 && <option disabled>No available activities</option>}
-                    </select>
-
-                    <Tooltip content={!selectedActivityId ? "Select an activity first" : ""}>
-                        <button
-                            disabled={!selectedActivityId}
-                            className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
-                            onClick={handleAddActivity}
-                        >
-                            ➕ Add Activity
-                        </button>
-                    </Tooltip>
+        <div className="max-w-5xl mx-auto sm:px-4 mt-6">
+            <div className="flex flex-col md:flex-row gap-6">
+                {/* Left: Selector */}
+                <div className="w-full md:w-1/3">
+                    <ActivitySelector
+                        filteredActivities={filteredActivities}
+                        selectedActivityId={selectedActivityId}
+                        setSelectedActivityId={setSelectedActivityId}
+                        onAdd={handleAddActivity}
+                        selectedActivity={selectedActivity}
+                    />
                 </div>
 
-                {/* Preview */}
-                {selectedActivity && <ActivityPreview activity={selectedActivity} />}
+                {/* Right: Activity List */}
+                <div className="flex-1 overflow-y-auto">
+                    <LinkedActivityList
+                        joins={joins}
+                        flatActivitiesById={flatActivitiesById}
+                        onMoveJoin={moveJoin}
+                        onDelete={handleDeleteActivity}
+                        onUpdateNotes={handleSaveNotes}
+                    />
+                </div>
             </div>
 
-            {/* Activity List */}
-            <div className="order-2 md:order-none flex-1">
-                <ul className="list-none text-sm text-gray-700">
-                    {joins.map((join) => {
-                        const act = flatActivitiesById[join.activityId];
-                        if (!act) return null;
-
-                        return (
-                            <LinkedActivityWidget
-                                key={join.id}
-                                join={join}
-                                activity={act}
-                                onMoveUp={() => moveJoin("up", join.id!)}
-                                onMoveDown={() => moveJoin("down", join.id!)}
-                                onDelete={() => handleDeleteActivity(join.id!)}
-                                onUpdateNotes={(newNotes) => handleSaveNotes(join.id!, newNotes)}
-                            />
-                        );
-                    })}
-                </ul>
-            </div>
+            {/* Modal */}
             {deleteModalJoinId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/20 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-sm p-4 shadow-lg">
-                        <h3 className="text-lg font-semibold mb-2">Confirm Delete</h3>
-                        <p className="text-sm text-gray-700 mb-4">
-                            This activity has a note. Deleting it will remove the note. Are you sure?
-                        </p>
-                        <div className="flex justify-end gap-2">
-                            <button
-                                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                                onClick={() => setDeleteModalJoinId(null)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                onClick={() => confirmDelete(deleteModalJoinId)}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <DeleteConfirmModal
+                    onCancel={() => setDeleteModalJoinId(null)}
+                    onConfirm={() => confirmDelete(deleteModalJoinId)}
+                />
             )}
-
-
         </div>
-
 
     );
 };

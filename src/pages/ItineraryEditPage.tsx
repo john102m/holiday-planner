@@ -1,11 +1,4 @@
 
-// 🧠 What This Component Does
-// Resolves and displays a single itinerary based on route params
-// Pulls data from Zustand stores and hydrates it with full activity objects
-// Handles missing data gracefully (destination or itinerary)
-// Renders a clean, readable itinerary view with tags and linked activities
-// Provides navigation and editing entry points
-
 import React, { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { QueueTypes, CollectionTypes } from "../services/types"; // value import
@@ -16,13 +9,17 @@ import { useItinerariesStore } from "../services/slices/itinerariesSlice";
 import { useActivitiesStore } from "../services/slices/activitiesSlice";
 import { useDestinationsStore } from "../services/slices/destinationsSlice"
 import { useStore } from "../services/store"
+import TripHeader from "../components/itineraryedit/TripHeader";
+import ItineraryDetails from "../components/itineraryedit/ItineraryDetails";
+import ItineraryActions from "../components//itineraryedit/ItineraryActions";
+
 
 // Resolver utility to hydrate itineraries with full activity objects
 import { getItinerariesWithActivities } from "../services/slices/itinerariesSlice";
 
 // UI components
 import HeroSection from "../components/destination/HeroSection";
-import LinkedActivitiesPanel from "../components/dashboard/LinkedActivitiesPanel";
+import LinkedActivitiesPanel from "../components/itineraryedit/LinkedActivitiesPanel";
 
 const ItineraryEditPage: React.FC = () => {
     const navigate = useNavigate();
@@ -143,60 +140,16 @@ const ItineraryEditPage: React.FC = () => {
     console.log("itinerary.id", itinerary.id);
     // --- Render itinerary view ---
     return (
-        <div className="container mx-auto p-4">
-            {/* Destination hero section */}
-
-                <HeroSection
-                    imageUrl={currentTrip?.imageUrl ?? ""}
-                    description={currentTrip?.notes ?? ""}
-                    name={currentTrip?.name ?? ""}
-
-                />
-
-            {/* Back link */}
-  {/* <div className="sticky top-0 bg-white z-10 p-2 border-b flex justify-between items-center">
-  <span className="font-semibold text-sm">{currentTrip?.name}</span>
-  <button onClick={() => navigate(`/trips/${tripId}`)} className="text-blue-500 text-sm">← Back</button>
-</div> */}
-          
-            <div className="mb-4 mt-2">
-                <button
-                    onClick={() => navigate(`/trips/${tripId}`)}
-                    className="w-28 px-2 py-1 bg-orange-500 text-white rounded text-sm"
-                >
-                    ← Back
-                </button>
-            </div>
-
-            {/* Itinerary details */}
-            <div className="mt-6 max-w-3xl mx-auto">
-                <h1 className="text-3xl font-bold mb-2">{itinerary.name}</h1>
-                <p className="text-gray-600 mb-4">{itinerary.description}</p>
-
-                {/* Tags */}
-                {itinerary.tags && (
-                    <div className="flex gap-2 mb-4">
-                        {itinerary.tags.split(",").map(tag => (
-                            <span key={tag.trim()} className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
-                                {tag.trim()}
-                            </span>
-                        ))}
-                    </div>
-                )}
-
-                {/* Linked activities panel (join table rendered with full activity data) */}
-                <LinkedActivitiesPanel itineraryId={itinerary.id!} />
-
-                {/* Edit button */}
-                <div className="mt-6">
-                    <button
-                        onClick={() => handleSaveItineraryActivities(itinerary.id!)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                    >
-                        Save
-                    </button>
-                </div>
-            </div>
+        <div className="container mx-auto p-2">
+            <TripHeader
+                tripId={tripId}
+                imageUrl={currentTrip?.imageUrl ?? ""}
+                name={currentTrip?.name ?? ""}
+                notes={currentTrip?.notes ?? ""}
+            />
+            <ItineraryDetails itinerary={itinerary} />
+            <LinkedActivitiesPanel itineraryId={itinerary.id!} />
+            <ItineraryActions onSave={() => handleSaveItineraryActivities(itinerary.id!)} />
         </div>
     );
 };
