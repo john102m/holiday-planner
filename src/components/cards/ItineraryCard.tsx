@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState }from "react";
 import { useNavigate } from "react-router-dom";
 import type { ResolvedItinerary } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
@@ -6,6 +6,8 @@ import { addOptimisticAndQueue } from "../../services/store";
 //import { useItinerariesStore } from "../../services/slices/itinerariesSlice";
 //import { useActivitiesStore } from "../../services/slices/activitiesSlice"
 import { useItineraryActivities } from "../../services/useItineraryActivities";
+
+import ConfirmActionModal from "../common/ConfirmActionModal"; // adjust path as needed
 
 
 interface Props {
@@ -18,18 +20,23 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) =>
   console.log("Hello from the Main Itinerary Planning Summary Card ");
   console.log("Itinerary ID: ", itinerary.id);
   const navigate = useNavigate();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-  const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete "${itinerary.name}"?`)) {
-      await addOptimisticAndQueue(
-        CollectionTypes.Itineraries,
-        itinerary,
-        QueueTypes.DELETE_ITINERARY,
-        destinationId
-      );
-      console.log(`Queued deletion for itinerary ${itinerary.name}, feel free to add more logging at the queue.`);
-    }
+  const confirmDelete = async () => {
+    await addOptimisticAndQueue(
+      CollectionTypes.Itineraries,
+      itinerary,
+      QueueTypes.DELETE_ITINERARY,
+      destinationId
+    );
+    console.log(`Queued deletion for itinerary ${itinerary.name}`);
+    setIsConfirmModalOpen(false);
   };
+
+  const cancelDelete = () => {
+    setIsConfirmModalOpen(false);
+  };
+
 
   const itineraryActivities = useItineraryActivities(itinerary.id ?? "");
   console.log("Activities for this itinerary: ", itineraryActivities);
@@ -92,12 +99,27 @@ const ItineraryCard: React.FC<Props> = ({ itinerary, destinationId, tripId }) =>
           Edit
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => setIsConfirmModalOpen(true)}
           className="px-3 py-1 bg-red-500 text-white rounded text-sm"
         >
           Delete
         </button>
+
       </div>
+      <ConfirmActionModal
+        isOpen={isConfirmModalOpen}
+        title="Delete Itinerary"
+        message={
+          <>
+            🗑️ Are you sure you want to delete <strong>{itinerary.name}</strong>?
+          </>
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+
     </div>
   );
 };

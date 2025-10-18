@@ -7,6 +7,8 @@ import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
 import { formatDateRange } from "../../components/utilities";
+import ConfirmActionModal from "../common/ConfirmActionModal"; // adjust path if needed
+
 import placeholder from "/placeholder.png";
 
 interface Props {
@@ -33,6 +35,8 @@ const typeColors: Record<TripInfoType, string> = {
 
 const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const imgSrc = useImageBlobSrc(info);
@@ -48,17 +52,23 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
 
   const truncatedDescription = truncateText(info.description);
 
-  const handleDelete = async () => {
-    if (window.confirm(`Delete "${info.title}"?`)) {
-      await addOptimisticAndQueue(
-        CollectionTypes.TripInfo,
-        info,
-        QueueTypes.DELETE_TRIP_INFO,
-        tripId
-      );
-      console.log(`Queued deletion for TripInfo ${info.title}`);
-    }
+  const confirmDelete = async () => {
+    await addOptimisticAndQueue(
+      CollectionTypes.TripInfo,
+      info,
+      QueueTypes.DELETE_TRIP_INFO,
+      tripId
+    );
+    console.log(`Queued deletion for activity ${info.title}`);
+    setIsConfirmModalOpen(false);
+    setIsModalOpen(false); // optionally close the main modal
   };
+
+  const cancelDelete = () => {
+    setIsConfirmModalOpen(false);
+  };
+
+
   const getDomain = (url: string) => {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -133,11 +143,12 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
                   Edit
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={() => setIsConfirmModalOpen(true)}
                   className="underline text-red-500 hover:text-red-700"
                 >
                   Delete
                 </button>
+
               </>
             )
           }
@@ -177,6 +188,20 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
           </div>
         </GenericModal>
       )}
+      <ConfirmActionModal
+        isOpen={isConfirmModalOpen}
+        title="Delete Activity"
+        message={
+          <>
+            🗑️ Are you sure you want to delete <strong>{info.title}</strong>?
+          </>
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+
     </>
 
   );

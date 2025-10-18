@@ -6,6 +6,8 @@ import { addOptimisticAndQueue } from "../../services/store";
 import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
 import { GenericModal } from "../GenericModal";
+import ConfirmActionModal from "../common/ConfirmActionModal"; // adjust path if needed
+
 import placeholder from "/placeholder.png";
 
 interface Props {
@@ -21,6 +23,8 @@ const ActivityCard: React.FC<Props> = ({
   tripId,
   showActions = false,
 }) => {
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -39,19 +43,22 @@ const ActivityCard: React.FC<Props> = ({
 
   const truncatedDetails = truncateText(activity.details ?? "");
 
-  const handleDelete = async () => {
-    if (
-      window.confirm(`Are you sure you want to delete "${activity.name}"?`)
-    ) {
-      await addOptimisticAndQueue(
-        CollectionTypes.Activities,
-        activity,
-        QueueTypes.DELETE_ACTIVITY,
-        destinationId
-      );
-      console.log(`Queued deletion for activity ${activity.name}`);
-    }
+  const confirmDelete = async () => {
+    await addOptimisticAndQueue(
+      CollectionTypes.Activities,
+      activity,
+      QueueTypes.DELETE_ACTIVITY,
+      destinationId
+    );
+    console.log(`Queued deletion for activity ${activity.name}`);
+    setIsConfirmModalOpen(false);
+    setIsModalOpen(false); // optionally close the main modal
   };
+
+  const cancelDelete = () => {
+    setIsConfirmModalOpen(false);
+  };
+
 
   const getDomain = (url: string) => {
     try {
@@ -123,11 +130,12 @@ const ActivityCard: React.FC<Props> = ({
                     Edit
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setIsConfirmModalOpen(true)}
                     className="underline text-red-500 hover:text-red-700"
                   >
                     Delete
                   </button>
+
                 </>
               )}
             </>
@@ -164,6 +172,21 @@ const ActivityCard: React.FC<Props> = ({
           </div>
         </GenericModal>
       )}
+      <ConfirmActionModal
+        isOpen={isConfirmModalOpen}
+        title="Delete Activity"
+        message={
+          <>
+            🗑️ Are you sure you want to delete <strong>{activity.name}</strong>?
+          </>
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+
+
     </>
 
 

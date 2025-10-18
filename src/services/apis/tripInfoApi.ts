@@ -9,16 +9,16 @@ export const createTripInfo = async (
     console.log("📤 [API] Creating TripInfo:", info.title);
 
     info.imageUrl = stripSasToken(info.imageUrl ?? "");
-    // const sanitized: TripInfo = {
-    //     ...entry,
-    //     startDate: entry.startDate || undefined,
-    //     endDate: entry.endDate || undefined,
-    // };
+    const sanitized: TripInfo = {
+        ...info,
+        startDate: info.startDate || undefined,
+        endDate: info.endDate || undefined,
+    };
 
 
     const res = await api.post<{ tripInfo: TripInfo; sasUrl?: string }>(
         `/TripInfo/create`,
-        info
+        sanitized
     );
 
     console.log("✅ [API] TripInfo created:", res.data.tripInfo?.id);
