@@ -75,24 +75,27 @@ const ActivityCard: React.FC<Props> = ({
         onClick={() => setIsModalOpen(true)}
       >
         {/* Image Section */}
-        <div className="w-full object-cover rounded overflow-hidden">
-          <img
-            src={imgSrc}
-            alt={activity.name}
-            className={`w-full h-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
-            style={{
-              objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`
-            }}
-            onError={(e) => {
-              e.currentTarget.src = placeholder;
-            }}
-          />
-          {showSpinner && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
-              <Spinner />
-            </div>
-          )}
-        </div>
+<div className="w-full max-h-[300px] overflow-hidden rounded relative">
+  <img
+    src={imgSrc}
+    alt={activity.name}
+    className={`w-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+    style={{
+      objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`,
+      height: "100%", // ensures it fills the container
+    }}
+    onError={(e) => {
+      e.currentTarget.src = placeholder;
+    }}
+    loading="lazy"
+  />
+  {showSpinner && (
+    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+      <Spinner />
+    </div>
+  )}
+</div>
+
 
         {/* Text Section */}
         <div className="p-2 pb-0 space-y-2">

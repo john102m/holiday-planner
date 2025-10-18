@@ -85,15 +85,13 @@ const TripsSection: React.FC = () => {
         <span className="text-white text-2xl">＋</span>
       </button>
 
-      {/* Trips Grid */}
-      {/* <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"> */}
-      {/* Trips Grid */}
-      <div className="grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-
+      <div className="columns-1 sm:columns-2 md:columns-3 gap-4 px-2">
         {sortedTrips.map((trip) => {
           const destination = destinations.find((d) => d.id === trip.destinationId);
           return destination && (
-            <TripCard key={trip.id} trip={trip} destination={destination} />
+            <div key={trip.id} className="mb-4 break-inside-avoid">
+              <TripCard trip={trip} destination={destination} />
+            </div>
           );
         })}
       </div>

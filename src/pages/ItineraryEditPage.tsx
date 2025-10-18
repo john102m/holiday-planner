@@ -154,6 +154,11 @@ const ItineraryEditPage: React.FC = () => {
                 />
 
             {/* Back link */}
+  {/* <div className="sticky top-0 bg-white z-10 p-2 border-b flex justify-between items-center">
+  <span className="font-semibold text-sm">{currentTrip?.name}</span>
+  <button onClick={() => navigate(`/trips/${tripId}`)} className="text-blue-500 text-sm">← Back</button>
+</div> */}
+          
             <div className="mb-4 mt-2">
                 <button
                     onClick={() => navigate(`/trips/${tripId}`)}
