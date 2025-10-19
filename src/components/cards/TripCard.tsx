@@ -36,11 +36,17 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
       <div className="p-4 flex-1 flex flex-col">
         <h2 className="font-semibold text-lg">{trip.name || `Trip to ${destination.name}`}</h2>
 
-        {trip.startDate && trip.endDate && (
-          <p className="text-sm text-gray-500">
-            {new Date(trip.startDate).toLocaleDateString()} – {new Date(trip.endDate).toLocaleDateString()}
-          </p>
-        )}
+{trip.startDate && trip.endDate && (
+  <p className="text-sm text-gray-500 flex flex-wrap items-center gap-2">
+    <span>
+      {new Date(trip.startDate).toLocaleDateString()} – {new Date(trip.endDate).toLocaleDateString()}
+    </span>
+    {daysToGo && daysToGo > 0 && (
+      <span className="text-xs text-gray-400">🗓 {daysToGo} days to go</span>
+    )}
+  </p>
+)}
+
 
         {trip.notes && (
           <p className="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -56,9 +62,7 @@ const TripCard: React.FC<Props> = ({ trip, destination }) => {
           </div>
         )}
 
-        {daysToGo && daysToGo > 0 && (
-          <p className="text-xs text-gray-500 mt-1">🗓 {daysToGo} days to go</p>
-        )}
+
 
         <div className="flex-1" /> {/* Spacer */}
 
