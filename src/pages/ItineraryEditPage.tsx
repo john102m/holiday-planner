@@ -105,12 +105,12 @@ const ItineraryEditPage: React.FC = () => {
     };
 
     // Debug logs (can be removed once stable)
-    console.log("Trip ID:", tripId);
-    console.log("Itinerary Activities map:", itineraryActivities[itineraryId ?? ""]);
-    console.log("Raw itineraries:", itineraries);
-    console.log("Resolved itineraries:", resolvedItineraries);
-    console.log("All activities array:", allActivities);
-    console.log("Resolved itinerary:", itinerary);
+    // console.log("Trip ID:", tripId);
+    // console.log("Itinerary Activities map:", itineraryActivities[itineraryId ?? ""]);
+    // console.log("Raw itineraries:", itineraries);
+    // console.log("Resolved itineraries:", resolvedItineraries);
+    // console.log("All activities array:", allActivities);
+    // console.log("Resolved itinerary:", itinerary);
 
     // --- Handle missing itinerary ---
     if (!itinerary) {

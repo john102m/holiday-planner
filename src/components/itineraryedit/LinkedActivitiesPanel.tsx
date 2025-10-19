@@ -114,7 +114,7 @@ const LinkedActivitiesPanel: React.FC<Props> = ({ itineraryId }) => {
 
     return (
         <div className="max-w-5xl mx-auto sm:px-4 mt-6">
-            <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col md:flex-row">
                 {/* Left: Selector */}
                 <div className="w-full md:w-1/3">
                     <ActivitySelector

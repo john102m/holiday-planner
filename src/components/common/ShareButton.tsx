@@ -35,7 +35,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ url, children }) => {
     <button
       onClick={handleShare}
       disabled={isSharing}
-      className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 hover:bg-blue-600 text-white transition-colors"
+      className="w-4 h-6 flex items-center justify-center rounded-full bg-gray-300 hover:bg-blue-600 text-white transition-colors"
     >
       {children ?? "Share"}
     </button>

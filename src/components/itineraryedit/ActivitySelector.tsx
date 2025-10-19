@@ -23,7 +23,9 @@ const ActivitySelector: React.FC<Props> = ({
 
 
       {/* Dropdown + Add Button */}
-      <div className="mb-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+      {/* <div className="mb-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center"> */}
+        <div className="mb-4 flex flex-row flex-wrap gap-2 items-center">
+
         <select
           value={selectedActivityId}
           onChange={(e) => setSelectedActivityId(e.target.value)}
