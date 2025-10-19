@@ -25,6 +25,7 @@ const LinkedActivityList: React.FC<Props> = ({
                     if (!act) return null;
                     console.log(`Rendering widget for ${join.id} at index ${index}`);
                     return (
+                       
                         <LinkedActivityWidget
                             key={join.id}
                             join={join}

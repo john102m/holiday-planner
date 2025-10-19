@@ -140,7 +140,7 @@ const ItineraryEditPage: React.FC = () => {
     console.log("itinerary.id", itinerary.id);
     // --- Render itinerary view ---
     return (
-        <div className="container mx-auto p-2">
+        <div className="container mx-auto gap-4 px-2 p-2">
             <TripHeader
                 tripId={tripId}
                 imageUrl={currentTrip?.imageUrl ?? ""}

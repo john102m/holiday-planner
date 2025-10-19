@@ -32,7 +32,7 @@ const LinkedActivityWidget: React.FC<Props> = ({
         closeModal();
     };
 
-console.log(`Badge for ${join.id}: sortIndex=${sortIndex}, join.sortOrder=${join.sortOrder}`);
+    console.log(`Badge for ${join.id}: sortIndex=${sortIndex}, join.sortOrder=${join.sortOrder}`);
 
     return (
         <>
@@ -41,13 +41,10 @@ console.log(`Badge for ${join.id}: sortIndex=${sortIndex}, join.sortOrder=${join
                 <div className="flex w-full p-2 gap-2">
                     {/* Left: Image with drag + badge */}
                     <div className="w-3/8 relative">
-                        {/* Drag handle - top left */}
-                        <div className="absolute top-1 left-1 text-gray-300 hover:text-gray-500 cursor-grab select-none text-lg z-10">
-                            ⋮⋮⋮⋮
-                        </div>
+
 
                         {/* Badge - top right */}
-                        <div className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-bold shadow ring-1 ring-white z-10">
+                        <div className="absolute top-1 left-1 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-bold shadow ring-1 ring-white z-10">
                             {sortIndex + 1}
 
                         </div>
@@ -64,15 +61,26 @@ console.log(`Badge for ${join.id}: sortIndex=${sortIndex}, join.sortOrder=${join
 
                     {/* Right: Text */}
                     <div className="w-5/8 flex flex-col justify-between relative">
-                        <div className="text-sm font-medium">{activity.name}</div>
-                        {activity.details && (
-                            <div className="text-xs text-gray-500 line-clamp-2">
-                                {activity.details}
+                        {/* Top content: name + drag handle + details */}
+                        <div>
+                            <div className="flex items-start justify-between">
+                                <div className="text-sm font-medium">{activity.name}</div>
+                                <div className="text-gray-300 hover:text-gray-500 cursor-grab select-none text-lg ml-2 -translate-y-2">
+                                    ⋮⋮⋮⋮
+                                </div>
                             </div>
-                        )}
+
+                            {activity.details && (
+                                <div className="text-xs text-gray-500 line-clamp-2 mt-1">
+                                    {activity.details}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottom: Tooltip/note */}
                         <Tooltip content="Edit note">
                             <div
-                                className="text-xs italic text-blue-600 mt-1 cursor-pointer hover:underline"
+                                className="text-xs italic text-blue-600 mt-1 cursor-pointer hover:underline self-end translate-x-2"
                                 onClick={openModal}
                                 tabIndex={0}
                                 role="button"
@@ -81,7 +89,10 @@ console.log(`Badge for ${join.id}: sortIndex=${sortIndex}, join.sortOrder=${join
                                 {join.notes?.trim() || "Click to add a note"}
                             </div>
                         </Tooltip>
+
                     </div>
+
+
                 </div>
 
 

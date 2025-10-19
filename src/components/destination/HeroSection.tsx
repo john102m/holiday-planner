@@ -8,7 +8,7 @@ interface Props {
 
 const HeroSection: React.FC<Props> = ({ imageUrl, name, description }) => {
   return (
-    <div className="relative rounded-lg overflow-hidden shadow-md">
+    <div className="relative rounded-lg overflow-hidden shadow-md mt-2">
       {/* Background image */}
       <img
         src={imageUrl}

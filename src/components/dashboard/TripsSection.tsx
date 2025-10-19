@@ -85,7 +85,7 @@ const TripsSection: React.FC = () => {
         <span className="text-white text-2xl">＋</span>
       </button>
 
-      <div className="columns-1 sm:columns-2 md:columns-3 gap-4 px-2">
+      <div className="columns-1 sm:columns-2 md:columns-3 gap-4 px-1">
         {sortedTrips.map((trip) => {
           const destination = destinations.find((d) => d.id === trip.destinationId);
           return destination && (
