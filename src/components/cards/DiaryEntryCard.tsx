@@ -10,7 +10,7 @@ interface Props {
     onEdit?: (entry: DiaryEntry) => void;
 }
 
-const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
+const DiaryEntryCard: React.FC<Props> = ({ entry, onClick }) => {
     /**
      * Show spinner only if uploading is in progress.
      * - Offline only blob should not show spinner
@@ -61,16 +61,16 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
                 </div>
                 <div className="flex items-center justify-between gap-2 whitespace-nowrap text-[9px] sm:text-[10px] text-gray-400">
                     <p className="truncate">{entry.entryDate ? formatFriendlyDate(entry.entryDate, false) : "No date"}</p>
-<button
-  onClick={(e) => {
-    e.stopPropagation();
-    onEdit?.(entry);
-  }}
-  className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-amber-300 text-blue-600 text-lg shadow hover:bg-amber-400 active:bg-amber-500 transition"
-  aria-label="Edit diary entry"
->
-  ✎
-</button>
+                    {/* <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.(entry);
+                        }}
+                        className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-amber-300 text-blue-600 text-lg shadow hover:bg-amber-400 active:bg-amber-500 transition"
+                        aria-label="Edit diary entry"
+                    >
+                        ✎
+                    </button> */}
 
                 </div>
 

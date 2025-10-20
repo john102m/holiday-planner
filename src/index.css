@@ -88,6 +88,35 @@ body {
     rgba(0, 0, 0, 0.05) 23px
   );
 }
+@keyframes swipeInLeft {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes swipeInRight {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-swipe-in-left {
+  animation: swipeInLeft 0.2s ease-out;
+}
+
+.animate-swipe-in-right {
+  animation: swipeInRight 0.2s ease-out;
+}
 
 /* h1 {
   font-size: 3.2em;

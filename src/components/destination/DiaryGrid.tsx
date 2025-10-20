@@ -23,7 +23,10 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
 
     console.log("tripId: ", tripId);
     console.log("Diary entries for this trip: ", entries);
-    const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
+
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const selectedEntry = selectedIndex !== null ? entries[selectedIndex] : null;
+
     const [editEntry, setEditEntry] = useState<DiaryEntry | null>(null);
 
     return (
@@ -35,7 +38,11 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
                         <DiaryEntryCard
                             key={entry.id}
                             entry={entry}
-                            onClick={() => setSelectedEntry(entry)}
+                            onClick={() => {
+                                const index = entries.findIndex((e) => e.id === entry.id);
+                                setSelectedIndex(index);
+                            }}
+
                             onEdit={(entry) => setEditEntry(entry)}
                         />
                     ))}
@@ -43,9 +50,21 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
                 {selectedEntry && (
                     <DiaryEntryModal
                         entry={selectedEntry}
-                        onClose={() => setSelectedEntry(null)}
+                        onClose={() => setSelectedIndex(null)}
+                        onNext={() => {
+                            if (selectedIndex !== null && selectedIndex < entries.length - 1) {
+                                setSelectedIndex(selectedIndex + 1);
+                            }
+                        }}
+                        onPrev={() => {
+                            if (selectedIndex !== null && selectedIndex > 0) {
+                                setSelectedIndex(selectedIndex - 1);
+                            }
+                        }}
+                        onEdit={(entry) => setEditEntry(entry)}
                     />
                 )}
+
             </div>
             {editEntry && (
                 <AddEditDiaryEntryModal
