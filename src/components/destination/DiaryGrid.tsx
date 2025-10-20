@@ -28,7 +28,7 @@ const DiaryGrid: React.FC<Props> = ({ tripId, tripName }) => {
 
     return (
         <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 px-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 px-0">
                 {[...entries]
                     .sort((a, b) => new Date(b.entryDate ?? "").getTime() - new Date(a.entryDate ?? "").getTime())
                     .map((entry) => (
