@@ -117,7 +117,7 @@ const TripInfoCard: React.FC<Props> = ({ info, tripId, showActions = false }) =>
 
             <p className="text-sm text-gray-600 line-clamp-1">{truncatedDescription}</p>
             <div className="text-xs text-gray-500 italic">
-              {info.type} • {info.location}
+              {info.location}
             </div>
           </div>
         </div>

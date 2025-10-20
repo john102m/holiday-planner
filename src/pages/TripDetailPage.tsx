@@ -57,7 +57,9 @@ const TripDetailPage: React.FC = () => {
     }
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8 pt-3.5 pb-4">
+         
+        <div className="w-full max-w-6xl mx-auto pt-4 sm:pt-0">
+            {/*px-1 sm:px-4 lg:px-8 sm:pt-0 pt-4 pb-4*/}
             <TripHeroSection destination={currentDest} trip={userTrip} />
 
             {/* Tabs */}

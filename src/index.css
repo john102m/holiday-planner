@@ -80,6 +80,14 @@
 body {
   margin-top: 4rem; /* Adjust based on your navbar height */
 }
+.bg-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 22px,
+    rgba(0, 0, 0, 0.05) 23px
+  );
+}
 
 /* h1 {
   font-size: 3.2em;

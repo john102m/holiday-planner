@@ -32,33 +32,35 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
 
     return (
         <div
-            className="relative flex bg-yellow-50 rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full  mx-auto"
+            className="relative flex min-w-0 bg-yellow-50 bg-ruled rounded shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition w-full  mx-auto"
             onClick={onClick}
         >
             {showSpinner && (
                 <Spinner />
             )}
+            <div className="aspect-square w-full max-w-[6rem] overflow-hidden">
+                <img
+                    key={`${entry.id}`}
+                    src={imgSrc}
+                    alt={entry.title ?? "Diary Entry"}
 
-            <img
-                key={`${entry.id}`}
-                src={imgSrc}
-                alt={entry.title ?? "Diary Entry"}
-                className="w-24 h-24 object-cover flex-shrink-0"
-                style={{
-                    objectPosition: `${(entry.focalPointX ?? 0.5) * 100}% ${(entry.focalPointY ?? 0.5) * 100}%`
-                }}
-            />
-
+                    className="w-full h-full object-cover bg-gray-100"
+                    style={{
+                        objectPosition: `${(entry.focalPointX ?? 0.5) * 100}% ${(entry.focalPointY ?? 0.5) * 100}%`
+                    }}
+                />
+            </div>
             <div className="p-2 flex-1 flex flex-col justify-between gap-1">
                 <div className="flex flex-col gap-1">
-                    <h3 className="font-serif text-base line-clamp-1 font-semibold">
+                    <h3 className="font-serif text-sm sm:text-base line-clamp-1 font-semibold">
                         {entry.title ?? "Untitled Entry"}
                     </h3>
-                    <p className="text-gray-600 line-clamp-1">
+                    <p className="text-gray-600 text-xs sm:text-sm line-clamp-1">
                         {entry.entryContent ?? "No content available."}
                     </p>
                 </div>
-                <div className="flex justify-between items-center text-[10px] text-gray-400">
+                <div className="flex justify-between items-center text-[9px] sm:text-[10px] text-gray-400">
+
                     <p>{entry.entryDate ? formatFriendlyDate(entry.entryDate) : "No date"}</p>
                     <button
                         onClick={(e) => {
