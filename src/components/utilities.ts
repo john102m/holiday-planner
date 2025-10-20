@@ -5,24 +5,55 @@ export function formatDate(value: unknown): string {
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   return "";
 }
-export function formatFriendlyDate(value: unknown): string {
+// export function formatFriendlyDate(value: unknown, long: boolean = true): string {
+//   try {
+//     const date =
+//       typeof value === "string" ? new Date(value) :
+//         value instanceof Date ? value :
+//           null;
+
+//     if (!date || isNaN(date.getTime())) return "";
+
+//     return date.toLocaleDateString("en-GB", {
+//       day: "numeric",
+//       month: long ? "long" : "short",
+//       year: "numeric",
+//     });
+//   } catch {
+//     return "";
+//   }
+// }
+export function formatFriendlyDate(value: unknown, long: boolean = true): string {
   try {
     const date =
       typeof value === "string" ? new Date(value) :
-        value instanceof Date ? value :
-          null;
+      value instanceof Date ? value :
+      null;
 
     if (!date || isNaN(date.getTime())) return "";
 
-    return date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    const day = date.getDate();
+    const month = date.toLocaleString("en-GB", {
+      month: long ? "long" : "short",
     });
+    const year = String(date.getFullYear()).slice(2); // '25' from 2025
+
+    return `${day} ${month} '${year}`;
   } catch {
     return "";
   }
 }
+
+// export function formatFriendlyDate(date: Date, long = false) {
+//   const day = date.getDate();
+//   const month = date.toLocaleString("en-GB", {
+//     month: long ? "long" : "short",
+//   });
+//   const year = String(date.getFullYear()).slice(2); // gets '25' from 2025
+
+//   return `${day} ${month} '${year}`;
+// }
+
 
 export const finalizeImageUpload = (entity: ImageEntity, finalImageUrl: string): ImageEntity => {
   return {

@@ -59,19 +59,19 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
                         {entry.entryContent ?? "No content available."}
                     </p>
                 </div>
-                <div className="flex justify-between items-center text-[9px] sm:text-[10px] text-gray-400">
-
-                    <p>{entry.entryDate ? formatFriendlyDate(entry.entryDate) : "No date"}</p>
+                <div className="flex items-center justify-between gap-2 whitespace-nowrap text-[9px] sm:text-[10px] text-gray-400">
+                    <p className="truncate">{entry.entryDate ? formatFriendlyDate(entry.entryDate, false) : "No date"}</p>
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             onEdit?.(entry);
                         }}
-                        className="text-xs text-blue-600 hover:underline"
+                        className="text-blue-600 hover:underline"
                     >
                         ✎
                     </button>
                 </div>
+
             </div>
         </div>
     );
