@@ -184,7 +184,7 @@ const DiaryEntryModal: React.FC<Props> = ({ entry, onClose, onNext, onPrev, onEd
 
         </div>
       </div>
-      {/* modal content here */}
+
     </div>
   );
 };

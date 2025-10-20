@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Activity } from "../../services/types";
 import { CollectionTypes, QueueTypes } from "../../services/types";
 import { addOptimisticAndQueue } from "../../services/store";
 import Spinner from "../common/Spinner";
 import { useImageBlobSrc, isSpinnerVisible } from "../../components/common/useImageBlobSrc";
-import { GenericModal } from "../GenericModal";
+
 import ConfirmActionModal from "../common/ConfirmActionModal"; // adjust path if needed
 
 import placeholder from "/placeholder.png";
@@ -14,19 +13,18 @@ interface Props {
   activity: Activity;
   destinationId: string;
   tripId?: string;
-  showActions?: boolean; // optional, defaults to true
+  showActions?: boolean;
+  onClick?: () => void;
 }
+
 
 const ActivityCard: React.FC<Props> = ({
   activity,
   destinationId,
-  tripId,
-  showActions = false,
+
+  onClick
 }) => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   // --- Spinner/Image logic from safer POC ---
   const imgSrc = useImageBlobSrc(activity);
@@ -52,7 +50,7 @@ const ActivityCard: React.FC<Props> = ({
     );
     console.log(`Queued deletion for activity ${activity.name}`);
     setIsConfirmModalOpen(false);
-    setIsModalOpen(false); // optionally close the main modal
+
   };
 
   const cancelDelete = () => {
@@ -60,41 +58,34 @@ const ActivityCard: React.FC<Props> = ({
   };
 
 
-  const getDomain = (url: string) => {
-    try {
-      return new URL(url).hostname.replace(/^www\./, "");
-    } catch {
-      return url;
-    }
-  };
-
   return (
     <>
       <div
         className="bg-white rounded-lg shadow-sm hover:shadow-md transition cursor-pointer overflow-hidden w-full"
-        onClick={() => setIsModalOpen(true)}
+        onClick={onClick}
+
       >
         {/* Image Section */}
-<div className="w-full max-h-[300px] overflow-hidden rounded relative">
-  <img
-    src={imgSrc}
-    alt={activity.name}
-    className={`w-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
-    style={{
-      objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`,
-      height: "100%", // ensures it fills the container
-    }}
-    onError={(e) => {
-      e.currentTarget.src = placeholder;
-    }}
-    loading="lazy"
-  />
-  {showSpinner && (
-    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
-      <Spinner />
-    </div>
-  )}
-</div>
+        <div className="w-full max-h-[300px] overflow-hidden rounded relative">
+          <img
+            src={imgSrc}
+            alt={activity.name}
+            className={`w-full object-cover ${showSpinner ? "opacity-50" : "opacity-100"}`}
+            style={{
+              objectPosition: `${(activity.focalPointX ?? 0.5) * 100}% ${(activity.focalPointY ?? 0.5) * 100}%`,
+              height: "100%", // ensures it fills the container
+            }}
+            onError={(e) => {
+              e.currentTarget.src = placeholder;
+            }}
+            loading="lazy"
+          />
+          {showSpinner && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+              <Spinner />
+            </div>
+          )}
+        </div>
 
 
         {/* Text Section */}
@@ -112,69 +103,8 @@ const ActivityCard: React.FC<Props> = ({
 
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <GenericModal
-          onClose={() => setIsModalOpen(false)}
-          title={activity.name}
-          footer={
-            <>
-              {showActions && (
-                <>
-                  <button
-                    onClick={() => {
-                      const params = new URLSearchParams();
-                      params.set("activityId", activity.id ?? "");
-                      if (tripId) params.set("tripId", tripId);
-                      navigate(`/destinations/${destinationId}/activities/edit?${params.toString()}`);
-                    }}
-                    className="underline hover:text-gray-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setIsConfirmModalOpen(true)}
-                    className="underline text-red-500 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
+        
 
-                </>
-              )}
-            </>
-          }
-        >
-          <div className="space-y-4 text-sm">
-            {imgSrc && (
-              <img
-                src={imgSrc}
-                alt={activity.name}
-                onError={(e) => {
-                  e.currentTarget.src = placeholder;
-                }}
-                className="w-full object-cover rounded"
-              />
-            )}
-            <p className="text-gray-700 whitespace-pre-line">{activity.details}</p>
-            <div>
-              <h4 className="font-semibold mb-1">Related Link</h4>
-              {activity.linkUrl ? (
-                <a
-                  href={activity.linkUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline break-words"
-                  title={activity.linkUrl}
-                >
-                  {getDomain(activity.linkUrl)}
-                </a>
-              ) : (
-                <p className="text-gray-500 italic">No link provided for this activity.</p>
-              )}
-            </div>
-          </div>
-        </GenericModal>
-      )}
       <ConfirmActionModal
         isOpen={isConfirmModalOpen}
         title="Delete Activity"

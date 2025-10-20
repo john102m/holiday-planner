@@ -1,30 +1,31 @@
 // ActivitiesGrid.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useActivitiesStore } from "../../services/slices/activitiesSlice";
 import type { Activity } from "../../services/types"
 import ActivityCard from "../cards/ActivityCard";
 import ErrorToast from "../../components/common/ErrorToast";
 
+import ActivitySwipeModal from "../cards/ActivitySwipeModal";
 interface Props {
   destinationId: string;
   tripId?: string;
   hideGeneralActivities?: boolean;
 }
-// Subscribe directly in grid → automatic re-render on updates.
-// All CRUD ops go through queue → consistent handling of optimistic UI and backend sync.
-// Parent page is simpler → just passes destinationId.
-// Eliminates props stale problem → no more “name doesn’t update after hard refresh”.
-const empty: Activity[] = [];
-const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralActivities }) => {
 
+const empty: Activity[] = [];
+
+const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralActivities }) => {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const { errorMessage, setError } = useActivitiesStore();
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+
   // ✅ Selector returns either the real array from the store
   // or the stable `empty` fallback above.
   const activities = useActivitiesStore(
     (state) => state.activities[destinationId] ?? empty
   );
   // ✅ If empty → show placeholder message.
-  if (activities.length === 0) return <div>No activities added yet.</div>;
+
 
   console.log("Activties: ", activities);
   console.log("Trip Id: ", tripId);
@@ -48,6 +49,23 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralAct
     }
   });
 
+  const selectedActivity = selectedIndex !== null ? filteredActivities[selectedIndex] : null;
+  useEffect(() => {
+    if (swipeDirection) {
+      const timeout = setTimeout(() => setSwipeDirection(null), 200);
+      return () => clearTimeout(timeout);
+    }
+  }, [swipeDirection]);
+
+
+  useEffect(() => {
+    if (!selectedActivity && swipeDirection) {
+      const timeout = setTimeout(() => setSwipeDirection(null), 200);
+      return () => clearTimeout(timeout);
+    }
+  }, [selectedActivity, swipeDirection]);
+
+  if (activities.length === 0) return <div>No activities added yet.</div>;
 
   return (
     <>
@@ -62,11 +80,48 @@ const ActivitiesGrid: React.FC<Props> = ({ destinationId, tripId, hideGeneralAct
                   destinationId={destinationId}
                   tripId={tripId}
                   showActions={!!tripId}
+                  onClick={() => {
+                    const index = filteredActivities.findIndex((a) => a.id === act.id);
+                    setSelectedIndex(index);
+                  }}
                 />
+
               </div>
             ))}
         </div>
       </div>
+      {selectedActivity && (
+        <ActivitySwipeModal
+          activity={selectedActivity}
+          tripId={tripId}
+          destinationId={destinationId}
+          swipeDirection={swipeDirection}
+          onClose={() => {
+            setSwipeDirection(null);
+            setSelectedIndex(null);
+          }}
+
+          onNext={() => {
+            if (selectedIndex !== null && selectedIndex < filteredActivities.length - 1) {
+              setSwipeDirection("right");
+              setTimeout(() => {
+                setSelectedIndex(selectedIndex + 1);
+              }, 150); // match animation duration
+            }
+          }}
+
+          onPrev={() => {
+            if (selectedIndex !== null && selectedIndex > 0) {
+              setSwipeDirection("left");
+              setTimeout(() => {
+                setSelectedIndex(selectedIndex - 1);
+              }, 150);
+            }
+          }}
+
+
+        />
+      )}
 
       <ErrorToast errorMessage={errorMessage} onClose={() => setError(null)} />
     </>
