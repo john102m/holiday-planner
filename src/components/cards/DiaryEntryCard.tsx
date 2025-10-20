@@ -38,7 +38,7 @@ const DiaryEntryCard: React.FC<Props> = ({ entry, onClick, onEdit }) => {
             {showSpinner && (
                 <Spinner />
             )}
-            <div className="aspect-square w-full max-w-[6rem] overflow-hidden">
+            <div className="min-w-[45%] aspect-square w-full max-w-[6rem] overflow-hidden">
                 <img
                     key={`${entry.id}`}
                     src={imgSrc}
